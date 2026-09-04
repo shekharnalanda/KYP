@@ -39,6 +39,12 @@ class KypAuditCommand extends Command
         $checks[] = ['Learning', 'Four courses', Course::count() === 4];
         $checks[] = ['Learning', '135 sessions', LearningSession::count() === 135];
         $checks[] = ['Learning', '135 published Hindi lessons', LearningSession::where('content_status', 'published')->whereNotNull('lesson_content_hi')->count() === 135];
+        $authoredCourseware = LearningSession::whereNotNull('courseware')->get()->filter(fn ($session) =>
+            count($session->courseware['steps'] ?? []) === 10
+            && collect($session->courseware['steps'])->sum('minutes') === 120
+            && collect($session->courseware['steps'])->where('type', 'quiz')->count() === 3
+        )->count();
+        $checks[] = ['Learning', '135 detailed interactive courseware sessions', $authoredCourseware === 135];
 
         $thresholds = Course::whereIn('code', ['CIT', 'CLS', 'CSS', 'AI-DM'])->pluck('minimum_exam_sessions', 'code');
         $checks[] = ['Eligibility', 'Locked session thresholds', (int) $thresholds->get('CIT') === 48 && (int) $thresholds->get('CLS') === 32 && (int) $thresholds->get('CSS') === 16 && (int) $thresholds->get('AI-DM') === 12];
@@ -51,11 +57,11 @@ class KypAuditCommand extends Command
         $checks[] = ['Scoring', '500 raw to 100 final', $score['total_raw'] === 500.0 && $score['final_score'] === 100.0];
         $checks[] = ['Scoring', 'Automatic pass mark', (float) config('kyp.scoring.pass_mark') === 40.0 && class_exists(\App\Services\InternalAssessmentService::class)];
 
-        $checks[] = ['Operations', 'Backup and workflow commands', class_exists(\App\Console\Commands\KypBackupCommand::class) && class_exists(\App\Console\Commands\KypWorkflowTestCommand::class)];
+        $checks[] = ['Operations', 'Backup and workflow commands', class_exists(\App\Console\Commands\KypBackupCommand::class) && class_exists(\App\Console\Commands\KypWorkflowTestCommand::class) && class_exists(\App\Console\Commands\BuildKypCoursewareCommand::class)];
         $checks[] = ['Security', 'Response security middleware', class_exists(\App\Http\Middleware\SecurityHeadersMiddleware::class)];
 
         $routeNames = collect(Route::getRoutes()->getRoutes())->pluck('action.as');
-        $checks[] = ['Routes', 'Learning workflow', collect(['learning.index', 'learning.show', 'learning.complete'])->every(fn ($name) => $routeNames->contains($name))];
+        $checks[] = ['Routes', 'Learning workflow', collect(['learning.index', 'learning.show', 'learning.progress', 'learning.complete'])->every(fn ($name) => $routeNames->contains($name))];
         $checks[] = ['Routes', 'Student exam workflow', collect(['student.exams', 'student.exam.start', 'student.exam.attempt', 'student.exam.submit', 'student.exam.result'])->every(fn ($name) => $routeNames->contains($name))];
         $checks[] = ['Routes', 'Attendance operations', collect(['attendance.index', 'attendance.store', 'attendance.bulk'])->every(fn ($name) => $routeNames->contains($name))];
         $checks[] = ['Routes', 'Result and certificate workflow', collect(['admin.results', 'admin.results.publish', 'admin.results.bulk', 'student.marksheet', 'student.certificate', 'certificate.verify'])->every(fn ($name) => $routeNames->contains($name))];

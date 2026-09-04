@@ -66,7 +66,7 @@
                         </div>
                     @endif
 
-                    @if($step['type'] === 'practical' || $step['type'] === 'reflection')
+                    @if($step['type'] === 'practical')
                         <div class="interaction-card">
                             <h3>💻 Practical Activity Record</h3>
                             <p>आपने क्या किया, कौन-से steps अपनाए और क्या परिणाम मिला—स्पष्ट रूप से लिखें।</p>
@@ -88,7 +88,7 @@
                     <form method="POST" action="{{ route('learning.complete', $session) }}" id="complete-form">
                         @csrf
                         <button class="btn full" type="submit">Final Check करके Session Complete करें</button>
-                        <p class="completion-note">सभी 8 चरण, 120 active minutes, practical response और minimum {{ $session->passing_score }}% quiz score आवश्यक है।</p>
+                        <p class="completion-note">सभी {{ count($steps) }} चरण, 120 active minutes, practical response और minimum {{ $session->passing_score }}% quiz score आवश्यक है।</p>
                     </form>
                 @endif
             @endif

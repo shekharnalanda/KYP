@@ -33,7 +33,8 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
 
     Route::middleware('role:student')->group(function (): void {
         Route::get('/student', [DashboardController::class, 'student'])->name('student.dashboard');
-        Route::post('/learning/{session}/progress', [LearningSessionController::class, 'progress'])->middleware('throttle:120,1')->name('learning.progress');\n        Route::post('/learning/{session}/complete', [LearningSessionController::class, 'complete'])->middleware('throttle:20,1')->name('learning.complete');
+        Route::post('/learning/{session}/progress', [LearningSessionController::class, 'progress'])->middleware('throttle:120,1')->name('learning.progress');
+        Route::post('/learning/{session}/complete', [LearningSessionController::class, 'complete'])->middleware('throttle:20,1')->name('learning.complete');
         Route::get('/student/exams', [ExamController::class, 'index'])->name('student.exams');
         Route::post('/student/exams/{exam}/start', [ExamController::class, 'start'])->middleware('throttle:10,1')->name('student.exam.start');
         Route::get('/student/attempts/{attempt}', [ExamController::class, 'attempt'])->name('student.exam.attempt');

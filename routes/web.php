@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ResultController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -24,6 +25,8 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/student/attempts/{attempt}', [ExamController::class, 'attempt'])->name('student.exam.attempt');
         Route::post('/student/attempts/{attempt}/submit', [ExamController::class, 'submit'])->middleware('throttle:5,1')->name('student.exam.submit');
         Route::get('/student/results/{result}', [ExamController::class, 'result'])->name('student.exam.result');
+        Route::get('/student/marksheets/{result}', [ResultController::class, 'marksheet'])->name('student.marksheet');
+        Route::get('/student/certificates/{certificate}', [ResultController::class, 'certificate'])->name('student.certificate');
     });
 
     Route::middleware('role:teacher,admin,master_admin')->group(function (): void {
@@ -32,5 +35,10 @@ Route::middleware('auth')->group(function (): void {
     });
 
     Route::get('/teacher', [DashboardController::class, 'teacher'])->middleware('role:teacher')->name('teacher.dashboard');
-    Route::get('/admin', [DashboardController::class, 'admin'])->middleware('role:admin,master_admin')->name('admin.dashboard');
+
+    Route::middleware('role:admin,master_admin')->group(function (): void {
+        Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
+        Route::get('/admin/results', [ResultController::class, 'index'])->name('admin.results');
+        Route::post('/admin/results/{result}/publish', [ResultController::class, 'publish'])->middleware('throttle:30,1')->name('admin.results.publish');
+    });
 });

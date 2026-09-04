@@ -14,25 +14,12 @@ class CoursewareContentBuilder
         $profile = $this->profile($code, $number, $topic);
         $stage = ['देखें और पहचानें', 'समझाकर बताएँ', 'निर्देश के साथ करें', 'स्वयं करके जाँचें', 'त्रुटि खोजकर सुधारें'][$number % 5];
 
-        $processQuestion = $this->question("{$code}-{$number}-process", "{$topic} सीखते समय सबसे प्रभावी कार्य-पद्धति कौन-सी है?", $profile['correct_process'], [
-            'बिना उद्देश्य समझे जल्दी-जल्दी सभी विकल्प दबाना',
-            'केवल उत्तर याद करना और practical छोड़ देना',
-            'दूसरे विद्यार्थी का output अपने नाम से जमा करना',
-        ], $number, 0);
-        $evidenceQuestion = $this->question("{$code}-{$number}-evidence", "{$topic} की practical completion का सबसे विश्वसनीय evidence क्या है?", $profile['evidence'], [
-            'केवल यह कहना कि काम पूरा हो गया',
-            'खाली file या अधूरा response',
-            'विषय से अलग screenshot या उत्तर',
-        ], $number, 1);
-        $safetyQuestion = $this->question("{$code}-{$number}-safety", "{$topic} को वास्तविक परिस्थिति में लागू करते समय सबसे जरूरी बात क्या है?", $profile['safety'], [
-            'गति के लिए जाँच और अनुमति को छोड़ देना',
-            'निजी जानकारी सार्वजनिक रूप से साझा करना',
-            'गलती छिपाकर बिना review के submit करना',
-        ], $number, 2);
+        $questions = $this->questions($code, $number, $topic, $profile);
 
-        return [
-            'version' => 2,
-            'language' => 'hi',
+
+        $courseware = [
+            'version' => 3,
+            'language' => 'hi-en',
             'topic' => $topic,
             'outcomes' => [
                 "{$topic} की जरूरी अवधारणाओं को अपने शब्दों में समझाना",
@@ -81,7 +68,6 @@ class CoursewareContentBuilder
                     'type' => 'quiz',
                     'title' => 'Checkpoint 1 — सही प्रक्रिया',
                     'content' => "नीचे दिए विकल्पों में {$topic} के लिए सबसे सही प्रक्रिया चुनें। उत्तर देने से पहले guided demonstration के क्रम को याद करें।",
-                    'interaction' => $processQuestion,
                 ],
                 [
                     'id' => 'lab-project',
@@ -96,7 +82,6 @@ class CoursewareContentBuilder
                     'type' => 'quiz',
                     'title' => 'Checkpoint 2 — परिणाम की जाँच',
                     'content' => "सिर्फ task कर देना पर्याप्त नहीं है। सही evidence से सिद्ध होना चाहिए कि skill समझी और लागू की गई है।",
-                    'interaction' => $evidenceQuestion,
                 ],
                 [
                     'id' => 'check-3',
@@ -104,7 +89,6 @@ class CoursewareContentBuilder
                     'type' => 'quiz',
                     'title' => 'Checkpoint 3 — सुरक्षित उपयोग',
                     'content' => "कौशल तभी उपयोगी है जब उसका उपयोग जिम्मेदारी, शुद्धता और सुरक्षा के साथ किया जाए। परिस्थिति पढ़कर सही प्राथमिकता चुनें।",
-                    'interaction' => $safetyQuestion,
                 ],
                 [
                     'id' => 'reflection-final',
@@ -115,6 +99,13 @@ class CoursewareContentBuilder
                 ],
             ],
         ];
+
+        foreach ($courseware['steps'] as $index => &$step) {
+            $step['interactions'] = [$questions[$index]];
+        }
+        unset($step);
+
+        return $courseware;
     }
 
     private function profile(string $code, int $number, string $topic): array
@@ -211,7 +202,39 @@ class CoursewareContentBuilder
         return $this->make('व्यावहारिक कौशल विकास', "{$topic} को concept, process और verified output के रूप में सीखना चाहिए।", 'उद्देश्य समझें, चरणबद्ध task करें, result जाँचें और evidence प्रस्तुत करें।', "{$topic} पर guided तथा independent task पूरा करें।", 'पूर्ण output, checklist और learner explanation', 'सुरक्षा, privacy, honesty और permission का पालन करें।', 'वास्तविक जीवन में कौशल लागू करना है।', 'concept, process, practice, evidence, review', 'समझकर चरणबद्ध अभ्यास और verification करना');
     }
 
-    private function question(string $id, string $prompt, string $correctAnswer, array $distractors, int $sessionNumber, int $offset): array
+    private function questions(string $code, int $number, string $topic, array $profile): array
+    {
+        $specs = [
+            ['goal', "{$topic} सीखने का मुख्य उद्देश्य क्या है?", 'What is the main goal of learning this session topic?', $profile['foundation'], 'Understand the concept and connect it to a correct practical result.'],
+            ['terms', "{$topic} के जरूरी शब्द सीखने का सही तरीका क्या है?", 'How should the key terms of this topic be learned?', $profile['terms'].' को उदाहरण के साथ पहचानना और समझाना', 'Identify the key terms, connect them with examples, and explain their meaning.'],
+            ['example', "worked example में सही सोच कौन-सी है?", 'Which approach is correct in the worked example?', $profile['correct_process'], 'Understand the need, perform the steps in order, and verify the result.'],
+            ['demo', "guided demonstration के दौरान विद्यार्थी को क्या करना चाहिए?", 'What should a learner do during the guided demonstration?', 'हर चरण देखकर उसका कारण बताना और कम-से-कम एक चरण स्वयं करना', 'Observe each step, explain why it is needed, and perform at least one step.'],
+            ['practice', "guided practice को प्रभावी बनाने का सही तरीका क्या है?", 'What makes guided practice effective?', $profile['practice'].' तथा checklist से result जाँचना', 'Complete the assigned practice and verify the result with the checklist.'],
+            ['process', "{$topic} सीखते समय सबसे प्रभावी कार्य-पद्धति कौन-सी है?", 'Which is the most effective method for learning this topic?', $profile['correct_process'], 'Understand the goal, follow the correct steps, and verify the result.'],
+            ['lab', "independent lab challenge में क्या प्रस्तुत करना जरूरी है?", 'What must be submitted in the independent lab challenge?', $profile['evidence'].' के साथ steps, कठिनाई और सुधार', 'Submit verified evidence with the steps, difficulty faced, and improvement made.'],
+            ['evidence', "{$topic} की practical completion का सबसे विश्वसनीय evidence क्या है?", 'What is the most reliable evidence of practical completion for this topic?', $profile['evidence'], 'A verified output, completed checklist, and learner explanation.'],
+            ['safety', "{$topic} को वास्तविक परिस्थिति में लागू करते समय सबसे जरूरी बात क्या है?", 'What is most important when applying this topic in a real situation?', $profile['safety'], 'Use the tool carefully and respect accessibility, permissions, privacy, and data safety.'],
+            ['review', "session पूरा करने से पहले final review में क्या जाँचना चाहिए?", 'What should be checked in the final review before completing the session?', 'सभी steps, quiz answers, practical evidence और वास्तविक उपयोग की explanation', 'Check every step, quiz answer, practical evidence, and explanation of real-life use.'],
+        ];
+
+        return collect($specs)->map(function (array $spec, int $offset) use ($code, $number): array {
+            return $this->question(
+                "{$code}-{$number}-{$spec[0]}",
+                $spec[1],
+                $spec[2],
+                ['hi' => $spec[3], 'en' => $spec[4]],
+                [
+                    ['hi' => 'बिना उद्देश्य समझे जल्दी-जल्दी विकल्प चुनना', 'en' => 'Choose options quickly without understanding the goal.'],
+                    ['hi' => 'केवल उत्तर याद करना और practical छोड़ देना', 'en' => 'Memorize only the answer and skip the practical task.'],
+                    ['hi' => 'दूसरे विद्यार्थी का काम बिना review अपने नाम से जमा करना', 'en' => 'Submit another learner’s work without review as your own.'],
+                ],
+                $number,
+                $offset
+            );
+        })->all();
+    }
+
+    private function question(string $id, string $promptHi, string $promptEn, array $correctAnswer, array $distractors, int $sessionNumber, int $offset): array
     {
         $options = [$correctAnswer, ...$distractors];
         $rotation = ($sessionNumber + $offset) % count($options);
@@ -220,7 +243,8 @@ class CoursewareContentBuilder
 
         return [
             'id' => $id,
-            'prompt' => $prompt,
+            'prompt_hi' => $promptHi,
+            'prompt_en' => $promptEn,
             'options' => $options,
             'correct' => (string) $correct,
         ];

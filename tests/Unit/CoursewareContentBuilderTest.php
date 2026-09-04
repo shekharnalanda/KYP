@@ -20,10 +20,16 @@ class CoursewareContentBuilderTest extends TestCase
         $courseware = app(CoursewareContentBuilder::class)->build($session);
         $steps = collect($courseware['steps']);
 
-        $this->assertSame(2, $courseware['version']);
+        $this->assertSame(3, $courseware['version']);
         $this->assertCount(10, $steps);
         $this->assertSame(120, $steps->sum('minutes'));
-        $this->assertCount(3, $steps->where('type', 'quiz'));
+        $questions = $steps->flatMap(fn (array $step) => $step['interactions'] ?? []);
+        $this->assertCount(10, $questions);
+        $this->assertTrue($questions->every(fn (array $question) =>
+            filled($question['prompt_hi'])
+            && filled($question['prompt_en'])
+            && collect($question['options'])->every(fn (array $option) => filled($option['hi']) && filled($option['en']))
+        ));
         $this->assertTrue($steps->contains('type', 'practical'));
         $this->assertStringContainsString($topic, $steps->first()['content']);
         $this->assertCount(3, $courseware['outcomes']);

@@ -8,6 +8,15 @@
     $activeSeconds = (int) ($progress?->active_seconds ?? 0);
     $requiredSeconds = ((int) $session->required_active_minutes) * 60;
     $initialStep = (int) ($progress?->current_step ?? 0);
+    $allQuestions = collect($steps)->flatMap(fn(array $step) => $step['interactions'] ?? (isset($step['interaction']) ? [$step['interaction']] : []));
+    $correctAnswers = $allQuestions->mapWithKeys(fn(array $question) => [$question['id'] => (string) $question['correct']]);
+    $flowMap = [
+        'CIT' => [['इनपुट', 'Input'], ['प्रोसेसिंग', 'Processing'], ['आउटपुट', 'Output'], ['संग्रह', 'Storage']],
+        'CLS' => [['सुनें', 'Listen'], ['समझें', 'Understand'], ['बोलें', 'Speak'], ['समीक्षा', 'Review']],
+        'CSS' => [['स्थिति', 'Situation'], ['विकल्प', 'Choice'], ['कार्रवाई', 'Action'], ['परिणाम', 'Result']],
+        'AI-DM' => [['प्रॉम्प्ट', 'Prompt'], ['AI प्रारूप', 'AI Draft'], ['सत्यापन', 'Verify'], ['सुधार', 'Improve']],
+    ];
+    $flow = $flowMap[$session->course->code] ?? $flowMap['CIT'];
 @endphp
 <div class="panel-shell"><div class="container">
 <div class="panel courseware-shell" data-student="{{ auth()->user()->hasRole('student') ? '1' : '0' }}">
@@ -46,25 +55,34 @@
                 <section class="learning-step" data-step="{{ $index }}" data-step-id="{{ $step['id'] }}" hidden>
                     <div class="step-meta"><span>{{ strtoupper($step['type']) }}</span><span>⏱ {{ $step['minutes'] }} मिनट</span></div>
                     <h2>{{ $step['title'] }}</h2>
-                    <div class="concept-visual" aria-hidden="true">
-                        <span></span><span></span><span></span><b>{{ $session->course->code }}</b>
+                    <div class="process-animation" role="img" aria-label="{{ $session->course->code }} learning process">
+                        <div class="flow-line"><span class="flow-pulse"></span></div>
+                        @foreach($flow as $flowIndex => $flowItem)
+                            <div class="flow-node">
+                                <span class="flow-number">{{ $flowIndex + 1 }}</span>
+                                <strong>{{ $flowItem[0] }}</strong>
+                                <small>{{ $flowItem[1] }}</small>
+                            </div>
+                        @endforeach
                     </div>
                     <div class="lesson-copy">{!! nl2br(e($step['content'] ?? '')) !!}</div>
 
-                    @if(isset($step['interaction']))
-                        @php($interaction = $step['interaction'])
+                    @foreach(($step['interactions'] ?? (isset($step['interaction']) ? [$step['interaction']] : [])) as $interaction)
                         <div class="interaction-card">
-                            <h3>🧠 Interactive Question</h3>
-                            <p>{{ $interaction['prompt'] }}</p>
+                            <h3>🧠 Interactive Question • द्विभाषी प्रश्न</h3>
+                            <p class="question-hi">{{ $interaction['prompt_hi'] ?? $interaction['prompt'] }}</p>
+                            <p class="question-en" lang="en">{{ $interaction['prompt_en'] ?? '' }}</p>
                             @foreach($interaction['options'] as $optionIndex => $option)
+                                @php($optionHi = is_array($option) ? $option['hi'] : $option)
+                                @php($optionEn = is_array($option) ? ($option['en'] ?? '') : '')
                                 <label class="choice">
                                     <input type="radio" name="{{ $interaction['id'] }}" value="{{ $optionIndex }}" @checked((string)($savedAnswers[$interaction['id']] ?? '') === (string)$optionIndex)>
-                                    <span>{{ $option }}</span>
+                                    <span><b>{{ $optionHi }}</b><small class="option-en" lang="en">{{ $optionEn }}</small></span>
                                 </label>
                             @endforeach
                             <div class="answer-feedback" data-feedback="{{ $interaction['id'] }}"></div>
                         </div>
-                    @endif
+                    @endforeach
 
                     @if($step['type'] === 'practical')
                         <div class="interaction-card">
@@ -97,8 +115,8 @@
 </div></div></div>
 
 <style>
-.courseware-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}.learning-status{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:24px 0;padding:18px;border:1px solid #cfe0f4;border-radius:18px;background:#f7fbff}.learning-status>div{display:grid;gap:5px}.learning-status span{color:var(--muted);font-size:14px}.status-grow{flex:1;min-width:220px}.progress-track{height:10px;border-radius:99px;background:#dce8f6;overflow:hidden}.progress-track div{height:100%;background:linear-gradient(90deg,var(--teal),#0b86d7);transition:width .35s}.save-state{font-size:13px;color:#057d78}.courseware-grid{display:grid;grid-template-columns:270px 1fr;gap:24px}.step-nav{display:grid;gap:9px;align-content:start;position:sticky;top:18px}.step-link{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:10px;text-align:left;padding:12px;border:1px solid #d8e5f3;background:#fff;border-radius:13px;color:var(--ink);cursor:pointer}.step-link span{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eaf2fb;color:var(--navy);font-weight:800}.step-link b{font-size:13px}.step-link small{color:var(--muted);font-size:11px}.step-link.active{border-color:var(--teal);box-shadow:0 0 0 3px rgba(17,197,189,.13)}.step-link.done span{background:#d9fbef;color:#087443}.step-stage{min-width:0}.learning-step{min-height:550px;padding:30px;border:1px solid #dce8f6;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(7,39,83,.07)}.step-meta{display:flex;justify-content:space-between;color:#057d78;font-weight:800;font-size:12px}.learning-step h2{font-size:clamp(26px,4vw,38px);color:var(--navy)}.lesson-copy{font-size:17px;line-height:1.85;white-space:normal}.concept-visual{height:110px;border-radius:18px;margin:18px 0 24px;background:linear-gradient(130deg,#062b63,#0b6b8c);display:flex;align-items:center;justify-content:center;gap:14px;overflow:hidden}.concept-visual span{width:22px;height:22px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite alternate}.concept-visual span:nth-child(2){animation-delay:.3s}.concept-visual span:nth-child(3){animation-delay:.6s}.concept-visual b{font-size:32px;color:#fff;margin-left:12px}@keyframes pulse{to{transform:translateY(-15px) scale(1.15);background:var(--orange)}}.interaction-card{margin-top:26px;padding:22px;border-radius:17px;background:#f2f9ff;border:1px solid #cfe0f4}.choice{display:flex;gap:10px;align-items:flex-start;padding:12px;margin:9px 0;background:#fff;border:1px solid #dce8f6;border-radius:11px;cursor:pointer}.choice input{margin-top:4px}.answer-feedback{font-weight:700;margin-top:10px}.interaction-card textarea{width:100%;padding:14px;border-radius:12px;border:1px solid #bfd1e5;font:inherit;line-height:1.6}.step-actions{display:flex;justify-content:space-between;gap:12px;margin-top:28px}.notice{margin:18px 0;padding:14px;border-radius:12px}.success{background:#e8fff4;color:#087443;border:1px solid #a9e8cc}.error-box{background:#fff0ee;color:#a12a20;border:1px solid #f1bab4}.completion-note{text-align:center;color:var(--muted);font-size:13px}.full{width:100%;margin-top:22px}
-@media(max-width:850px){.courseware-grid{grid-template-columns:1fr}.step-nav{position:static;grid-template-columns:repeat(2,1fr)}.learning-step{padding:22px}.step-link{grid-template-columns:32px 1fr}.step-link small{display:none}}@media(max-width:520px){.step-nav{grid-template-columns:1fr}.step-actions{flex-direction:column-reverse}.step-actions .btn{width:100%}}
+.courseware-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}.learning-status{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:24px 0;padding:18px;border:1px solid #cfe0f4;border-radius:18px;background:#f7fbff}.learning-status>div{display:grid;gap:5px}.learning-status span{color:var(--muted);font-size:14px}.status-grow{flex:1;min-width:220px}.progress-track{height:10px;border-radius:99px;background:#dce8f6;overflow:hidden}.progress-track div{height:100%;background:linear-gradient(90deg,var(--teal),#0b86d7);transition:width .35s}.save-state{font-size:13px;color:#057d78}.courseware-grid{display:grid;grid-template-columns:270px 1fr;gap:24px}.step-nav{display:grid;gap:9px;align-content:start;position:sticky;top:18px}.step-link{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:10px;text-align:left;padding:12px;border:1px solid #d8e5f3;background:#fff;border-radius:13px;color:var(--ink);cursor:pointer}.step-link span{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eaf2fb;color:var(--navy);font-weight:800}.step-link b{font-size:13px}.step-link small{color:var(--muted);font-size:11px}.step-link.active{border-color:var(--teal);box-shadow:0 0 0 3px rgba(17,197,189,.13)}.step-link.done span{background:#d9fbef;color:#087443}.step-stage{min-width:0}.learning-step{min-height:550px;padding:30px;border:1px solid #dce8f6;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(7,39,83,.07)}.step-meta{display:flex;justify-content:space-between;color:#057d78;font-weight:800;font-size:12px}.learning-step h2{font-size:clamp(26px,4vw,38px);color:var(--navy)}.lesson-copy{font-size:17px;line-height:1.85;white-space:normal}.process-animation{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 24px;padding:25px 18px;border-radius:18px;background:linear-gradient(130deg,#062b63,#0b6b8c);overflow:hidden;color:#fff}.flow-line{position:absolute;left:11%;right:11%;top:45px;height:4px;border-radius:9px;background:rgba(255,255,255,.35)}.flow-pulse{display:block;width:16px;height:16px;margin-top:-6px;border-radius:50%;background:#ffd166;box-shadow:0 0 18px #ffd166;animation:flowMove 4s linear infinite}.flow-node{position:relative;z-index:1;text-align:center}.flow-number{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 10px;border-radius:50%;background:#fff;color:#06366b;font-weight:900}.flow-node strong,.flow-node small{display:block}.flow-node small{margin-top:3px;color:#d9f7ff}@keyframes flowMove{from{transform:translateX(0)}to{transform:translateX(calc(78vw - 120px))}}.interaction-card{margin-top:26px;padding:22px;border-radius:17px;background:#f2f9ff;border:1px solid #cfe0f4}.question-hi{font-size:18px;font-weight:800;margin-bottom:3px}.question-en{margin-top:0;color:#38536f;font-size:15px}.choice{display:flex;gap:10px;align-items:flex-start;padding:12px;margin:9px 0;background:#fff;border:1px solid #dce8f6;border-radius:11px;cursor:pointer}.choice input{margin-top:5px;flex:0 0 auto}.choice span{display:block}.option-en{display:block;margin-top:5px;color:#526a82;font-weight:500;line-height:1.45}.answer-feedback{font-weight:700;margin-top:10px}.interaction-card textarea{width:100%;padding:14px;border-radius:12px;border:1px solid #bfd1e5;font:inherit;line-height:1.6}.step-actions{display:flex;justify-content:space-between;gap:12px;margin-top:28px}.notice{margin:18px 0;padding:14px;border-radius:12px}.success{background:#e8fff4;color:#087443;border:1px solid #a9e8cc}.error-box{background:#fff0ee;color:#a12a20;border:1px solid #f1bab4}.completion-note{text-align:center;color:var(--muted);font-size:13px}.full{width:100%;margin-top:22px}
+@media(max-width:850px){.courseware-grid{grid-template-columns:1fr}.step-nav{position:static;grid-template-columns:repeat(2,1fr)}.learning-step{padding:22px}.step-link{grid-template-columns:32px 1fr}.step-link small{display:none}}@media(prefers-reduced-motion:reduce){.flow-pulse{animation:none}}@media(max-width:650px){.process-animation{grid-template-columns:repeat(2,1fr)}.flow-line{display:none}}@media(max-width:520px){.step-nav{grid-template-columns:1fr}.step-actions{flex-direction:column-reverse}.step-actions .btn{width:100%}}
 </style>
 
 @if(auth()->user()->hasRole('student') && !$completed)
@@ -108,7 +126,7 @@
     const nav = [...document.querySelectorAll('.step-link')];
     const token = document.querySelector('meta[name="csrf-token"]')?.content || @json(csrf_token());
     const saveUrl = @json(route('learning.progress', $session));
-    const correctAnswers = @json(collect($steps)->pluck('interaction')->filter()->mapWithKeys(fn($q) => [$q['id'] => (string)$q['correct']]));
+    const correctAnswers = @json($correctAnswers);
     let current = Math.min(@json($initialStep), Math.max(0, steps.length - 1));
     let completed = new Set(@json($savedSteps));
     let answers = @json($savedAnswers);
@@ -164,7 +182,7 @@
     document.querySelectorAll('input[type="radio"]').forEach(input => input.addEventListener('change', event => {
         answers[event.target.name] = event.target.value;
         const feedback = document.querySelector('[data-feedback="'+event.target.name+'"]');
-        feedback.textContent = correctAnswers[event.target.name] === event.target.value ? 'सही उत्तर ✓' : 'फिर से सोचें और lesson के practical भाग को दोहराएँ।';
+        feedback.textContent = correctAnswers[event.target.name] === event.target.value ? 'सही उत्तर ✓ • Correct answer' : 'फिर से सोचें • Think again and review the practical step.';
         feedback.style.color = correctAnswers[event.target.name] === event.target.value ? '#087443' : '#a12a20';
         save();
     }));

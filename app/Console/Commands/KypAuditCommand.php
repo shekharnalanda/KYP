@@ -39,12 +39,21 @@ class KypAuditCommand extends Command
         $checks[] = ['Learning', 'Four courses', Course::count() === 4];
         $checks[] = ['Learning', '135 sessions', LearningSession::count() === 135];
         $checks[] = ['Learning', '135 published Hindi lessons', LearningSession::where('content_status', 'published')->whereNotNull('lesson_content_hi')->count() === 135];
-        $authoredCourseware = LearningSession::whereNotNull('courseware')->get()->filter(fn ($session) =>
-            count($session->courseware['steps'] ?? []) === 10
-            && collect($session->courseware['steps'])->sum('minutes') === 120
-            && collect($session->courseware['steps'])->where('type', 'quiz')->count() === 3
-        )->count();
-        $checks[] = ['Learning', '135 detailed interactive courseware sessions', $authoredCourseware === 135];
+        $authoredCourseware = LearningSession::whereNotNull('courseware')->get()->filter(function ($session): bool {
+            $steps = collect($session->courseware['steps'] ?? []);
+            $questions = $steps->flatMap(fn (array $step) => $step['interactions'] ?? []);
+
+            return $steps->count() === 10
+                && $steps->sum('minutes') === 120
+                && $questions->count() >= 10
+                && $questions->every(fn (array $question) =>
+                    filled($question['prompt_hi'] ?? null)
+                    && filled($question['prompt_en'] ?? null)
+                    && count($question['options'] ?? []) === 4
+                    && collect($question['options'])->every(fn (array $option) => filled($option['hi'] ?? null) && filled($option['en'] ?? null))
+                );
+        })->count();
+        $checks[] = ['Learning', '135 bilingual 10-question interactive sessions', $authoredCourseware === 135];
 
         $thresholds = Course::whereIn('code', ['CIT', 'CLS', 'CSS', 'AI-DM'])->pluck('minimum_exam_sessions', 'code');
         $checks[] = ['Eligibility', 'Locked session thresholds', (int) $thresholds->get('CIT') === 48 && (int) $thresholds->get('CLS') === 32 && (int) $thresholds->get('CSS') === 16 && (int) $thresholds->get('AI-DM') === 12];

@@ -47,7 +47,9 @@ class CoursewareService
 
     public function score(array $courseware, array $answers): float
     {
-        $questions = collect($courseware['steps'] ?? [])->pluck('interaction')->filter();
+        $questions = collect($courseware['steps'] ?? [])->flatMap(
+            fn (array $step) => $step['interactions'] ?? (isset($step['interaction']) ? [$step['interaction']] : [])
+        );
         if ($questions->isEmpty()) {
             return 100.0;
         }

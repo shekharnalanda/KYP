@@ -9,7 +9,8 @@
 <h2>{{ $certificate->result->examAttempt->exam->course->name }}</h2>
 <p><strong>Final Score:</strong> {{ $certificate->result->final_score }}/100</p>
 <p><strong>Certificate No:</strong> {{ $certificate->serial_number }}</p>
-<p><strong>Verification Token:</strong> {{ $certificate->qr_token }}</p>
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=170x170&data={{ urlencode(route('certificate.verify', $certificate->qr_token)) }}" alt="Certificate verification QR" width="170" height="170" style="display:block;margin:18px auto">
+<p style="font-size:12px;word-break:break-all">{{ route('certificate.verify', $certificate->qr_token) }}</p>
 <p>Issued on {{ $certificate->issued_at->format('d F Y') }}</p>
 <button class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
 </div></div></div>

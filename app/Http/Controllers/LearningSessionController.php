@@ -6,9 +6,13 @@ use App\Models\ActivityRecord;
 use App\Models\AttendanceRecord;
 use App\Models\Course;
 use App\Models\LearningSession;
+use App\Models\LearningSessionProgress;
+use App\Services\CoursewareService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class LearningSessionController extends Controller
@@ -16,49 +20,155 @@ class LearningSessionController extends Controller
     public function index(Request $request): View
     {
         $courses = Course::where('is_active', true)->orderBy('position')->with('sessions')->get();
-        $completedIds = $request->user()->hasRole('student')
-            ? ActivityRecord::where('user_id', $request->user()->id)->where('status', 'completed')->pluck('learning_session_id')
-            : collect();
-
-        return view('learning.index', compact('courses', 'completedIds'));
-    }
-
-    public function show(Request $request, LearningSession $session): View
-    {
-        $session->load('course');
-        $completed = false;
+        $completedIds = collect();
+        $progressMap = collect();
 
         if ($request->user()->hasRole('student')) {
-            $previous = LearningSession::where('course_id', $session->course_id)
-                ->where('session_number', '<', $session->session_number)
-                ->orderByDesc('session_number')
-                ->first();
+            $completedIds = ActivityRecord::where('user_id', $request->user()->id)
+                ->where('status', 'completed')
+                ->pluck('learning_session_id');
 
-            if ($previous) {
-                $previousCompleted = ActivityRecord::where('user_id', $request->user()->id)
-                    ->where('learning_session_id', $previous->id)
-                    ->where('status', 'completed')
-                    ->exists();
-                abort_unless($previousCompleted, 403, 'Previous session must be completed first.');
-            }
+            $progressMap = LearningSessionProgress::where('user_id', $request->user()->id)
+                ->get()
+                ->keyBy('learning_session_id');
+        }
 
+        return view('learning.index', compact('courses', 'completedIds', 'progressMap'));
+    }
+
+    public function show(Request $request, LearningSession $session, CoursewareService $coursewareService): View
+    {
+        $session->load('course');
+        $this->ensureSequentialAccess($request, $session);
+
+        $completed = false;
+        $progress = null;
+        $courseware = $coursewareService->for($session);
+
+        if ($request->user()->hasRole('student')) {
             $completed = ActivityRecord::where('user_id', $request->user()->id)
                 ->where('learning_session_id', $session->id)
                 ->where('status', 'completed')
                 ->exists();
+
+            $progress = LearningSessionProgress::firstOrCreate(
+                ['user_id' => $request->user()->id, 'learning_session_id' => $session->id],
+                ['last_activity_at' => now()]
+            );
         }
 
-        return view('learning.show', compact('session', 'completed'));
+        return view('learning.show', compact('session', 'completed', 'progress', 'courseware'));
     }
 
-    public function complete(Request $request, LearningSession $session): RedirectResponse
+    public function progress(Request $request, LearningSession $session, CoursewareService $coursewareService): JsonResponse
     {
         abort_unless($request->user()->hasRole('student'), 403);
+        $this->ensureSequentialAccess($request, $session);
 
-        DB::transaction(function () use ($request, $session): void {
+        $data = $request->validate([
+            'current_step' => ['required', 'integer', 'min:0', 'max:30'],
+            'active_seconds' => ['nullable', 'integer', 'min:0', 'max:30'],
+            'completed_steps' => ['nullable', 'array', 'max:30'],
+            'completed_steps.*' => ['string', 'max:60'],
+            'quiz_answers' => ['nullable', 'array', 'max:30'],
+            'quiz_answers.*' => ['string', 'max:500'],
+            'practical_response' => ['nullable', 'string', 'max:8000'],
+        ]);
+
+        $courseware = $coursewareService->for($session);
+        $allowedSteps = $coursewareService->stepIds($courseware);
+
+        $progress = DB::transaction(function () use ($request, $session, $data, $courseware, $coursewareService, $allowedSteps) {
+            $record = LearningSessionProgress::where('user_id', $request->user()->id)
+                ->where('learning_session_id', $session->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $record) {
+                $record = new LearningSessionProgress([
+                    'user_id' => $request->user()->id,
+                    'learning_session_id' => $session->id,
+                ]);
+            }
+
+            $requestedCredit = (int) ($data['active_seconds'] ?? 0);
+            $credit = min(30, $requestedCredit);
+            if ($record->last_activity_at) {
+                $elapsed = (int) $record->last_activity_at->diffInSeconds(now());
+                $credit = min($credit, max(0, $elapsed + 3));
+            }
+
+            $steps = collect(array_merge($record->completed_steps ?? [], $data['completed_steps'] ?? []))
+                ->unique()
+                ->filter(fn ($step) => in_array($step, $allowedSteps, true))
+                ->values()
+                ->all();
+
+            $answers = array_merge($record->quiz_answers ?? [], $data['quiz_answers'] ?? []);
+            $practical = array_key_exists('practical_response', $data)
+                ? trim((string) $data['practical_response'])
+                : $record->practical_response;
+
+            $record->fill([
+                'current_step' => min((int) $data['current_step'], max(0, count($allowedSteps) - 1)),
+                'completed_steps' => $steps,
+                'active_seconds' => min(((int) $session->required_active_minutes) * 60, ((int) $record->active_seconds) + $credit),
+                'quiz_answers' => $answers,
+                'quiz_score' => $coursewareService->score($courseware, $answers),
+                'practical_response' => $practical,
+                'practical_submitted_at' => filled($practical) ? ($record->practical_submitted_at ?? now()) : null,
+                'last_activity_at' => now(),
+            ])->save();
+
+            return $record->fresh();
+        });
+
+        return response()->json([
+            'saved' => true,
+            'active_seconds' => $progress->active_seconds,
+            'quiz_score' => (float) ($progress->quiz_score ?? 0),
+            'completed_steps' => $progress->completed_steps ?? [],
+        ]);
+    }
+
+    public function complete(Request $request, LearningSession $session, CoursewareService $coursewareService): RedirectResponse
+    {
+        abort_unless($request->user()->hasRole('student'), 403);
+        $this->ensureSequentialAccess($request, $session);
+
+        $courseware = $coursewareService->for($session);
+        $requiredSteps = $coursewareService->stepIds($courseware);
+        $progress = LearningSessionProgress::where('user_id', $request->user()->id)
+            ->where('learning_session_id', $session->id)
+            ->firstOrFail();
+
+        $missingSteps = array_diff($requiredSteps, $progress->completed_steps ?? []);
+        $requiredSeconds = ((int) $session->required_active_minutes) * 60;
+
+        if ($progress->active_seconds < $requiredSeconds || $missingSteps || blank($progress->practical_response) || (float) $progress->quiz_score < (float) $session->passing_score) {
+            throw ValidationException::withMessages([
+                'session' => sprintf(
+                    'Session अभी complete नहीं है: active time %d/%d मिनट, steps %d/%d, quiz %.0f/%d और practical submission आवश्यक है।',
+                    intdiv((int) $progress->active_seconds, 60),
+                    (int) $session->required_active_minutes,
+                    count($requiredSteps) - count($missingSteps),
+                    count($requiredSteps),
+                    (float) $progress->quiz_score,
+                    (int) $session->passing_score
+                ),
+            ]);
+        }
+
+        DB::transaction(function () use ($request, $session, $progress): void {
+            $progress->update(['completed_at' => now()]);
+
             ActivityRecord::updateOrCreate(
                 ['user_id' => $request->user()->id, 'learning_session_id' => $session->id],
-                ['status' => 'completed', 'score' => 100, 'started_at' => now(), 'completed_at' => now(), 'metadata' => ['source' => 'student_lab']]
+                ['status' => 'completed', 'score' => $progress->quiz_score, 'started_at' => $progress->created_at, 'completed_at' => now(), 'metadata' => [
+                    'source' => 'interactive_courseware',
+                    'active_seconds' => $progress->active_seconds,
+                    'completed_steps' => $progress->completed_steps,
+                ]]
             );
 
             AttendanceRecord::updateOrCreate(
@@ -67,10 +177,33 @@ class LearningSessionController extends Controller
             );
         });
 
-        $next = LearningSession::where('course_id', $session->course_id)->where('session_number', $session->session_number + 1)->first();
+        $next = LearningSession::where('course_id', $session->course_id)
+            ->where('session_number', $session->session_number + 1)
+            ->first();
 
         return $next
             ? redirect()->route('learning.show', $next)->with('status', 'Session complete—अगला session unlock हो गया है।')
             : redirect()->route('learning.index')->with('status', 'Course के सभी sessions complete हो गए।');
+    }
+
+    private function ensureSequentialAccess(Request $request, LearningSession $session): void
+    {
+        if (! $request->user()->hasRole('student')) {
+            return;
+        }
+
+        $previous = LearningSession::where('course_id', $session->course_id)
+            ->where('session_number', '<', $session->session_number)
+            ->orderByDesc('session_number')
+            ->first();
+
+        if ($previous) {
+            $previousCompleted = ActivityRecord::where('user_id', $request->user()->id)
+                ->where('learning_session_id', $previous->id)
+                ->where('status', 'completed')
+                ->exists();
+
+            abort_unless($previousCompleted, 403, 'Previous session must be completed first.');
+        }
     }
 }

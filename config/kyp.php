@@ -9,4 +9,10 @@ return [
         'final_total' => 100,
         'pass_mark' => 40,
     ],
+    'courseware' => [
+        'session_minutes' => 120,
+        'heartbeat_seconds' => 15,
+        'idle_after_seconds' => 90,
+        'passing_score' => 60,
+    ],
 ];

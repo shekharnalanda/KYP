@@ -11,14 +11,18 @@ class LearningSession extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'session_number', 'title_hi', 'title_en', 'objectives_hi', 'lesson_content_hi', 'classroom_notes_hi', 'lab_activity_hi', 'assessment_prompt_hi', 'delivery_mode', 'duration_minutes', 'content_status', 'published_at'];
+    protected $fillable = ['course_id', 'session_number', 'title_hi', 'title_en', 'objectives_hi', 'lesson_content_hi', 'classroom_notes_hi', 'lab_activity_hi', 'assessment_prompt_hi', 'delivery_mode', 'duration_minutes', 'content_status', 'published_at', 'courseware', 'required_active_minutes', 'passing_score'];
 
     protected function casts(): array
     {
-        return ['published_at' => 'datetime'];
+        return [
+            'published_at' => 'datetime',
+            'courseware' => 'array',
+        ];
     }
 
     public function course(): BelongsTo { return $this->belongsTo(Course::class); }
     public function attendanceRecords(): HasMany { return $this->hasMany(AttendanceRecord::class); }
     public function activityRecords(): HasMany { return $this->hasMany(ActivityRecord::class); }
+    public function progressRecords(): HasMany { return $this->hasMany(LearningSessionProgress::class); }
 }

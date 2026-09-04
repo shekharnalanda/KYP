@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttemptAnswer;
+use App\Models\Certificate;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\Result;
 use App\Services\EligibilityService;
+use App\Services\InternalAssessmentService;
 use App\Services\ResultScoringService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ExamController extends Controller
@@ -81,24 +84,24 @@ class ExamController extends Controller
         return view('student.exam-attempt', compact('attempt'));
     }
 
-    public function submit(Request $request, ExamAttempt $attempt, ResultScoringService $scoring): RedirectResponse
+    public function submit(Request $request, ExamAttempt $attempt, ResultScoringService $scoring, InternalAssessmentService $internal): RedirectResponse
     {
         $this->authorizeAttempt($request, $attempt);
         abort_unless($attempt->status === 'in_progress', 409);
 
-        $attempt->load(['exam.questions.options']);
+        $attempt->load(['user', 'exam.course', 'exam.questions.options']);
         $validated = $request->validate(['answers' => ['nullable', 'array'], 'answers.*' => ['nullable', 'integer']]);
         $submitted = collect($validated['answers'] ?? []);
 
-        $result = DB::transaction(function () use ($attempt, $submitted, $scoring): Result {
-            $rawScore = 0.0;
+        $result = DB::transaction(function () use ($attempt, $submitted, $scoring, $internal): Result {
+            $earnedExamScore = 0.0;
 
             foreach ($attempt->exam->questions as $question) {
                 $optionId = $submitted->get((string) $question->id);
                 $selected = $question->options->firstWhere('id', (int) $optionId);
                 $correct = $selected?->is_correct === true;
                 $awarded = $correct ? (float) $question->marks : -1 * (float) $question->negative_marks;
-                $rawScore += $awarded;
+                $earnedExamScore += $awarded;
 
                 AttemptAnswer::updateOrCreate(
                     ['exam_attempt_id' => $attempt->id, 'question_id' => $question->id],
@@ -106,14 +109,34 @@ class ExamController extends Controller
                 );
             }
 
-            $rawScore = max(0, min($rawScore, (float) $attempt->exam->max_marks));
-            $attempt->update(['status' => 'submitted', 'submitted_at' => now(), 'raw_exam_score' => $rawScore]);
-            $scores = $scoring->calculate($rawScore, 0, 0);
+            $examMaximum = max(1, (float) $attempt->exam->max_marks);
+            $earnedExamScore = max(0, min($earnedExamScore, $examMaximum));
+            $examRaw = round(($earnedExamScore / $examMaximum) * (float) config('kyp.scoring.exam.raw_max'), 2);
+            $internalRaw = $internal->rawScores($attempt->user, $attempt->exam->course);
+            $scores = $scoring->calculate($examRaw, $internalRaw['lab_raw'], $internalRaw['classroom_raw']);
+            $status = $scores['final_score'] >= (float) config('kyp.scoring.pass_mark') ? 'pass' : 'fail';
 
-            return Result::updateOrCreate(
+            $attempt->update(['status' => 'submitted', 'submitted_at' => now(), 'raw_exam_score' => $earnedExamScore]);
+
+            $result = Result::updateOrCreate(
                 ['exam_attempt_id' => $attempt->id],
-                $scores + ['user_id' => $attempt->user_id, 'result_status' => 'pending']
+                $scores + ['user_id' => $attempt->user_id, 'result_status' => $status, 'published_at' => now()]
             );
+
+            if ($status === 'pass') {
+                Certificate::firstOrCreate(
+                    ['result_id' => $result->id],
+                    [
+                        'user_id' => $result->user_id,
+                        'serial_number' => 'KYP-'.now()->format('Y').'-'.str_pad((string) $result->id, 7, '0', STR_PAD_LEFT),
+                        'qr_token' => (string) Str::uuid(),
+                        'issued_at' => now(),
+                        'status' => 'issued',
+                    ]
+                );
+            }
+
+            return $result;
         });
 
         return redirect()->route('student.exam.result', $result);

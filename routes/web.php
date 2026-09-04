@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExamController;
@@ -23,6 +24,11 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/student/attempts/{attempt}', [ExamController::class, 'attempt'])->name('student.exam.attempt');
         Route::post('/student/attempts/{attempt}/submit', [ExamController::class, 'submit'])->middleware('throttle:5,1')->name('student.exam.submit');
         Route::get('/student/results/{result}', [ExamController::class, 'result'])->name('student.exam.result');
+    });
+
+    Route::middleware('role:teacher,admin,master_admin')->group(function (): void {
+        Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::post('/attendance', [AttendanceController::class, 'store'])->middleware('throttle:60,1')->name('attendance.store');
     });
 
     Route::get('/teacher', [DashboardController::class, 'teacher'])->middleware('role:teacher')->name('teacher.dashboard');

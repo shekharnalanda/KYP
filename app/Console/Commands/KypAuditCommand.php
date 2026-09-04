@@ -21,17 +21,22 @@ class KypAuditCommand extends Command
     {
         $checks = [];
         $checks[] = ['Database', 'Learning tables', Schema::hasTable('courses') && Schema::hasTable('attendance_records') && Schema::hasTable('activity_records')];
+        $checks[] = ['Database', 'Lesson content fields', Schema::hasColumns('learning_sessions', ['objectives_hi', 'lesson_content_hi', 'classroom_notes_hi', 'lab_activity_hi'])];
         $checks[] = ['Database', 'Assessment tables', Schema::hasTable('exams') && Schema::hasTable('questions') && Schema::hasTable('results') && Schema::hasTable('certificates')];
         $checks[] = ['Learning', 'Four courses', Course::count() === 4];
         $checks[] = ['Learning', '135 sessions', LearningSession::count() === 135];
+        $checks[] = ['Learning', '135 published Hindi lessons', LearningSession::where('content_status', 'published')->whereNotNull('lesson_content_hi')->count() === 135];
         $checks[] = ['Assessment', 'Published exams', Exam::where('status', 'published')->count() >= 4];
         $checks[] = ['Assessment', 'Bilingual questions', Question::whereNotNull('text_hi')->whereNotNull('text_en')->count() >= 20];
         $checks[] = ['Assessment', 'Question options', QuestionOption::count() >= 80];
         $score = $scoring->calculate(200, 200, 100);
         $checks[] = ['Scoring', '500 raw to 100 final', $score['total_raw'] === 500.0 && $score['final_score'] === 100.0];
+
         $routeNames = collect(Route::getRoutes()->getRoutes())->pluck('action.as');
+        $checks[] = ['Routes', 'Learning workflow', collect(['learning.index', 'learning.show', 'learning.complete'])->every(fn ($name) => $routeNames->contains($name))];
         $checks[] = ['Routes', 'Student exam workflow', collect(['student.exams', 'student.exam.start', 'student.exam.attempt', 'student.exam.submit', 'student.exam.result'])->every(fn ($name) => $routeNames->contains($name))];
-        $checks[] = ['Routes', 'Attendance operations', collect(['attendance.index', 'attendance.store'])->every(fn ($name) => $routeNames->contains($name))];\n        $checks[] = ['Routes', 'Result and certificate workflow', collect(['admin.results', 'admin.results.publish', 'student.marksheet', 'student.certificate'])->every(fn ($name) => $routeNames->contains($name))];
+        $checks[] = ['Routes', 'Attendance operations', collect(['attendance.index', 'attendance.store'])->every(fn ($name) => $routeNames->contains($name))];
+        $checks[] = ['Routes', 'Result and certificate workflow', collect(['admin.results', 'admin.results.publish', 'student.marksheet', 'student.certificate'])->every(fn ($name) => $routeNames->contains($name))];
 
         $rows = collect($checks)->map(fn (array $check) => [$check[0], $check[1], $check[2] ? 'PASS' : 'FAIL'])->all();
         $this->table(['Group', 'Check', 'Status'], $rows);

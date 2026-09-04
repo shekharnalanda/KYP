@@ -48,7 +48,7 @@ class KypAuditCommand extends Command
         $routeNames = collect(Route::getRoutes()->getRoutes())->pluck('action.as');
         $checks[] = ['Routes', 'Learning workflow', collect(['learning.index', 'learning.show', 'learning.complete'])->every(fn ($name) => $routeNames->contains($name))];
         $checks[] = ['Routes', 'Student exam workflow', collect(['student.exams', 'student.exam.start', 'student.exam.attempt', 'student.exam.submit', 'student.exam.result'])->every(fn ($name) => $routeNames->contains($name))];
-        $checks[] = ['Routes', 'Attendance operations', collect(['attendance.index', 'attendance.store'])->every(fn ($name) => $routeNames->contains($name))];
+        $checks[] = ['Routes', 'Attendance operations', collect(['attendance.index', 'attendance.store', 'attendance.bulk'])->every(fn ($name) => $routeNames->contains($name))];
         $checks[] = ['Routes', 'Result and certificate workflow', collect(['admin.results', 'admin.results.publish', 'admin.results.bulk', 'student.marksheet', 'student.certificate', 'certificate.verify'])->every(fn ($name) => $routeNames->contains($name))];
         $checks[] = ['Routes', 'Admin user operations', collect(['admin.users', 'admin.users.store', 'admin.users.status', 'admin.users.enrollments'])->every(fn ($name) => $routeNames->contains($name))];
         $checks[] = ['Routes', 'Admin progress reporting', $routeNames->contains('admin.progress')];

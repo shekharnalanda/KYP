@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function (): void {
     Route::middleware('role:teacher,admin,master_admin')->group(function (): void {
         Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::post('/attendance', [AttendanceController::class, 'store'])->middleware('throttle:60,1')->name('attendance.store');
+        Route::post('/attendance/bulk', [AttendanceController::class, 'bulkStore'])->middleware('throttle:20,1')->name('attendance.bulk');
     });
 
     Route::get('/teacher', [DashboardController::class, 'teacher'])->middleware('role:teacher')->name('teacher.dashboard');

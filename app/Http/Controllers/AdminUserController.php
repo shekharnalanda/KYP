@@ -22,7 +22,7 @@ class AdminUserController extends Controller
                 ->with(['enrollments.course'])
                 ->latest()
                 ->paginate(20),
-            'courses' => Course::query()->where('status', 'active')->orderBy('id')->get(),
+            'courses' => Course::query()->where('is_active', true)->orderBy('position')->get(),
         ]);
     }
 

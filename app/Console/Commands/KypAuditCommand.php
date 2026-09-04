@@ -20,6 +20,7 @@ class KypAuditCommand extends Command
     public function handle(ResultScoringService $scoring): int
     {
         $checks = [];
+        $checks[] = ['Database', 'Learning tables', Schema::hasTable('courses') && Schema::hasTable('attendance_records') && Schema::hasTable('activity_records')];
         $checks[] = ['Database', 'Assessment tables', Schema::hasTable('exams') && Schema::hasTable('questions') && Schema::hasTable('results') && Schema::hasTable('certificates')];
         $checks[] = ['Learning', 'Four courses', Course::count() === 4];
         $checks[] = ['Learning', '135 sessions', LearningSession::count() === 135];
@@ -30,12 +31,13 @@ class KypAuditCommand extends Command
         $checks[] = ['Scoring', '500 raw to 100 final', $score['total_raw'] === 500.0 && $score['final_score'] === 100.0];
         $routeNames = collect(Route::getRoutes()->getRoutes())->pluck('action.as');
         $checks[] = ['Routes', 'Student exam workflow', collect(['student.exams', 'student.exam.start', 'student.exam.attempt', 'student.exam.submit', 'student.exam.result'])->every(fn ($name) => $routeNames->contains($name))];
+        $checks[] = ['Routes', 'Attendance operations', collect(['attendance.index', 'attendance.store'])->every(fn ($name) => $routeNames->contains($name))];
 
         $rows = collect($checks)->map(fn (array $check) => [$check[0], $check[1], $check[2] ? 'PASS' : 'FAIL'])->all();
         $this->table(['Group', 'Check', 'Status'], $rows);
 
         $failed = collect($checks)->contains(fn (array $check) => ! $check[2]);
-        $this->{$failed ? 'error' : 'info'}($failed ? 'KYP audit failed.' : 'KYP assessment audit passed.');
+        $this->{$failed ? 'error' : 'info'}($failed ? 'KYP audit failed.' : 'KYP production audit passed.');
 
         return $failed ? self::FAILURE : self::SUCCESS;
     }

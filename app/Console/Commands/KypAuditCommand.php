@@ -31,7 +31,7 @@ class KypAuditCommand extends Command
         $checks[] = ['Scoring', '500 raw to 100 final', $score['total_raw'] === 500.0 && $score['final_score'] === 100.0];
         $routeNames = collect(Route::getRoutes()->getRoutes())->pluck('action.as');
         $checks[] = ['Routes', 'Student exam workflow', collect(['student.exams', 'student.exam.start', 'student.exam.attempt', 'student.exam.submit', 'student.exam.result'])->every(fn ($name) => $routeNames->contains($name))];
-        $checks[] = ['Routes', 'Attendance operations', collect(['attendance.index', 'attendance.store'])->every(fn ($name) => $routeNames->contains($name))];
+        $checks[] = ['Routes', 'Attendance operations', collect(['attendance.index', 'attendance.store'])->every(fn ($name) => $routeNames->contains($name))];\n        $checks[] = ['Routes', 'Result and certificate workflow', collect(['admin.results', 'admin.results.publish', 'student.marksheet', 'student.certificate'])->every(fn ($name) => $routeNames->contains($name))];
 
         $rows = collect($checks)->map(fn (array $check) => [$check[0], $check[1], $check[2] ? 'PASS' : 'FAIL'])->all();
         $this->table(['Group', 'Check', 'Status'], $rows);

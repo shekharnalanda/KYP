@@ -41,9 +41,6 @@ class KypBackupCommand extends Command
                 throw new \RuntimeException('SQLite backup did not complete.');
             }
         } catch (Throwable $exception) {
-            if (is_file($target) && filesize($target) === 0) {
-                unlink($target);
-            }
             $this->error($exception->getMessage());
             return self::FAILURE;
         }

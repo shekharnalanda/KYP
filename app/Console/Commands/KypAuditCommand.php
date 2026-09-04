@@ -22,7 +22,7 @@ class KypAuditCommand extends Command
         $checks = [];
         $checks[] = ['Database', 'Learning tables', Schema::hasTable('courses') && Schema::hasTable('attendance_records') && Schema::hasTable('activity_records')];
 
-        $lessonColumns = collect(DB::select("PRAGMA table_info('learning_sessions')"))->pluck('name');
+        $lessonColumns = collect(\\Illuminate\\Support\\Facades\\DB::select("PRAGMA table_info('learning_sessions')"))->pluck('name');
         $checks[] = ['Database', 'Lesson content fields', collect(['objectives_hi', 'lesson_content_hi', 'classroom_notes_hi', 'lab_activity_hi'])->every(fn ($column) => $lessonColumns->contains($column))];
 
         $checks[] = ['Database', 'Assessment tables', Schema::hasTable('exams') && Schema::hasTable('questions') && Schema::hasTable('results') && Schema::hasTable('certificates')];

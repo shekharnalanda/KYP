@@ -5,7 +5,7 @@
 <header>
     <nav class="container">
         <a class="brand" href="{{ route('home') }}">
-            <img src="/images/kyp-logo.png" alt="Kushal Youth Program Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+            <img src="/images/kyp-logo.webp" alt="Kushal Youth Program Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
             <span class="brand-fallback">KYP</span>
             <span><strong>KUSHAL YOUTH PROGRAM</strong><small>Skills for the Digital Future</small></span>
         </a>
@@ -22,7 +22,7 @@
             <div class="actions"><a class="btn btn-accent" href="#courses">Program देखें</a><a class="btn btn-light" href="{{ route('login') }}">Student / Teacher Login</a></div>
         </div>
         <div class="hero-card">
-            <img class="big-logo" src="/images/kyp-logo.png" alt="KYP Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+            <img class="big-logo" src="/images/kyp-logo.webp" alt="KYP Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
             <span class="logo-fallback">KYP</span>
             <div class="mini-stats"><div class="mini-stat"><b>270</b><span>Total Learning Hours</span></div><div class="mini-stat"><b>135</b><span>Two-Hour Sessions</span></div><div class="mini-stat"><b>4</b><span>Skill Modules</span></div><div class="mini-stat"><b>3</b><span>Integrated Panels</span></div></div>
         </div>

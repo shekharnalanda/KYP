@@ -21,6 +21,12 @@ class KypAuditCommand extends Command
     public function handle(ResultScoringService $scoring): int
     {
         $checks = [];
+        $checks[] = ['Environment', 'PHP 8.2 or newer', PHP_VERSION_ID >= 80200];
+        $checks[] = ['Environment', 'Production mode', app()->environment('production')];
+        $checks[] = ['Environment', 'Debug disabled', config('app.debug') === false];
+        $checks[] = ['Environment', 'HTTPS application URL', str_starts_with((string) config('app.url'), 'https://')];
+        $checks[] = ['Environment', 'Application key', filled(config('app.key'))];
+        $checks[] = ['Environment', 'Writable storage', is_writable(storage_path())];
         $checks[] = ['Database', 'Learning tables', Schema::hasTable('courses') && Schema::hasTable('attendance_records') && Schema::hasTable('activity_records')];
 
         $lessonColumns = collect(DB::select("PRAGMA table_info('learning_sessions')"))->pluck('name');
@@ -44,6 +50,9 @@ class KypAuditCommand extends Command
         $score = $scoring->calculate(200, 200, 100);
         $checks[] = ['Scoring', '500 raw to 100 final', $score['total_raw'] === 500.0 && $score['final_score'] === 100.0];
         $checks[] = ['Scoring', 'Automatic pass mark', (float) config('kyp.scoring.pass_mark') === 40.0 && class_exists(\App\Services\InternalAssessmentService::class)];
+
+        $checks[] = ['Operations', 'Backup and workflow commands', class_exists(\App\Console\Commands\KypBackupCommand::class) && class_exists(\App\Console\Commands\KypWorkflowTestCommand::class)];
+        $checks[] = ['Security', 'Response security middleware', class_exists(\App\Http\Middleware\SecurityHeadersMiddleware::class)];
 
         $routeNames = collect(Route::getRoutes()->getRoutes())->pluck('action.as');
         $checks[] = ['Routes', 'Learning workflow', collect(['learning.index', 'learning.show', 'learning.complete'])->every(fn ($name) => $routeNames->contains($name))];

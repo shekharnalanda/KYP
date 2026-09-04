@@ -42,7 +42,7 @@ class KypAuditCommand extends Command
         $checks[] = ['Assessment', 'Question options', QuestionOption::count() >= 80];
 
         $score = $scoring->calculate(200, 200, 100);
-        $checks[] = ['Scoring', '500 raw to 100 final', $score['total_raw'] === 500.0 && $score['final_score'] === 100.0];
+        $checks[] = ['Scoring', '500 raw to 100 final', $score['total_raw'] === 500.0 && $score['final_score'] === 100.0];\n        $checks[] = ['Scoring', 'Automatic pass mark', (float) config('kyp.scoring.pass_mark') === 40.0 && class_exists(\\App\\Services\\InternalAssessmentService::class)];
 
         $routeNames = collect(Route::getRoutes()->getRoutes())->pluck('action.as');
         $checks[] = ['Routes', 'Learning workflow', collect(['learning.index', 'learning.show', 'learning.complete'])->every(fn ($name) => $routeNames->contains($name))];

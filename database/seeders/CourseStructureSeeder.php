@@ -14,7 +14,7 @@ class CourseStructureSeeder extends Seeder
             ['code' => 'CIT', 'name' => 'Certificate in Information Technology', 'description' => 'Computer fundamentals, productivity, internet safety and practical digital skills.', 'total_sessions' => 60, 'total_hours' => 120, 'minimum_exam_sessions' => 48, 'position' => 1],
             ['code' => 'CLS', 'name' => 'Certificate in Language Skills', 'description' => 'Hindi-English workplace communication, listening, speaking and confidence.', 'total_sessions' => 40, 'total_hours' => 80, 'minimum_exam_sessions' => 32, 'position' => 2],
             ['code' => 'CSS', 'name' => 'Certificate in Soft Skills', 'description' => 'Professional behaviour, teamwork, interview readiness and personal effectiveness.', 'total_sessions' => 20, 'total_hours' => 40, 'minimum_exam_sessions' => 16, 'position' => 3],
-            ['code' => 'AI-DM', 'name' => 'AI Technology & Digital Marketing', 'description' => 'Responsible AI tools, digital presence and modern marketing essentials.', 'total_sessions' => 15, 'total_hours' => 30, 'minimum_exam_sessions' => null, 'position' => 4],
+            ['code' => 'AI-DM', 'name' => 'AI Technology & Digital Marketing', 'description' => 'Responsible AI tools, digital presence and modern marketing essentials.', 'total_sessions' => 15, 'total_hours' => 30, 'minimum_exam_sessions' => 12, 'position' => 4],
         ];
 
         $phases = [

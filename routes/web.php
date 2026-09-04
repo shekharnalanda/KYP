@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\LearningSessionController;
 use App\Http\Controllers\ResultController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,8 +19,14 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
+    Route::middleware('role:student,teacher,admin,master_admin')->group(function (): void {
+        Route::get('/learning', [LearningSessionController::class, 'index'])->name('learning.index');
+        Route::get('/learning/{session}', [LearningSessionController::class, 'show'])->name('learning.show');
+    });
+
     Route::middleware('role:student')->group(function (): void {
         Route::get('/student', [DashboardController::class, 'student'])->name('student.dashboard');
+        Route::post('/learning/{session}/complete', [LearningSessionController::class, 'complete'])->middleware('throttle:20,1')->name('learning.complete');
         Route::get('/student/exams', [ExamController::class, 'index'])->name('student.exams');
         Route::post('/student/exams/{exam}/start', [ExamController::class, 'start'])->middleware('throttle:10,1')->name('student.exam.start');
         Route::get('/student/attempts/{attempt}', [ExamController::class, 'attempt'])->name('student.exam.attempt');

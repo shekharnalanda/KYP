@@ -7,5 +7,6 @@ return [
         'classroom' => ['raw_max' => 100, 'final_max' => 20],
         'raw_total' => 500,
         'final_total' => 100,
+        'pass_mark' => 40,
     ],
 ];

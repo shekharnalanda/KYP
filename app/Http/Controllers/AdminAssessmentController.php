@@ -26,6 +26,7 @@ class AdminAssessmentController extends Controller
     public function storeExam(Request $request): RedirectResponse
     {
         $data = $request->validate($this->examRules());
+        abort_if($data['status'] === 'published', 422, 'Create the exam as draft, add questions, then publish it.');
         $data['published_at'] = $data['status'] === 'published' ? now() : null;
         Exam::create($data);
 

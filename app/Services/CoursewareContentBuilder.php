@@ -14,6 +14,22 @@ class CoursewareContentBuilder
         $profile = $this->profile($code, $number, $topic);
         $stage = ['देखें और पहचानें', 'समझाकर बताएँ', 'निर्देश के साथ करें', 'स्वयं करके जाँचें', 'त्रुटि खोजकर सुधारें'][$number % 5];
 
+        $processQuestion = $this->question("{$code}-{$number}-process", "{$topic} सीखते समय सबसे प्रभावी कार्य-पद्धति कौन-सी है?", $profile['correct_process'], [
+            'बिना उद्देश्य समझे जल्दी-जल्दी सभी विकल्प दबाना',
+            'केवल उत्तर याद करना और practical छोड़ देना',
+            'दूसरे विद्यार्थी का output अपने नाम से जमा करना',
+        ], $number, 0);
+        $evidenceQuestion = $this->question("{$code}-{$number}-evidence", "{$topic} की practical completion का सबसे विश्वसनीय evidence क्या है?", $profile['evidence'], [
+            'केवल यह कहना कि काम पूरा हो गया',
+            'खाली file या अधूरा response',
+            'विषय से अलग screenshot या उत्तर',
+        ], $number, 1);
+        $safetyQuestion = $this->question("{$code}-{$number}-safety", "{$topic} को वास्तविक परिस्थिति में लागू करते समय सबसे जरूरी बात क्या है?", $profile['safety'], [
+            'गति के लिए जाँच और अनुमति को छोड़ देना',
+            'निजी जानकारी सार्वजनिक रूप से साझा करना',
+            'गलती छिपाकर बिना review के submit करना',
+        ], $number, 2);
+
         return [
             'version' => 2,
             'language' => 'hi',
@@ -65,17 +81,7 @@ class CoursewareContentBuilder
                     'type' => 'quiz',
                     'title' => 'Checkpoint 1 — सही प्रक्रिया',
                     'content' => "नीचे दिए विकल्पों में {$topic} के लिए सबसे सही प्रक्रिया चुनें। उत्तर देने से पहले guided demonstration के क्रम को याद करें।",
-                    'interaction' => [
-                        'id' => "{$code}-{$number}-process",
-                        'prompt' => "{$topic} सीखते समय सबसे प्रभावी कार्य-पद्धति कौन-सी है?",
-                        'options' => [
-                            $profile['correct_process'],
-                            'बिना उद्देश्य समझे जल्दी-जल्दी सभी विकल्प दबाना',
-                            'केवल उत्तर याद करना और practical छोड़ देना',
-                            'दूसरे विद्यार्थी का output अपने नाम से जमा करना',
-                        ],
-                        'correct' => '0',
-                    ],
+                    'interaction' => $processQuestion,
                 ],
                 [
                     'id' => 'lab-project',
@@ -90,17 +96,7 @@ class CoursewareContentBuilder
                     'type' => 'quiz',
                     'title' => 'Checkpoint 2 — परिणाम की जाँच',
                     'content' => "सिर्फ task कर देना पर्याप्त नहीं है। सही evidence से सिद्ध होना चाहिए कि skill समझी और लागू की गई है।",
-                    'interaction' => [
-                        'id' => "{$code}-{$number}-evidence",
-                        'prompt' => "{$topic} की practical completion का सबसे विश्वसनीय evidence क्या है?",
-                        'options' => [
-                            $profile['evidence'],
-                            'केवल यह कहना कि काम पूरा हो गया',
-                            'खाली file या अधूरा response',
-                            'विषय से अलग screenshot या उत्तर',
-                        ],
-                        'correct' => '0',
-                    ],
+                    'interaction' => $evidenceQuestion,
                 ],
                 [
                     'id' => 'check-3',
@@ -108,17 +104,7 @@ class CoursewareContentBuilder
                     'type' => 'quiz',
                     'title' => 'Checkpoint 3 — सुरक्षित उपयोग',
                     'content' => "कौशल तभी उपयोगी है जब उसका उपयोग जिम्मेदारी, शुद्धता और सुरक्षा के साथ किया जाए। परिस्थिति पढ़कर सही प्राथमिकता चुनें।",
-                    'interaction' => [
-                        'id' => "{$code}-{$number}-safety",
-                        'prompt' => "{$topic} को वास्तविक परिस्थिति में लागू करते समय सबसे जरूरी बात क्या है?",
-                        'options' => [
-                            $profile['safety'],
-                            'गति के लिए जाँच और अनुमति को छोड़ देना',
-                            'निजी जानकारी सार्वजनिक रूप से साझा करना',
-                            'गलती छिपाकर बिना review के submit करना',
-                        ],
-                        'correct' => '0',
-                    ],
+                    'interaction' => $safetyQuestion,
                 ],
                 [
                     'id' => 'reflection-final',
@@ -223,6 +209,21 @@ class CoursewareContentBuilder
     private function generic(string $topic): array
     {
         return $this->make('व्यावहारिक कौशल विकास', "{$topic} को concept, process और verified output के रूप में सीखना चाहिए।", 'उद्देश्य समझें, चरणबद्ध task करें, result जाँचें और evidence प्रस्तुत करें।', "{$topic} पर guided तथा independent task पूरा करें।", 'पूर्ण output, checklist और learner explanation', 'सुरक्षा, privacy, honesty और permission का पालन करें।', 'वास्तविक जीवन में कौशल लागू करना है।', 'concept, process, practice, evidence, review', 'समझकर चरणबद्ध अभ्यास और verification करना');
+    }
+
+    private function question(string $id, string $prompt, string $correctAnswer, array $distractors, int $sessionNumber, int $offset): array
+    {
+        $options = [$correctAnswer, ...$distractors];
+        $rotation = ($sessionNumber + $offset) % count($options);
+        $options = array_merge(array_slice($options, $rotation), array_slice($options, 0, $rotation));
+        $correct = array_search($correctAnswer, $options, true);
+
+        return [
+            'id' => $id,
+            'prompt' => $prompt,
+            'options' => $options,
+            'correct' => (string) $correct,
+        ];
     }
 
     private function make(string $domain, string $foundation, string $method, string $practice, string $evidence, string $safety, string $scenario, string $terms, string $correctProcess): array

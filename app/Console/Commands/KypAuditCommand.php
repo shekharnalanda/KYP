@@ -21,7 +21,10 @@ class KypAuditCommand extends Command
     {
         $checks = [];
         $checks[] = ['Database', 'Learning tables', Schema::hasTable('courses') && Schema::hasTable('attendance_records') && Schema::hasTable('activity_records')];
-        $lessonColumns = collect(Schema::getColumnListing('learning_sessions'));\n        $checks[] = ['Database', 'Lesson content fields', collect(['objectives_hi', 'lesson_content_hi', 'classroom_notes_hi', 'lab_activity_hi'])->every(fn ($column) => $lessonColumns->contains($column))];
+
+        $lessonColumns = collect(Schema::getColumnListing('learning_sessions'));
+        $checks[] = ['Database', 'Lesson content fields', collect(['objectives_hi', 'lesson_content_hi', 'classroom_notes_hi', 'lab_activity_hi'])->every(fn ($column) => $lessonColumns->contains($column))];
+
         $checks[] = ['Database', 'Assessment tables', Schema::hasTable('exams') && Schema::hasTable('questions') && Schema::hasTable('results') && Schema::hasTable('certificates')];
         $checks[] = ['Learning', 'Four courses', Course::count() === 4];
         $checks[] = ['Learning', '135 sessions', LearningSession::count() === 135];
@@ -29,6 +32,7 @@ class KypAuditCommand extends Command
         $checks[] = ['Assessment', 'Published exams', Exam::where('status', 'published')->count() >= 4];
         $checks[] = ['Assessment', 'Bilingual questions', Question::whereNotNull('text_hi')->whereNotNull('text_en')->count() >= 20];
         $checks[] = ['Assessment', 'Question options', QuestionOption::count() >= 80];
+
         $score = $scoring->calculate(200, 200, 100);
         $checks[] = ['Scoring', '500 raw to 100 final', $score['total_raw'] === 500.0 && $score['final_score'] === 100.0];
 

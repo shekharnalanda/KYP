@@ -11,6 +11,7 @@ use App\Http\Controllers\ResultController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
+Route::get('/verify-certificate/{token}', [ResultController::class, 'verify'])->middleware('throttle:60,1')->name('certificate.verify');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'create'])->name('login');
@@ -53,6 +54,7 @@ Route::middleware('auth')->group(function (): void {
         Route::post('/admin/users/{user}/enrollments', [AdminUserController::class, 'enrollments'])->middleware('throttle:30,1')->name('admin.users.enrollments');
         Route::get('/admin/progress', [AdminProgressController::class, 'index'])->name('admin.progress');
         Route::get('/admin/results', [ResultController::class, 'index'])->name('admin.results');
+        Route::post('/admin/results/bulk-print', [ResultController::class, 'bulkPrint'])->middleware('throttle:10,1')->name('admin.results.bulk');
         Route::post('/admin/results/{result}/publish', [ResultController::class, 'publish'])->middleware('throttle:30,1')->name('admin.results.publish');
     });
 });

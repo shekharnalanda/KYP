@@ -46,6 +46,34 @@ class ResultController extends Controller
         return back()->with('status', 'Result publish कर दिया गया है।');
     }
 
+    public function bulkPrint(Request $request): View
+    {
+        $validated = $request->validate([
+            'result_ids' => ['required', 'array', 'min:1', 'max:100'],
+            'result_ids.*' => ['integer', 'exists:results,id'],
+            'document_type' => ['required', Rule::in(['marksheet', 'certificate'])],
+        ]);
+
+        $results = Result::query()
+            ->whereIn('id', $validated['result_ids'])
+            ->whereNotNull('published_at')
+            ->with(['user', 'examAttempt.exam.course', 'certificate'])
+            ->orderBy('id')
+            ->get();
+
+        abort_if($results->isEmpty(), 422, 'No published result selected.');
+
+        if ($validated['document_type'] === 'certificate') {
+            $results = $results->filter(fn (Result $result) => $result->certificate?->status === 'issued')->values();
+            abort_if($results->isEmpty(), 422, 'No issued certificate selected.');
+        }
+
+        return view('admin.bulk-documents', [
+            'results' => $results,
+            'documentType' => $validated['document_type'],
+        ]);
+    }
+
     public function marksheet(Request $request, Result $result): View
     {
         abort_unless($result->user_id === $request->user()->id && $result->published_at, 403);
@@ -60,5 +88,18 @@ class ResultController extends Controller
         $certificate->load(['user', 'result.examAttempt.exam.course']);
 
         return view('student.certificate', compact('certificate'));
+    }
+
+    public function verify(string $token): View
+    {
+        $certificate = Certificate::query()
+            ->where('qr_token', $token)
+            ->with(['user', 'result.examAttempt.exam.course'])
+            ->first();
+
+        return view('certificate.verify', [
+            'certificate' => $certificate,
+            'valid' => $certificate?->status === 'issued',
+        ]);
     }
 }

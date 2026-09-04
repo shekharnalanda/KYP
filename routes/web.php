@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -45,6 +46,10 @@ Route::middleware('auth')->group(function (): void {
 
     Route::middleware('role:admin,master_admin')->group(function (): void {
         Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
+        Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users');
+        Route::post('/admin/users', [AdminUserController::class, 'store'])->middleware('throttle:20,1')->name('admin.users.store');
+        Route::post('/admin/users/{user}/status', [AdminUserController::class, 'status'])->middleware('throttle:30,1')->name('admin.users.status');
+        Route::post('/admin/users/{user}/enrollments', [AdminUserController::class, 'enrollments'])->middleware('throttle:30,1')->name('admin.users.enrollments');
         Route::get('/admin/results', [ResultController::class, 'index'])->name('admin.results');
         Route::post('/admin/results/{result}/publish', [ResultController::class, 'publish'])->middleware('throttle:30,1')->name('admin.results.publish');
     });

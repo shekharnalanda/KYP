@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\LearningSessionController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResultController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,9 +20,11 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/login', [AuthController::class, 'store'])->middleware('throttle:6,1');
 });
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'auth.session'])->group(function (): void {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+    Route::get('/profile/password', [ProfileController::class, 'editPassword'])->name('profile.password.edit');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->middleware('throttle:5,1')->name('profile.password.update');
 
     Route::middleware('role:student,teacher,admin,master_admin')->group(function (): void {
         Route::get('/learning', [LearningSessionController::class, 'index'])->name('learning.index');
@@ -57,8 +60,8 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/admin/progress', [AdminProgressController::class, 'index'])->name('admin.progress');
         Route::get('/admin/assessments', [AdminAssessmentController::class, 'index'])->name('admin.assessments');
         Route::post('/admin/exams', [AdminAssessmentController::class, 'storeExam'])->middleware('throttle:20,1')->name('admin.exams.store');
-        Route::put('/admin/exams/{exam}', [AdminAssessmentController::class, 'updateExam'])->middleware('throttle:30,1')->name('admin.exams.update');
-        Route::post('/admin/questions', [AdminAssessmentController::class, 'storeQuestion'])->middleware('throttle:30,1')->name('admin.questions.store');
+        Route::post('/admin/exams/{exam}/status', [AdminAssessmentController::class, 'status'])->middleware('throttle:30,1')->name('admin.exams.status');
+        Route::post('/admin/exams/{exam}/questions', [AdminAssessmentController::class, 'storeQuestion'])->middleware('throttle:30,1')->name('admin.questions.store');
         Route::get('/admin/questions/{question}/edit', [AdminAssessmentController::class, 'editQuestion'])->name('admin.questions.edit');
         Route::put('/admin/questions/{question}', [AdminAssessmentController::class, 'updateQuestion'])->middleware('throttle:30,1')->name('admin.questions.update');
         Route::get('/admin/results', [ResultController::class, 'index'])->name('admin.results');

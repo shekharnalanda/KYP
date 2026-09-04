@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceRecord;
+use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Exam;
 use App\Models\LearningSession;
+use App\Models\Question;
+use App\Models\Result;
 use App\Models\User;
 use App\Services\EligibilityService;
 use Illuminate\Http\Request;
@@ -39,6 +43,10 @@ class DashboardController extends Controller
                 'sessions' => LearningSession::count(),
                 'enrollments' => Enrollment::where('status', 'active')->count(),
                 'attendance_today' => AttendanceRecord::whereDate('attendance_date', today())->count(),
+                'exams' => Exam::count(),
+                'questions' => Question::count(),
+                'results' => Result::count(),
+                'certificates' => Certificate::count(),
             ],
         ]);
     }

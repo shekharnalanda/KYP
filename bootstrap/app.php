@@ -22,6 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeadersMiddleware::class);
+        $middleware->validateCsrfTokens(except: [
+            'api/iris/*',
+        ]);
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);

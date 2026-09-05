@@ -58,7 +58,29 @@ foreach ($root in $searchRoots) {
 }
 
 if (-not $dll) {
-    throw "MIDIris_Auth.dll was not found. Extract the MIS100V2 ZIP under Downloads and run this script again."
+    $zipRoots = @(
+        (Join-Path $env:USERPROFILE "Downloads"),
+        (Join-Path $env:USERPROFILE "Desktop")
+    ) | Where-Object { Test-Path $_ }
+
+    $sdkZip = $zipRoots | ForEach-Object {
+        Get-ChildItem -Path $_ -Filter "MIS100V*.zip" -File -ErrorAction SilentlyContinue
+    } | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+    if ($sdkZip) {
+        $extractRoot = Join-Path $env:TEMP "KYP-MIS100V2-SDK"
+        if (Test-Path $extractRoot) {
+            Remove-Item -Path $extractRoot -Recurse -Force
+        }
+
+        Expand-Archive -LiteralPath $sdkZip.FullName -DestinationPath $extractRoot -Force
+        $dll = Get-ChildItem -Path $extractRoot -Filter "MIDIris_Auth.dll" -File -Recurse -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+    }
+}
+
+if (-not $dll) {
+    throw "MIDIris_Auth.dll or MIS100V2 ZIP was not found in Downloads or Desktop."
 }
 
 $assemblyDirectory = $dll.Directory.FullName

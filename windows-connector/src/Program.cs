@@ -9,163 +9,41 @@ using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using MIDIris_Auth;
 
-namespace KYPIrisConnector
-{
-    public class ApiList<T> { public List<T> data { get; set; } }
-    public class Student
-    {
-        public int id { get; set; }
-        public string student_id { get; set; }
-        public string name { get; set; }
-        public bool iris_enrolled { get; set; }
-        public override string ToString() { return student_id + " - " + name + (iris_enrolled ? " [IRIS READY]" : ""); }
-    }
-    public class Candidate
-    {
-        public int user_id { get; set; }
-        public string student_id { get; set; }
-        public string student_name { get; set; }
-        public string left_template { get; set; }
-        public string right_template { get; set; }
-    }
-    public class SessionItem
-    {
-        public int id { get; set; }
-        public int session_number { get; set; }
-        public string title_hi { get; set; }
-        public string title_en { get; set; }
-        public int duration_minutes { get; set; }
-        public override string ToString() { return "Session " + session_number + " - " + (String.IsNullOrWhiteSpace(title_en) ? title_hi : title_en); }
-    }
-    public class CourseItem
-    {
-        public int id { get; set; }
-        public string code { get; set; }
-        public string name { get; set; }
-        public List<SessionItem> sessions { get; set; }
-        public override string ToString() { return code + " - " + name; }
-    }
-    public class AttendanceResponse
-    {
-        public bool ok { get; set; }
-        public bool duplicate { get; set; }
-        public string event_type { get; set; }
-        public string status { get; set; }
-        public int? minutes_completed { get; set; }
-        public string message { get; set; }
-    }
+namespace KYPIrisConnector {
+class Api<T>{public List<T> data{get;set;}}
+class Student{public int id;public string student_id;public string name;public bool iris_enrolled;public override string ToString(){return student_id+" - "+name+(iris_enrolled?" [IRIS READY]":"");}}
+class Candidate{public int user_id;public string student_id;public string student_name;public string left_template;public string right_template;}
+class Session{public int id;public int session_number;public string title_en;public string title_hi;public int duration_minutes;public override string ToString(){return "Session "+session_number+" - "+(String.IsNullOrWhiteSpace(title_en)?title_hi:title_en);}}
+class Course{public int id;public string code;public string name;public List<Session> sessions;public override string ToString(){return code+" - "+name;}}
+class AttRes{public bool ok;public bool duplicate;public string status;public int? minutes_completed;public string message;}
 
-    public class MainForm : Form
-    {
-        const string Server = "https://kyp.mciedu.com";
-        const int MatchThreshold = 1000; // fail-closed pilot threshold; validate further before broad rollout
-        const int CaptureTimeoutMs = 60000;
-
-        MIDIrisAuth iris;
-        MIDIris_DEVICE_INFO deviceInfo;
-        JavaScriptSerializer json = new JavaScriptSerializer();
-
-        TextBox txtToken;
-        ComboBox cboStudent, cboEye, cboCourse, cboSession;
-        Label lblServer, lblDevice, lblStatus, lblMatched;
-        Button btnEnroll, btnScan, btnCheckIn, btnCheckOut;
-        Student matchedStudent;
-        int matchedScore;
-        string matchedEye;
-
-        string TokenFile
-        {
-            get
-            {
-                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KYP-Iris-Connector");
-                Directory.CreateDirectory(dir);
-                return Path.Combine(dir, "connector-token.dat");
-            }
-        }
-
-        public MainForm()
-        {
-            Text = "KYP Iris Connector V3 - Kushal Youth Programme";
-            Width = 1100; Height = 760; StartPosition = FormStartPosition.CenterScreen;
-            Font = new Font("Segoe UI", 10); BackColor = Color.FromArgb(245, 249, 255);
-            BuildUI(); LoadSavedToken();
-            try { iris = new MIDIrisAuth(); DeviceStatus("SDK Loaded", Color.DarkGreen); }
-            catch (Exception ex) { DeviceStatus("SDK Load Failed: " + ex.Message, Color.DarkRed); }
-        }
-
-        Label MakeLabel(string text, int x, int y, int w, int h, float size, FontStyle style, Color color)
-        {
-            Label l = new Label(); l.Text = text; l.SetBounds(x,y,w,h); l.Font = new Font("Segoe UI",size,style); l.ForeColor=color; Controls.Add(l); return l;
-        }
-        Button MakeButton(string text, int x, int y, int w, int h)
-        {
-            Button b=new Button(); b.Text=text; b.SetBounds(x,y,w,h); b.FlatStyle=FlatStyle.Flat; b.BackColor=Color.White; b.FlatAppearance.BorderColor=Color.FromArgb(170,195,225); Controls.Add(b); return b;
-        }
-        void BuildUI()
-        {
-            Panel top=new Panel(); top.SetBounds(0,0,1100,92); top.BackColor=Color.FromArgb(12,62,122); Controls.Add(top);
-            Label brand=new Label(); brand.Text="Kushal Youth Programme"; brand.SetBounds(28,17,600,38); brand.Font=new Font("Segoe UI",23,FontStyle.Bold); brand.ForeColor=Color.White; top.Controls.Add(brand);
-            Label sub=new Label(); sub.Text="Secure Biometric Attendance Connector - Mantra MIS100V2"; sub.SetBounds(31,57,650,22); sub.ForeColor=Color.FromArgb(215,232,252); top.Controls.Add(sub);
-            Label badge=new Label(); badge.Text="KYP  |  V3"; badge.TextAlign=ContentAlignment.MiddleCenter; badge.SetBounds(920,22,135,45); badge.BackColor=Color.White; badge.ForeColor=Color.FromArgb(12,62,122); badge.Font=new Font("Segoe UI",12,FontStyle.Bold); top.Controls.Add(badge);
-
-            MakeLabel("Secure Connector",30,112,250,28,15,FontStyle.Bold,Color.FromArgb(18,55,95));
-            txtToken=new TextBox(); txtToken.PasswordChar='*'; txtToken.SetBounds(30,147,680,31); Controls.Add(txtToken);
-            Button save=MakeButton("Save Securely",725,144,150,36); save.Click+=delegate{SaveTokenSecurely();};
-            Button test=MakeButton("Test Server",890,144,150,36); test.Click+=delegate{TestServer();};
-            lblServer=MakeLabel("KYP Server: Not tested",30,190,490,27,11,FontStyle.Bold,Color.DimGray);
-            lblDevice=MakeLabel("MIS100V2: Not tested",535,190,505,27,11,FontStyle.Bold,Color.DimGray);
-            Button detect=MakeButton("Detect MIS100V2",30,225,220,40); detect.Click+=delegate{DetectDevice();};
-            Button students=MakeButton("Load Students",265,225,180,40); students.Click+=delegate{LoadStudents();};
-            Button catalog=MakeButton("Load Courses / Sessions",460,225,230,40); catalog.Click+=delegate{LoadCatalog();};
-
-            Panel left=new Panel(); left.SetBounds(30,285,500,350); left.BackColor=Color.White; left.BorderStyle=BorderStyle.FixedSingle; Controls.Add(left);
-            Label eh=new Label(); eh.Text="IRIS ENROLLMENT"; eh.SetBounds(22,18,300,28); eh.Font=new Font("Segoe UI",15,FontStyle.Bold); eh.ForeColor=Color.FromArgb(12,62,122); left.Controls.Add(eh);
-            Label sl=new Label(); sl.Text="Student"; sl.SetBounds(22,62,100,22); left.Controls.Add(sl);
-            cboStudent=new ComboBox(); cboStudent.DropDownStyle=ComboBoxStyle.DropDownList; cboStudent.SetBounds(22,88,445,31); left.Controls.Add(cboStudent);
-            Label el=new Label(); el.Text="Eye"; el.SetBounds(22,135,100,22); left.Controls.Add(el);
-            cboEye=new ComboBox(); cboEye.DropDownStyle=ComboBoxStyle.DropDownList; cboEye.Items.Add("Left"); cboEye.Items.Add("Right"); cboEye.SelectedIndex=0; cboEye.SetBounds(22,161,180,31); left.Controls.Add(cboEye);
-            btnEnroll=new Button(); btnEnroll.Text="Capture & Enroll Iris"; btnEnroll.SetBounds(22,215,445,48); btnEnroll.BackColor=Color.FromArgb(12,62,122); btnEnroll.ForeColor=Color.White; btnEnroll.FlatStyle=FlatStyle.Flat; btnEnroll.Click+=delegate{EnrollIris();}; left.Controls.Add(btnEnroll);
-            Label enote=new Label(); enote.Text="Enrollment stores biometric reference only on the authorized KYP server."; enote.SetBounds(22,282,445,45); enote.ForeColor=Color.DimGray; left.Controls.Add(enote);
-
-            Panel right=new Panel(); right.SetBounds(550,285,510,350); right.BackColor=Color.White; right.BorderStyle=BorderStyle.FixedSingle; Controls.Add(right);
-            Label ah=new Label(); ah.Text="BIOMETRIC ATTENDANCE"; ah.SetBounds(22,18,350,28); ah.Font=new Font("Segoe UI",15,FontStyle.Bold); ah.ForeColor=Color.FromArgb(12,62,122); right.Controls.Add(ah);
-            btnScan=new Button(); btnScan.Text="Scan & Identify Student"; btnScan.SetBounds(22,58,465,42); btnScan.Click+=delegate{ScanIdentify();}; right.Controls.Add(btnScan);
-            lblMatched=new Label(); lblMatched.Text="Matched Student: Not scanned"; lblMatched.SetBounds(22,108,465,43); lblMatched.Font=new Font("Segoe UI",10,FontStyle.Bold); right.Controls.Add(lblMatched);
-            cboCourse=new ComboBox(); cboCourse.DropDownStyle=ComboBoxStyle.DropDownList; cboCourse.SetBounds(22,160,220,31); cboCourse.SelectedIndexChanged+=delegate{PopulateSessions();}; right.Controls.Add(cboCourse);
-            cboSession=new ComboBox(); cboSession.DropDownStyle=ComboBoxStyle.DropDownList; cboSession.SetBounds(255,160,232,31); right.Controls.Add(cboSession);
-            btnCheckIn=new Button(); btnCheckIn.Text="CHECK-IN"; btnCheckIn.SetBounds(22,215,220,48); btnCheckIn.BackColor=Color.FromArgb(15,137,96); btnCheckIn.ForeColor=Color.White; btnCheckIn.FlatStyle=FlatStyle.Flat; btnCheckIn.Click+=delegate{SubmitAttendance("check_in");}; right.Controls.Add(btnCheckIn);
-            btnCheckOut=new Button(); btnCheckOut.Text="CHECK-OUT"; btnCheckOut.SetBounds(267,215,220,48); btnCheckOut.BackColor=Color.FromArgb(12,62,122); btnCheckOut.ForeColor=Color.White; btnCheckOut.FlatStyle=FlatStyle.Flat; btnCheckOut.Click+=delegate{SubmitAttendance("check_out");}; right.Controls.Add(btnCheckOut);
-            Label rule=new Label(); rule.Text="Attendance is sent only after a fresh successful iris match."; rule.SetBounds(22,282,465,42); rule.ForeColor=Color.DimGray; right.Controls.Add(rule);
-
-            lblStatus=MakeLabel("Ready. No biometric image/template is written to application logs.",30,655,1030,48,10,FontStyle.Regular,Color.DimGray);
-        }
-
-        string Token(){return txtToken.Text.Trim();}
-        string Request(string path,string method,object body)
-        {
-            if(Token().Length<20) throw new Exception("Connector token required.");
-            ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;
-            HttpWebRequest req=(HttpWebRequest)WebRequest.Create(Server+path); req.Method=method; req.Accept="application/json"; req.ContentType="application/json"; req.Headers["Authorization"]="Bearer "+Token(); req.Timeout=65000;
-            if(body!=null){byte[] bytes=Encoding.UTF8.GetBytes(json.Serialize(body)); req.ContentLength=bytes.Length; using(Stream s=req.GetRequestStream())s.Write(bytes,0,bytes.Length); Array.Clear(bytes,0,bytes.Length);}
-            try{using(HttpWebResponse res=(HttpWebResponse)req.GetResponse())using(StreamReader sr=new StreamReader(res.GetResponseStream()))return sr.ReadToEnd();}
-            catch(WebException ex){string msg=ex.Message;if(ex.Response!=null)using(StreamReader sr=new StreamReader(ex.Response.GetResponseStream()))msg=sr.ReadToEnd();throw new Exception(msg);}
-        }
-        void SaveTokenSecurely()
-        {
-            string token=Token(); if(token.Length<20){MessageBox.Show("Valid connector token required.");return;}
-            byte[] plain=Encoding.UTF8.GetBytes(token); byte[] enc=ProtectedData.Protect(plain,null,DataProtectionScope.CurrentUser); File.WriteAllBytes(TokenFile,enc); Array.Clear(plain,0,plain.Length); Array.Clear(enc,0,enc.Length); lblStatus.Text="Connector token securely saved for this Windows user."; lblStatus.ForeColor=Color.DarkGreen;
-        }
-        void LoadSavedToken(){try{if(!File.Exists(TokenFile))return;byte[] enc=File.ReadAllBytes(TokenFile);byte[] plain=ProtectedData.Unprotect(enc,null,DataProtectionScope.CurrentUser);txtToken.Text=Encoding.UTF8.GetString(plain);Array.Clear(plain,0,plain.Length);Array.Clear(enc,0,enc.Length);}catch{}}
-        void ServerStatus(string s,Color c){lblServer.Text="KYP Server: "+s;lblServer.ForeColor=c;}
-        void DeviceStatus(string s,Color c){lblDevice.Text="MIS100V2: "+s;lblDevice.ForeColor=c;}
-        void TestServer(){try{Request("/api/iris/health","GET",null);ServerStatus("Connected / Authorized",Color.DarkGreen);}catch(Exception ex){ServerStatus(ex.Message,Color.DarkRed);}}
-
-        void DetectDevice()
-        {
-            try{List<string> devices=new List<string>();int rc=iris.GetConnectedDevices(devices);if(rc!=0||devices.Count==0)throw new Exception("Device not detected. SDK="+rc);string model=devices[0];deviceInfo=new MIDIris_DEVICE_INFO();var m=iris.GetType().GetMethod("InitDevice",System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance);if(m==null)throw new Exception("InitDevice unavailable.");object[] args=new object[]{model,deviceInfo};int init=Convert.ToInt32(m.Invoke(iris,args));deviceInfo=(MIDIris_DEVICE_INFO)args[1];if(init!=0)throw new Exception("InitDevice="+init);DeviceStatus("Connected - "+deviceInfo.Make+" "+deviceInfo.Model+" | S/N "+deviceInfo.SerialNo,Color.DarkGreen);}
-            catch(Exception ex){DeviceStatus(ex.Message,Color.DarkRed);}
-        }
-        void EnsureDevice(){if(iris==null)throw new Exception("MIS100V2 SDK unavailable.");if(String.IsNullOrWhiteSpace(deviceInfo.Model))throw new Exception("Detect MIS100V2 first.");}
-        IrisData Capture(out int quality)
-        {
-            EnsureDevice(); IrisData data=new IrisData(); int rc=iris.AutoCapture(out quality,ref data,CaptureTimeout
+class MainForm:Form{
+ const string Server="https://kyp.mciedu.com"; const int Threshold=1000,Timeout=60000;
+ MIDIrisAuth iris; MIDIris_DEVICE_INFO info; JavaScriptSerializer js=new JavaScriptSerializer();
+ TextBox token; ComboBox students,eye,courses,sessions; Label server,device,status,matched; Student who; int score; string whichEye;
+ string TokenFile{get{string d=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"KYP-Iris-Connector");Directory.CreateDirectory(d);return Path.Combine(d,"connector-token.dat");}}
+ public MainForm(){Text="KYP Iris Connector V3 - Kushal Youth Programme";Width=1080;Height=730;StartPosition=FormStartPosition.CenterScreen;Font=new Font("Segoe UI",10);BackColor=Color.FromArgb(245,249,255);UI();LoadToken();try{iris=new MIDIrisAuth();Dev("SDK Loaded",Color.DarkGreen);}catch(Exception e){Dev(e.Message,Color.DarkRed);}}
+ Label L(string t,int x,int y,int w,int h,float z=10,bool bold=false){Label l=new Label();l.Text=t;l.SetBounds(x,y,w,h);l.Font=new Font("Segoe UI",z,bold?FontStyle.Bold:FontStyle.Regular);Controls.Add(l);return l;}
+ Button B(string t,int x,int y,int w,int h){Button b=new Button();b.Text=t;b.SetBounds(x,y,w,h);b.FlatStyle=FlatStyle.Flat;b.BackColor=Color.White;Controls.Add(b);return b;}
+ void UI(){Panel h=new Panel();h.SetBounds(0,0,1080,88);h.BackColor=Color.FromArgb(12,62,122);Controls.Add(h);Label a=new Label();a.Text="Kushal Youth Programme";a.SetBounds(28,14,600,38);a.Font=new Font("Segoe UI",23,FontStyle.Bold);a.ForeColor=Color.White;h.Controls.Add(a);Label s=new Label();s.Text="Secure Biometric Attendance Connector - Mantra MIS100V2";s.SetBounds(31,55,650,22);s.ForeColor=Color.White;h.Controls.Add(s);
+ L("Secure Connector",30,105,300,28,15,true);token=new TextBox();token.PasswordChar='*';token.SetBounds(30,140,650,30);Controls.Add(token);Button save=B("Save Securely",695,137,150,36);save.Click+=(x,y)=>SaveToken();Button test=B("Test Server",860,137,150,36);test.Click+=(x,y)=>Test();server=L("KYP Server: Not tested",30,182,490,28,11,true);device=L("MIS100V2: Not tested",535,182,500,28,11,true);Button detect=B("Detect MIS100V2",30,218,210,40);detect.Click+=(x,y)=>Detect();Button load=B("Load Students",255,218,175,40);load.Click+=(x,y)=>LoadStudents();Button cat=B("Load Courses / Sessions",445,218,225,40);cat.Click+=(x,y)=>LoadCatalog();
+ Panel p=new Panel();p.SetBounds(30,280,490,330);p.BackColor=Color.White;p.BorderStyle=BorderStyle.FixedSingle;Controls.Add(p);Label ph=new Label();ph.Text="IRIS ENROLLMENT";ph.SetBounds(20,15,300,30);ph.Font=new Font("Segoe UI",15,FontStyle.Bold);p.Controls.Add(ph);students=new ComboBox();students.DropDownStyle=ComboBoxStyle.DropDownList;students.SetBounds(20,65,445,30);p.Controls.Add(students);eye=new ComboBox();eye.DropDownStyle=ComboBoxStyle.DropDownList;eye.Items.Add("Left");eye.Items.Add("Right");eye.SelectedIndex=0;eye.SetBounds(20,115,180,30);p.Controls.Add(eye);Button en=B2(p,"Capture & Enroll Iris",20,175,445,48);en.Click+=(x,y)=>Enroll();Label note=new Label();note.Text="Biometric material is sent only to the authorized KYP server and is not written to connector logs.";note.SetBounds(20,245,445,55);note.ForeColor=Color.DimGray;p.Controls.Add(note);
+ Panel q=new Panel();q.SetBounds(540,280,500,330);q.BackColor=Color.White;q.BorderStyle=BorderStyle.FixedSingle;Controls.Add(q);Label qh=new Label();qh.Text="BIOMETRIC ATTENDANCE";qh.SetBounds(20,15,350,30);qh.Font=new Font("Segoe UI",15,FontStyle.Bold);q.Controls.Add(qh);Button scan=B2(q,"Scan & Identify Student",20,55,455,42);scan.Click+=(x,y)=>Identify();matched=new Label();matched.Text="Matched Student: Not scanned";matched.SetBounds(20,105,455,42);matched.Font=new Font("Segoe UI",10,FontStyle.Bold);q.Controls.Add(matched);courses=new ComboBox();courses.DropDownStyle=ComboBoxStyle.DropDownList;courses.SetBounds(20,155,215,30);courses.SelectedIndexChanged+=(x,y)=>FillSessions();q.Controls.Add(courses);sessions=new ComboBox();sessions.DropDownStyle=ComboBoxStyle.DropDownList;sessions.SetBounds(250,155,225,30);q.Controls.Add(sessions);Button ci=B2(q,"CHECK-IN",20,210,215,48);ci.BackColor=Color.FromArgb(15,137,96);ci.ForeColor=Color.White;ci.Click+=(x,y)=>Attendance("check_in");Button co=B2(q,"CHECK-OUT",260,210,215,48);co.BackColor=Color.FromArgb(12,62,122);co.ForeColor=Color.White;co.Click+=(x,y)=>Attendance("check_out");Label r=new Label();r.Text="A fresh iris match is required for every Check-In and Check-Out.";r.SetBounds(20,275,455,35);r.ForeColor=Color.DimGray;q.Controls.Add(r);status=L("Ready.",30,630,1010,45,10,false);status.ForeColor=Color.DimGray;}
+ Button B2(Control c,string t,int x,int y,int w,int h){Button b=new Button();b.Text=t;b.SetBounds(x,y,w,h);b.FlatStyle=FlatStyle.Flat;c.Controls.Add(b);return b;}
+ string Tok(){return token.Text.Trim();}
+ string Req(string path,string method,object body){if(Tok().Length<20)throw new Exception("Connector token required.");ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;HttpWebRequest r=(HttpWebRequest)WebRequest.Create(Server+path);r.Method=method;r.Accept="application/json";r.ContentType="application/json";r.Headers["Authorization"]="Bearer "+Tok();r.Timeout=65000;if(body!=null){byte[] b=Encoding.UTF8.GetBytes(js.Serialize(body));r.ContentLength=b.Length;using(Stream z=r.GetRequestStream())z.Write(b,0,b.Length);Array.Clear(b,0,b.Length);}try{using(HttpWebResponse x=(HttpWebResponse)r.GetResponse())using(StreamReader sr=new StreamReader(x.GetResponseStream()))return sr.ReadToEnd();}catch(WebException e){string m=e.Message;if(e.Response!=null)using(StreamReader sr=new StreamReader(e.Response.GetResponseStream()))m=sr.ReadToEnd();throw new Exception(m);}}
+ void SaveToken(){try{byte[] p=Encoding.UTF8.GetBytes(Tok());if(p.Length<20)throw new Exception("Valid token required.");byte[] e=ProtectedData.Protect(p,null,DataProtectionScope.CurrentUser);File.WriteAllBytes(TokenFile,e);Array.Clear(p,0,p.Length);Array.Clear(e,0,e.Length);status.Text="Token securely saved for this Windows user.";status.ForeColor=Color.DarkGreen;}catch(Exception e){MessageBox.Show(e.Message);}}
+ void LoadToken(){try{if(!File.Exists(TokenFile))return;byte[] e=File.ReadAllBytes(TokenFile),p=ProtectedData.Unprotect(e,null,DataProtectionScope.CurrentUser);token.Text=Encoding.UTF8.GetString(p);Array.Clear(e,0,e.Length);Array.Clear(p,0,p.Length);}catch{}}
+ void Srv(string x,Color c){server.Text="KYP Server: "+x;server.ForeColor=c;}void Dev(string x,Color c){device.Text="MIS100V2: "+x;device.ForeColor=c;}
+ void Test(){try{Req("/api/iris/health","GET",null);Srv("Connected / Authorized",Color.DarkGreen);}catch(Exception e){Srv(e.Message,Color.DarkRed);}}
+ void Detect(){try{List<string>d=new List<string>();int rc=iris.GetConnectedDevices(d);if(rc!=0||d.Count==0)throw new Exception("Device not detected. SDK="+rc);info=new MIDIris_DEVICE_INFO();var m=iris.GetType().GetMethod("InitDevice",System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance);object[] a={d[0],info};int x=Convert.ToInt32(m.Invoke(iris,a));info=(MIDIris_DEVICE_INFO)a[1];if(x!=0)throw new Exception("InitDevice="+x);Dev("Connected - "+info.Make+" "+info.Model+" | S/N "+info.SerialNo,Color.DarkGreen);}catch(Exception e){Dev(e.Message,Color.DarkRed);}}
+ IrisData Capture(out int quality){if(iris==null||String.IsNullOrWhiteSpace(info.Model))throw new Exception("Detect MIS100V2 first.");IrisData d=new IrisData();int rc=iris.AutoCapture(out quality,ref d,Timeout);if(rc!=0||d.BitmapImage==null||d.BitmapImage.Length==0)throw new Exception("Iris capture failed. SDK="+rc);return d;}
+ void LoadStudents(){try{Api<Student>a=js.Deserialize<Api<Student>>(Req("/api/iris/students","GET",null));students.Items.Clear();foreach(Student s in a.data)students.Items.Add(s);if(students.Items.Count>0)students.SelectedIndex=0;status.Text=students.Items.Count+" active students loaded.";}catch(Exception e){status.Text=e.Message;}}
+ void LoadCatalog(){try{Api<Course>a=js.Deserialize<Api<Course>>(Req("/api/iris/catalog","GET",null));courses.Items.Clear();foreach(Course c in a.data)courses.Items.Add(c);if(courses.Items.Count>0)courses.SelectedIndex=0;status.Text="Course/session catalog loaded.";}catch(Exception e){status.Text=e.Message;}}
+ void FillSessions(){sessions.Items.Clear();Course c=courses.SelectedItem as Course;if(c==null||c.sessions==null)return;foreach(Session s in c.sessions)sessions.Items.Add(s);if(sessions.Items.Count>0)sessions.SelectedIndex=0;}
+ void Enroll(){Student s=students.SelectedItem as Student;if(s==null){MessageBox.Show("Select student first.");return;}IrisData d=null;try{int q;status.Text="Look into MIS100V2 - capturing iris...";Application.DoEvents();d=Capture(out q);string enc=Convert.ToBase64String(d.BitmapImage);var p=new Dictionary<string,object>();p["user_id"]=s.id;p["quality_score"]=Math.Max(0,Math.Min(100,q));p["device_reference"]=info.SerialNo;p["left_template"]=eye.Text=="Left"?enc:null;p["right_template"]=eye.Text=="Right"?enc:null;Req("/api/iris/enroll","POST",p);status.Text=s.student_id+" - "+eye.Text+" iris enrollment successful. Quality="+q;status.ForeColor=Color.DarkGreen;LoadStudents();}catch(Exception e){status.Text="Enrollment failed: "+e.Message;status.ForeColor=Color.DarkRed;}finally{if(d!=null&&d.BitmapImage!=null)Array.Clear(d.BitmapImage,0,d.BitmapImage.Length);}}
+ void Identify(){who=null;score=0;whichEye=null;IrisData probe=null;try{int q;status.Text="Live iris capture in progress...";Application.DoEvents();probe=Capture(out q);Api<Candidate>a=js.Deserialize<Api<Candidate>>(Req("/api/iris/candidates","GET",null));int best=-1;Candidate hit=null;string heye=null;foreach(Candidate c in a.data){string[] vals={c.left_template,c.right_template};string[] eyes={"left","right"};for(int i=0;i<2;i++){if(String.IsNullOrWhiteSpace(vals[i]))continue;byte[] gallery=Convert.FromBase64String(vals[i]);int sc=0;int rc=iris.MatchIrisData(gallery,probe.BitmapImage,out sc);Array.Clear(gallery,0,gallery.Length);if(rc==0&&sc>best){best=sc;hit=c;heye=eyes[i];}}}if(hit==null||best<Threshold){matched.Text="Matched Student: NO MATCH | score="+Math.Max(0,best);matched.ForeColor=Color.DarkRed;status.Text="Attendance blocked: biometric match below threshold.";return;}who=new Student{id=hit.user_id,student_id=hit.student_id,name=hit.student_name,iris_enrolled=true};score=best;whichEye=heye;matched.Text="Matched Student: "+who.student_id+" - "+who.name+" | "+whichEye+" | score="+score;matched.ForeColor=Color.DarkGreen;status.Text="Identity verified. Select course/session and Check-In or Check-Out.";status.ForeColor=Color.DarkGreen;}catch(Exception e){status.Text="Identification failed: "+e.Message;status.ForeColor=Color.DarkRed;}finally{if(probe!=null&&probe.BitmapImage!=null)Array.Clear(probe.BitmapImage,0,probe.BitmapImage.Length);}}
+ void Attendance(string type){if(who==null){MessageBox.Show("Scan & Identify Student first.");return;}Course c=courses.SelectedItem as Course;Session s=sessions.SelectedItem as Session;if(c==null||s==null){MessageBox.Show("Select course and session.");return;}try{var p=new Dictionary<string,object>();p["event_uuid"]=Guid.NewGuid().ToString();p["user_id"]=who.id;p["course_id"]=c.id;p["learning_session_id"]=s.id;p["event_type"]=type;p["device_reference"]=info.SerialNo;p["matched_eye"]=whichEye;p["match_score"]=score;p["captured_at"]=DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssK");p["metadata"]=new Dictionary<string,object>{{"connector","KYP-Iris-Connector-V3"},{"threshold",Threshold}};AttRes r=js.Deserialize<AttRes>(Req("/api/iris/attendance","POST",p));status.Text=(type=="check_in"?"Check-In":"Check-Out")+" successful | status="+r.status+(r.minutes_completed.HasValue?" | minutes="+r.minutes_completed.Value:"");status.ForeColor=Color.DarkGreen;who=null;score=0;whichEye=null;matched.Text="Matched Student: fresh scan required for next attendance event";matched.ForeColor=Color.DimGray;}catch(Exception e){status.Text="Attendance failed: "+e.Message;status.ForeColor=Color.DarkRed;}}
+ protected override void OnFormClosed(FormClosedEventArgs e){try{if(iris!=null)iris.StopCapture();}catch{}base.OnFormClosed(e);}
+ [STAThread]static void Main(){Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Application.Run(new MainForm());}
+}}

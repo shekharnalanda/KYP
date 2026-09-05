@@ -18,6 +18,8 @@ Route::get('/verify-certificate/{token}', [ResultController::class, 'verify'])->
 
 Route::prefix('api/iris')->group(function (): void {
     Route::get('/health', [IrisConnectorController::class, 'health'])->middleware('throttle:30,1');
+    Route::get('/catalog', [IrisConnectorController::class, 'catalog'])->middleware('throttle:30,1');
+    Route::get('/students', [IrisConnectorController::class, 'students'])->middleware('throttle:30,1');
     Route::get('/candidates', [IrisConnectorController::class, 'candidates'])->middleware('throttle:12,1');
     Route::post('/enroll', [IrisConnectorController::class, 'enroll'])->middleware('throttle:20,1');
     Route::post('/attendance', [IrisConnectorController::class, 'attendance'])->middleware('throttle:120,1');

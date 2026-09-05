@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\IrisProfile;
+use App\Models\Course;
+use App\Models\Enrollment;
+use App\Models\LearningSession;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
@@ -55,5 +58,50 @@ class IrisConnectorApiTest extends TestCase
             'left-template-payload',
             $profile->getRawOriginal('left_template')
         );
+    }
+
+    public function test_connector_can_fetch_catalog_and_active_students(): void
+    {
+        $course = Course::create([
+            'code' => 'CIT',
+            'name' => 'Information Technology',
+            'total_sessions' => 60,
+            'total_hours' => 120,
+            'minimum_exam_sessions' => 48,
+            'position' => 1,
+            'is_active' => true,
+        ]);
+        $session = LearningSession::create([
+            'course_id' => $course->id,
+            'session_number' => 1,
+            'title_hi' => 'कंप्यूटर परिचय',
+            'title_en' => 'Computer Introduction',
+            'duration_minutes' => 120,
+            'content_status' => 'published',
+            'published_at' => now(),
+        ]);
+        $student = User::factory()->create([
+            'role' => 'student',
+            'status' => 'active',
+            'student_id' => 'KYP-IRIS-002',
+        ]);
+        Enrollment::create([
+            'user_id' => $student->id,
+            'course_id' => $course->id,
+            'status' => 'active',
+            'enrolled_at' => now(),
+        ]);
+
+        $this->withToken('test-iris-token')
+            ->getJson('/api/iris/catalog')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $course->id)
+            ->assertJsonPath('data.0.sessions.0.id', $session->id);
+
+        $this->withToken('test-iris-token')
+            ->getJson('/api/iris/students')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $student->id)
+            ->assertJsonPath('data.0.iris_enrolled', false);
     }
 }

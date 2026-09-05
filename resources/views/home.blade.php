@@ -9,7 +9,14 @@
             <span class="brand-fallback">KYP</span>
             <span><strong>KUSHAL YOUTH PROGRAM</strong><small>Skills for the Digital Future</small></span>
         </a>
-        <div class="links"><a href="#courses">Courses</a><a href="#system">Learning System</a><a href="#eligibility">Eligibility</a><a class="btn" href="{{ route('login') }}">Portal Login</a></div>
+        <div class="links">
+<a href="#courses">Courses</a>
+<a href="#system">Learning System</a>
+<a href="#eligibility">Eligibility</a>
+<a href="{{ route('enquiry.form') }}">Enquiry</a>
+<a class="btn btn-accent" href="{{ route('admission.form') }}">Online Admission</a>
+<a class="btn" href="{{ route('login') }}">Portal Login</a>
+</div>
     </nav>
 </header>
 <main>
@@ -19,7 +26,11 @@
             <span class="eyebrow">आधुनिक IT • Communication • Soft Skills • AI</span>
             <h1>कौशल से आत्मविश्वास,<br><span>आत्मविश्वास से भविष्य</span></h1>
             <p>Kushal Youth Program युवाओं को practical computer knowledge, language confidence, professional behaviour और latest AI तथा Digital Marketing skills के साथ भविष्य के लिए तैयार करता है।</p>
-            <div class="actions"><a class="btn btn-accent" href="#courses">Program देखें</a><a class="btn btn-light" href="{{ route('login') }}">Student / Teacher Login</a></div>
+            <div class="actions">
+<a class="btn btn-accent" href="{{ route('admission.form') }}">Online Admission</a>
+<a class="btn btn-light" href="{{ route('enquiry.form') }}">Enquiry Now</a>
+<a class="btn btn-light" href="{{ route('login') }}">Student / Teacher Login</a>
+</div>
         </div>
         <div class="hero-card">
             <img class="big-logo" src="/images/kyp-logo.webp" alt="KYP Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
@@ -28,6 +39,54 @@
         </div>
     </div>
 </section>
+
+<section class="soft" id="admission-enquiry">
+    <div class="container">
+        <div class="section-head">
+            <span class="eyebrow" style="color:#057d78;background:#e8fffd">
+                JOIN KUSHAL YOUTH PROGRAM
+            </span>
+            <h2>Admission एवं Enquiry</h2>
+            <p>
+                अपनी पसंदीदा branch और course चुनें। Online admission में
+                student photo एवं आवश्यक details submit करें या पहले enquiry भेजें।
+            </p>
+        </div>
+
+        <div class="cards" style="grid-template-columns:repeat(2,1fr)">
+            <article class="card">
+                <div class="icon">A</div>
+                <h3>Online Admission</h3>
+                <p>
+                    Complete admission application, branch/course selection,
+                    student photograph, personal एवं guardian details के साथ।
+                </p>
+                <div style="margin-top:18px">
+                    <a class="btn btn-primary"
+                       href="{{ route('admission.form') }}">
+                        Apply for Admission
+                    </a>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="icon">E</div>
+                <h3>Course Enquiry</h3>
+                <p>
+                    Course, preferred branch और contact details भेजें।
+                    संबंधित branch आपकी enquiry को process करेगी।
+                </p>
+                <div style="margin-top:18px">
+                    <a class="btn btn-light"
+                       href="{{ route('enquiry.form') }}">
+                        Send Enquiry
+                    </a>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
 <section id="courses">
     <div class="container">
         <div class="section-head"><span class="eyebrow" style="color:#057d78;background:#e8fffd">PROGRAM STRUCTURE</span><h2>एक संपूर्ण कौशल विकास यात्रा</h2><p>Topic-wise sequential sessions, classroom explanation और guided lab practice के साथ व्यवस्थित learning journey।</p></div>

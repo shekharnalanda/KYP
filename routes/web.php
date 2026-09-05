@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StudentIdCardController;
 use App\Http\Controllers\AdminAssessmentController;
 use App\Http\Controllers\AdminProgressController;
 use App\Http\Controllers\AdminUserController;
@@ -12,6 +13,19 @@ use App\Http\Controllers\LearningSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResultController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PublicApplicationController;
+use App\Http\Controllers\AdminApplicationController;
+use App\Http\Controllers\AdminExceptionalCompletionController;
+
+
+Route::get('/admission', [PublicApplicationController::class, 'admissionForm'])->name('admission.form');
+Route::post('/admission', [PublicApplicationController::class, 'admissionStore'])->name('admission.store');
+Route::get('/admission/success/{number}', [PublicApplicationController::class, 'admissionSuccess'])->name('admission.success');
+
+Route::get('/enquiry', [PublicApplicationController::class, 'enquiryForm'])->name('enquiry.form');
+Route::post('/enquiry', [PublicApplicationController::class, 'enquiryStore'])->name('enquiry.store');
+Route::get('/enquiry/success/{number}', [PublicApplicationController::class, 'enquirySuccess'])->name('enquiry.success');
+
 
 Route::view('/', 'home')->name('home');
 Route::get('/verify-certificate/{token}', [ResultController::class, 'verify'])->middleware('throttle:60,1')->name('certificate.verify');
@@ -30,6 +44,9 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/login', [AuthController::class, 'store'])->middleware('throttle:6,1');
 });
 
+Route::get('/verify-student/{token}', [StudentIdCardController::class, 'verify'])
+    ->name('student.id-card.verify');
+
 Route::middleware(['auth', 'auth.session'])->group(function (): void {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
@@ -42,6 +59,7 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
     });
 
     Route::middleware('role:student')->group(function (): void {
+        Route::get('/student/id-card', [StudentIdCardController::class, 'show'])->name('student.id-card');
         Route::get('/student', [DashboardController::class, 'student'])->name('student.dashboard');
         Route::post('/learning/{session}/progress', [LearningSessionController::class, 'progress'])->middleware('throttle:120,1')->name('learning.progress');
         Route::post('/learning/{session}/complete', [LearningSessionController::class, 'complete'])->middleware('throttle:20,1')->name('learning.complete');
@@ -64,6 +82,19 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
 
     Route::middleware('role:admin,master_admin')->group(function (): void {
         Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
+        Route::get('/admin/branches', [AdminApplicationController::class, 'branches'])->name('admin.branches');
+        Route::post('/admin/branches', [AdminApplicationController::class, 'storeBranch'])->middleware('throttle:20,1')->name('admin.branches.store');
+        Route::put('/admin/branches/{branch}', [AdminApplicationController::class, 'updateBranch'])->middleware('throttle:30,1')->name('admin.branches.update');
+
+        Route::get('/admin/admissions', [AdminApplicationController::class, 'admissions'])->name('admin.admissions');
+        Route::post('/admin/admissions/{admission}/approve', [AdminApplicationController::class, 'approveAdmission'])->middleware('throttle:20,1')->name('admin.admissions.approve');
+        Route::post('/admin/admissions/{admission}/status', [AdminApplicationController::class, 'admissionStatus'])->middleware('throttle:30,1')->name('admin.admissions.status');
+
+        Route::get('/admin/enquiries', [AdminApplicationController::class, 'enquiries'])->name('admin.enquiries');
+        Route::put('/admin/enquiries/{enquiry}', [AdminApplicationController::class, 'updateEnquiry'])->middleware('throttle:30,1')->name('admin.enquiries.update');
+
+        Route::get('/admin/students/{student}/id-card', [StudentIdCardController::class, 'adminShow'])->name('admin.student.id-card');
+        Route::post('/admin/id-cards/bulk', [StudentIdCardController::class, 'adminBulk'])->middleware('throttle:10,1')->name('admin.id-cards.bulk');
         Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users');
         Route::post('/admin/users', [AdminUserController::class, 'store'])->middleware('throttle:20,1')->name('admin.users.store');
         Route::post('/admin/users/{user}/status', [AdminUserController::class, 'status'])->middleware('throttle:30,1')->name('admin.users.status');
@@ -75,7 +106,13 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
         Route::post('/admin/questions', [AdminAssessmentController::class, 'storeQuestion'])->middleware('throttle:30,1')->name('admin.questions.store');
         Route::get('/admin/questions/{question}/edit', [AdminAssessmentController::class, 'editQuestion'])->name('admin.questions.edit');
         Route::put('/admin/questions/{question}', [AdminAssessmentController::class, 'updateQuestion'])->middleware('throttle:30,1')->name('admin.questions.update');
+        Route::get('/admin/exceptional-completion', [AdminExceptionalCompletionController::class, 'index'])->name('admin.exceptional');
+        Route::post('/admin/exceptional-completion/eligibility', [AdminExceptionalCompletionController::class, 'eligibility'])->middleware('throttle:5,1')->name('admin.exceptional.eligibility');
+        Route::post('/admin/exceptional-completion/pass', [AdminExceptionalCompletionController::class, 'pass'])->middleware('throttle:5,1')->name('admin.exceptional.pass');
         Route::get('/admin/results', [ResultController::class, 'index'])->name('admin.results');
+        Route::get('/admin/results/{result}/marksheet', [ResultController::class, 'adminMarksheet'])->name('admin.result.marksheet');
+        Route::get('/admin/certificates/{certificate}', [ResultController::class, 'adminCertificate'])->name('admin.result.certificate');
+        
         Route::post('/admin/results/bulk-print', [ResultController::class, 'bulkPrint'])->middleware('throttle:10,1')->name('admin.results.bulk');
         Route::post('/admin/results/{result}/publish', [ResultController::class, 'publish'])->middleware('throttle:30,1')->name('admin.results.publish');
     });

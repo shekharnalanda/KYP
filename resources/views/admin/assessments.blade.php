@@ -1,34 +1,15 @@
 @extends('layouts.app')
 @section('title', 'Assessment CMS | KYP')
 @section('body')
-<div class="panel-shell"><div class="container"><div class="panel">
-<div style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap"><div><span class="eyebrow" style="color:#057d78;background:#e8fffd">ASSESSMENT CMS</span><h1>Exams & Bilingual Question Bank</h1><p style="color:var(--muted)">Exam creation, publishing और Hindi-English questions का central control.</p></div><a class="btn btn-light" href="{{ route('admin.dashboard') }}">Dashboard</a></div>
-@if(session('status'))<div style="margin-top:18px;padding:14px;border-radius:12px;background:#e8fffd;color:#057d78">{{ session('status') }}</div>@endif
-@if($errors->any())<div style="margin-top:18px;padding:14px;border-radius:12px;background:#fff1f2;color:#be123c">{{ $errors->first() }}</div>@endif
 
-<details open class="card" style="margin-top:22px"><summary style="font-size:20px;font-weight:800;cursor:pointer">Create Exam</summary>
-<form method="POST" action="{{ route('admin.exams.store') }}" style="margin-top:16px">@csrf
-<div class="panel-grid">
-<label>Course<select name="course_id" required style="width:100%;padding:11px"><option value="">Select</option>@foreach($courses as $course)<option value="{{ $course->id }}">{{ $course->code }}</option>@endforeach</select></label>
-<label>Hindi title<input name="title_hi" required style="width:100%;padding:11px"></label><label>English title<input name="title_en" required style="width:100%;padding:11px"></label>
-<label>Duration<input type="number" name="duration_minutes" value="30" min="5" max="240" required style="width:100%;padding:11px"></label>
-<label>Questions<input type="number" name="total_questions" value="0" min="0" max="500" required style="width:100%;padding:11px"></label>
-<label>Maximum marks<input type="number" name="max_marks" value="200" min="1" max="500" required style="width:100%;padding:11px"></label>
-<label>Status<select name="status" style="width:100%;padding:11px"><option value="draft">Draft</option><option value="published">Published</option></select></label>
-</div><button class="btn btn-primary" style="margin-top:14px">Create Exam</button></form></details>
-
-<details open class="card" style="margin-top:18px"><summary style="font-size:20px;font-weight:800;cursor:pointer">Add Bilingual Question</summary>
-<form method="POST" action="{{ route('admin.questions.store') }}" style="margin-top:16px">@csrf
-<div class="panel-grid"><label>Course<select id="q-course" name="course_id" required style="width:100%;padding:11px"><option value="">Select</option>@foreach($courses as $course)<option value="{{ $course->id }}">{{ $course->code }}</option>@endforeach</select></label>
-<label>Session<select id="q-session" name="learning_session_id" required style="width:100%;padding:11px"><option value="">Select</option>@foreach($courses as $course)@foreach($course->sessions as $session)<option data-course="{{ $course->id }}" value="{{ $session->id }}">{{ $course->code }}-{{ $session->session_number }}</option>@endforeach@endforeach</select></label>
-<label>Attach to exam<select name="exam_id" style="width:100%;padding:11px"><option value="">Question bank only</option>@foreach($exams as $exam)<option value="{{ $exam->id }}">{{ $exam->course->code }} — {{ $exam->title_en }}</option>@endforeach</select></label></div>
-<div class="panel-grid" style="margin-top:12px"><label>Question Hindi<textarea name="text_hi" required style="width:100%;padding:11px"></textarea></label><label>Question English<textarea name="text_en" required style="width:100%;padding:11px"></textarea></label></div>
-@foreach(['A','B','C','D'] as $key)<div class="panel-grid" style="margin-top:10px"><label>{{ $key }} Hindi<input name="options_hi[{{ $key }}]" required style="width:100%;padding:10px"></label><label>{{ $key }} English<input name="options_en[{{ $key }}]" required style="width:100%;padding:10px"></label></div>@endforeach
-<div class="panel-grid" style="margin-top:12px"><label>Correct<select name="correct_option" style="width:100%;padding:11px">@foreach(['A','B','C','D'] as $key)<option>{{ $key }}</option>@endforeach</select></label><label>Marks<input type="number" step=".25" name="marks" value="1" required style="width:100%;padding:11px"></label><label>Negative<input type="number" step=".25" name="negative_marks" value="0" required style="width:100%;padding:11px"></label><label>Difficulty<select name="difficulty" style="width:100%;padding:11px"><option value="foundation">Foundation</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></label><label>Status<select name="status" style="width:100%;padding:11px"><option value="published">Published</option><option value="draft">Draft</option></select></label></div>
-<button class="btn btn-primary" style="margin-top:14px">Add Question</button></form></details>
-
-<h2 style="margin-top:26px">Exams</h2><div style="display:grid;gap:12px">@foreach($exams as $exam)<form method="POST" action="{{ route('admin.exams.update',$exam) }}" class="card">@csrf @method('PUT')<div class="panel-grid"><strong>{{ $exam->course->code }} — {{ $exam->title_en }} ({{ $exam->questions_count }} Q)</strong><input type="hidden" name="course_id" value="{{ $exam->course_id }}"><input type="hidden" name="title_hi" value="{{ $exam->title_hi }}"><input type="hidden" name="title_en" value="{{ $exam->title_en }}"><input type="hidden" name="duration_minutes" value="{{ $exam->duration_minutes }}"><input type="hidden" name="total_questions" value="{{ $exam->total_questions }}"><input type="hidden" name="max_marks" value="{{ $exam->max_marks }}"><select name="status" style="padding:10px"><option value="draft" @selected($exam->status==='draft')>Draft</option><option value="published" @selected($exam->status==='published')>Published</option><option value="closed" @selected($exam->status==='closed')>Closed</option></select><button class="btn btn-primary">Update Status</button></div></form>@endforeach</div>
-<h2 style="margin-top:26px">Recent Questions</h2><div style="overflow:auto"><table style="width:100%"><thead><tr><th>Course</th><th>Question</th><th>Status</th><th></th></tr></thead><tbody>@foreach($questions as $question)<tr><td>{{ $question->course->code }}</td><td>{{ $question->text_hi }}<br><small>{{ $question->text_en }}</small></td><td>{{ $question->status }}</td><td><a class="btn btn-light" href="{{ route('admin.questions.edit',$question) }}">Edit</a></td></tr>@endforeach</tbody></table></div>
-</div></div></div>
+<x-admin-shell
+    active="assessments"
+    eyebrow="ASSESSMENT CMS"
+    title="Exams & Bilingual Question Bank"
+    subtitle="Exam creation, publishing और Hindi-English questions का central control."
+>
+</div>
 <script>document.getElementById('q-course').addEventListener('change',function(){const id=this.value;document.querySelectorAll('#q-session option[data-course]').forEach(o=>o.hidden=id&&o.dataset.course!==id);document.getElementById('q-session').value='';});</script>
+</x-admin-shell>
+
 @endsection

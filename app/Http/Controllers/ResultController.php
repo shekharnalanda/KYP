@@ -74,6 +74,31 @@ class ResultController extends Controller
         ]);
     }
 
+    public function adminMarksheet(Result $result): View
+    {
+        abort_unless($result->published_at, 404);
+
+        $result->load([
+            'user',
+            'examAttempt.exam.course',
+            'certificate'
+        ]);
+
+        return view('student.marksheet', compact('result'));
+    }
+
+    public function adminCertificate(Certificate $certificate): View
+    {
+        abort_unless($certificate->status === 'issued', 404);
+
+        $certificate->load([
+            'user',
+            'result.examAttempt.exam.course'
+        ]);
+
+        return view('student.certificate', compact('certificate'));
+    }
+
     public function marksheet(Request $request, Result $result): View
     {
         abort_unless($result->user_id === $request->user()->id && $result->published_at, 403);

@@ -1,9 +1,45 @@
 @extends('layouts.app')
 @section('title', 'Teacher Dashboard | KYP')
 @section('body')
-<div class="panel-shell"><div class="container"><div class="panel">
-<div style="display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap"><div><span class="eyebrow" style="color:#057d78;background:#e8fffd">TEACHER PANEL</span><h1>Teacher Dashboard</h1><p style="color:var(--muted)">Classroom sessions, learner progress और attendance overview।</p></div><div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn-primary" href="{{ route('learning.index') }}">Open Sessions</a><a class="btn btn-primary" href="{{ route('attendance.index') }}">Mark Attendance</a><a class="btn btn-light" href="{{ route('profile.password.edit') }}">Change Password</a><form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-light">Logout</button></form></div></div>
-<div class="panel-grid"><div class="panel-card"><h3>Active Students</h3><div class="metric">{{ $studentCount }}</div></div><div class="panel-card"><h3>Today’s Attendance</h3><div class="metric">{{ $attendanceToday }}</div></div><div class="panel-card"><h3>Course Sessions</h3><div class="metric">{{ $courses->sum('sessions_count') }}</div></div></div>
-<div class="cards" style="margin-top:22px">@foreach($courses as $course)<article class="card"><div class="icon">{{ $course->code }}</div><h3>{{ $course->name }}</h3><p>{{ $course->sessions_count }} sequential classroom/lab sessions</p><div class="metric">{{ $course->total_hours }} Hours</div></article>@endforeach</div>
-</div></div></div>
+
+<x-portal-shell
+ active="dashboard"
+ eyebrow="TEACHER CONTROL CENTRE"
+ title="Teacher Dashboard"
+ subtitle="Classroom sessions, learner activity और attendance operations का professional overview।"
+>
+
+<style>
+.teacher-courses{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-top:20px}
+.teacher-course{padding:20px;border:1px solid #dce7f4;border-radius:17px;background:#f9fcff;border-left:4px solid #11c5bd}
+.teacher-course b{color:#057d78}
+.teacher-course h3{color:#062b63;margin:7px 0}
+.teacher-course p{color:#718198;font-size:13px}
+.teacher-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+@media(max-width:650px){.teacher-courses{grid-template-columns:1fr}}
+</style>
+
+<div class="teacher-actions">
+<a class="btn btn-primary" href="{{ route('learning.index') }}">Open Sessions</a>
+<a class="btn btn-light" href="{{ route('attendance.index') }}">Mark Attendance</a>
+</div>
+
+<div class="kps-metrics">
+<div class="kps-metric"><small>Active Students</small><strong>{{ $studentCount }}</strong></div>
+<div class="kps-metric"><small>Today's Attendance</small><strong>{{ $attendanceToday }}</strong></div>
+<div class="kps-metric"><small>Course Sessions</small><strong>{{ $courses->sum('sessions_count') }}</strong></div>
+</div>
+
+<div class="teacher-courses">
+@foreach($courses as $course)
+<article class="teacher-course">
+<b>{{ $course->code }}</b>
+<h3>{{ $course->name }}</h3>
+<p>{{ $course->sessions_count }} sequential classroom/lab sessions</p>
+<strong>{{ $course->total_hours }} Hours</strong>
+</article>
+@endforeach
+</div>
+
+</x-portal-shell>
 @endsection

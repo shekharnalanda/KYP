@@ -8,8 +8,7 @@
 .kyp-admin-header{background:linear-gradient(135deg,#031b3f,#073b78);color:#fff}
 .kyp-admin-header-inner{width:min(1380px,94%);height:76px;margin:auto;display:flex;align-items:center;justify-content:space-between}
 .kyp-admin-brand{display:flex;align-items:center;gap:12px}
-.kyp-admin-mark{width:54px;height:54px;border-radius:50%;background:#fff;display:grid;place-items:center;padding:3px;overflow:hidden;box-shadow:0 5px 16px rgba(0,0,0,.18)}
-.kyp-admin-mark img{width:100%;height:100%;object-fit:contain;border-radius:50%;display:block}
+.kyp-admin-mark{width:48px;height:48px;border-radius:14px;background:#11c5bd;color:#032653;display:grid;place-items:center;font-weight:900}
 .kyp-admin-brand strong,.kyp-admin-brand small{display:block}
 .kyp-admin-brand small{color:#c8d9ee;font-size:12px;margin-top:3px}
 .kyp-admin-user{display:flex;align-items:center;gap:12px;text-align:right}
@@ -88,18 +87,6 @@
 @media(max-width:390px){
 .kyp-stats,.kyp-courses,.kyp-quick{grid-template-columns:1fr}
 }
-
-.kyp-admin-user .mci-admin-logo{
- width:52px;height:52px;border-radius:50%;
- background:#fff;padding:2px;overflow:hidden;
- display:grid;place-items:center;
- box-shadow:0 4px 14px rgba(0,0,0,.18)
-}
-.kyp-admin-user .mci-admin-logo img{
- width:100%;height:100%;object-fit:contain;
- border-radius:50%;display:block
-}
-
 </style>
 
 <div class="kyp-admin-v2">
@@ -107,10 +94,7 @@
 <header class="kyp-admin-header">
 <div class="kyp-admin-header-inner">
     <div class="kyp-admin-brand">
-        <div class="kyp-admin-mark">
-<img src="{{ asset('images/kyp-logo.webp') }}"
-     alt="Kushal Youth Program Logo">
-</div>
+        <div class="kyp-admin-mark">KYP</div>
         <div>
             <strong>Kushal Youth Program</strong>
             <small>Central Administration</small>
@@ -122,9 +106,7 @@
             <strong>{{ auth()->user()->name }}</strong>
             <small>Administrator</small>
         </div>
-        <span class="mci-admin-logo">
-<img src="{{ asset('images/mci-circle-logo.png') }}" alt="MCI Logo">
-</span>
+        <span>{{ strtoupper(substr(auth()->user()->name,0,1)) }}</span>
     </div>
 </div>
 </header>
@@ -281,32 +263,5 @@ $cards = [
 </main>
 </div>
 </div>
-
-
-<style>
-.kyp-admin-user > span.mci-admin-logo{
-    width:58px !important;
-    height:58px !important;
-    min-width:58px !important;
-    border-radius:50% !important;
-    background:#fff !important;
-    padding:4px !important;
-    overflow:hidden !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    box-sizing:border-box !important;
-}
-.kyp-admin-user > span.mci-admin-logo img{
-    width:100% !important;
-    height:100% !important;
-    max-width:100% !important;
-    max-height:100% !important;
-    object-fit:contain !important;
-    object-position:center !important;
-    border-radius:50% !important;
-    display:block !important;
-}
-</style>
 
 @endsection

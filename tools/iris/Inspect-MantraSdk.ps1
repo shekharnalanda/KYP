@@ -58,7 +58,7 @@ foreach ($root in $searchRoots) {
 }
 
 if (-not $dll) {
-    throw "MIDIris_Auth.dll नहीं मिली। MIS100V2 ZIP को Downloads में extract करें और script दोबारा चलाएँ।"
+    throw "MIDIris_Auth.dll was not found. Extract the MIS100V2 ZIP under Downloads and run this script again."
 }
 
 $assemblyDirectory = $dll.Directory.FullName
@@ -132,4 +132,4 @@ $lines | Set-Content -Path $outputPath -Encoding UTF8
 Write-Host ""
 Write-Host "MIS100V2 SDK inspection complete." -ForegroundColor Green
 Write-Host "Report: $outputPath" -ForegroundColor Cyan
-Write-Host "इस report में biometric data या connector token नहीं है।" -ForegroundColor Yellow
+Write-Host "This report contains no biometric data or connector token." -ForegroundColor Yellow

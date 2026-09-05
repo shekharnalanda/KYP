@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -48,6 +49,16 @@ class User extends Authenticatable
     public function activityRecords(): HasMany
     {
         return $this->hasMany(ActivityRecord::class);
+    }
+
+    public function irisProfile(): HasOne
+    {
+        return $this->hasOne(IrisProfile::class);
+    }
+
+    public function irisAttendanceEvents(): HasMany
+    {
+        return $this->hasMany(IrisAttendanceEvent::class);
     }
 
     public function isActive(): bool

@@ -66,4 +66,13 @@ class CoursewareService
     {
         return collect($courseware['steps'] ?? [])->pluck('id')->filter()->values()->all();
     }
+
+    public function activityIds(array $courseware): array
+    {
+        return collect($courseware['steps'] ?? [])
+            ->pluck('activity.id')
+            ->filter()
+            ->values()
+            ->all();
+    }
 }

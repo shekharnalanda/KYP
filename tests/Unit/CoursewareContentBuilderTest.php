@@ -20,7 +20,7 @@ class CoursewareContentBuilderTest extends TestCase
         $courseware = app(CoursewareContentBuilder::class)->build($session);
         $steps = collect($courseware['steps']);
 
-        $this->assertSame(3, $courseware['version']);
+        $this->assertSame(4, $courseware['version']);
         $this->assertCount(10, $steps);
         $this->assertSame(120, $steps->sum('minutes'));
         $questions = $steps->flatMap(fn (array $step) => $step['interactions'] ?? []);
@@ -29,6 +29,13 @@ class CoursewareContentBuilderTest extends TestCase
             filled($question['prompt_hi'])
             && filled($question['prompt_en'])
             && collect($question['options'])->every(fn (array $option) => filled($option['hi']) && filled($option['en']))
+        ));
+        $activities = $steps->pluck('activity')->filter();
+        $this->assertCount(10, $activities);
+        $this->assertTrue($activities->every(fn (array $activity) =>
+            filled($activity['title_hi'])
+            && filled($activity['title_en'])
+            && count($activity['items']) >= 4
         ));
         $this->assertTrue($steps->contains('type', 'practical'));
         $this->assertStringContainsString($topic, $steps->first()['content']);

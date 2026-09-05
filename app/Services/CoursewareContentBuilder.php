@@ -15,10 +15,11 @@ class CoursewareContentBuilder
         $stage = ['देखें और पहचानें', 'समझाकर बताएँ', 'निर्देश के साथ करें', 'स्वयं करके जाँचें', 'त्रुटि खोजकर सुधारें'][$number % 5];
 
         $questions = $this->questions($code, $number, $topic, $profile);
+        $activities = $this->activities($code, $number, $topic, $profile);
 
 
         $courseware = [
-            'version' => 3,
+            'version' => 4,
             'language' => 'hi-en',
             'topic' => $topic,
             'outcomes' => [
@@ -102,6 +103,7 @@ class CoursewareContentBuilder
 
         foreach ($courseware['steps'] as $index => &$step) {
             $step['interactions'] = [$questions[$index]];
+            $step['activity'] = $activities[$index];
         }
         unset($step);
 
@@ -200,6 +202,87 @@ class CoursewareContentBuilder
     private function generic(string $topic): array
     {
         return $this->make('व्यावहारिक कौशल विकास', "{$topic} को concept, process और verified output के रूप में सीखना चाहिए।", 'उद्देश्य समझें, चरणबद्ध task करें, result जाँचें और evidence प्रस्तुत करें।', "{$topic} पर guided तथा independent task पूरा करें।", 'पूर्ण output, checklist और learner explanation', 'सुरक्षा, privacy, honesty और permission का पालन करें।', 'वास्तविक जीवन में कौशल लागू करना है।', 'concept, process, practice, evidence, review', 'समझकर चरणबद्ध अभ्यास और verification करना');
+    }
+
+    private function activities(string $code, int $number, string $topic, array $profile): array
+    {
+        $flow = match ($code) {
+            'CLS' => [['सुनें', 'Listen'], ['समझें', 'Understand'], ['बोलें', 'Speak'], ['समीक्षा करें', 'Review']],
+            'CSS' => [['स्थिति समझें', 'Understand'], ['विकल्प चुनें', 'Choose'], ['कार्रवाई करें', 'Act'], ['परिणाम जाँचें', 'Review']],
+            'AI-DM' => [['प्रॉम्प्ट दें', 'Prompt'], ['AI प्रारूप लें', 'Generate'], ['तथ्य जाँचें', 'Verify'], ['मानवीय सुधार करें', 'Improve']],
+            default => [['इनपुट पहचानें', 'Input'], ['प्रक्रिया करें', 'Process'], ['आउटपुट देखें', 'Output'], ['सुरक्षित करें', 'Save']],
+        };
+
+        $sequence = [
+            ['order' => 1, 'hi' => 'उद्देश्य और अपेक्षित परिणाम समझें', 'en' => 'Understand the goal and expected result'],
+            ['order' => 2, 'hi' => 'आवश्यक साधन तथा जानकारी तैयार करें', 'en' => 'Prepare the required tools and information'],
+            ['order' => 3, 'hi' => $profile['correct_process'], 'en' => 'Perform the correct process step by step'],
+            ['order' => 4, 'hi' => $profile['evidence'], 'en' => 'Verify and preserve reliable evidence'],
+        ];
+
+        $checklist = [
+            ['hi' => 'कार्य सीधे session topic से संबंधित है', 'en' => 'The work is directly related to the session topic'],
+            ['hi' => 'सभी actions सही क्रम में किए गए हैं', 'en' => 'All actions were performed in the correct order'],
+            ['hi' => 'परिणाम पढ़ने, देखने या उपयोग करने योग्य है', 'en' => 'The result is readable, visible, or usable'],
+            ['hi' => 'Privacy, permission और data safety जाँची गई है', 'en' => 'Privacy, permission, and data safety were checked'],
+        ];
+
+        $practicalChecklist = [
+            ['hi' => $profile['practice'], 'en' => 'Complete the assigned topic-based practical task'],
+            ['hi' => 'अपनाए गए मुख्य steps दर्ज करें', 'en' => 'Record the main steps you followed'],
+            ['hi' => 'एक कठिनाई और उसका सुधार लिखें', 'en' => 'Write one difficulty and how you corrected it'],
+            ['hi' => 'Final output को खोलकर या प्रदर्शित करके verify करें', 'en' => 'Open or demonstrate the final output to verify it'],
+        ];
+
+        return [
+            $this->activity("{$code}-{$number}-explore", 'reveal', 'विषय को खोजें', 'Explore the topic', 'चारों cards खोलकर विषय, उपयोग और expected result समझें।', 'Open all four cards to understand the topic, use, and expected result.', [
+                ['hi' => $topic, 'en' => 'Session topic', 'detail_hi' => $profile['foundation'], 'detail_en' => 'Understand the core idea before starting the practical task.'],
+                ['hi' => 'वास्तविक उपयोग', 'en' => 'Real-life use', 'detail_hi' => $profile['domain'], 'detail_en' => 'Connect this skill with a real learning or workplace situation.'],
+                ['hi' => 'कार्य-पद्धति', 'en' => 'Working method', 'detail_hi' => $profile['method'], 'detail_en' => 'Follow the method carefully and observe every visible result.'],
+                ['hi' => 'सफलता का प्रमाण', 'en' => 'Success evidence', 'detail_hi' => $profile['evidence'], 'detail_en' => 'Keep a verified output and explain what you learned.'],
+            ]),
+            $this->activity("{$code}-{$number}-terms", 'reveal', 'जरूरी शब्द पहचानें', 'Identify key terms', 'हर card खोलें और शब्द को topic के उदाहरण से जोड़ें।', 'Open every card and connect the term with a topic example.', collect(explode(',', $profile['terms']))->map(fn ($term) => [
+                'hi' => trim($term), 'en' => trim($term),
+                'detail_hi' => "{$topic} में इस शब्द का अर्थ और एक उदाहरण अपने शब्दों में बताएँ।",
+                'detail_en' => 'Explain the meaning of this term and give one example from the topic.',
+            ])->take(6)->values()->all()),
+            $this->activity("{$code}-{$number}-example-order", 'sequence', 'उदाहरण का सही क्रम बनाएँ', 'Build the correct example sequence', 'नीचे के steps को 1 से 4 के सही क्रम में चुनें।', 'Select the steps in the correct order from 1 to 4.', $sequence),
+            $this->activity("{$code}-{$number}-observe", 'observe', 'Animated Guided Demonstration', 'Animated guided demonstration', 'Play दबाकर पूरा process देखें और हर stage का अर्थ पढ़ें।', 'Press Play, watch the complete process, and read every stage.', collect($flow)->map(fn ($item, $index) => ['order' => $index + 1, 'hi' => $item[0], 'en' => $item[1]])->all()),
+            $this->activity("{$code}-{$number}-guided-check", 'checklist', 'Guided Practice Verification', 'Guided practice verification', 'अपने guided attempt पर लागू होने वाले सभी checks पूरे करें।', 'Complete every check for your guided attempt.', $checklist),
+            $this->activity("{$code}-{$number}-process-order", 'sequence', 'Process Challenge', 'Process challenge', 'बिना ऊपर देखे सही working order चुनें।', 'Choose the correct working order without looking above.', $sequence),
+            $this->activity("{$code}-{$number}-lab-check", 'checklist', 'Independent Lab Tracker', 'Independent lab tracker', 'Practical करते समय हर item पूरा करके tick करें।', 'Tick each item while completing the practical task.', $practicalChecklist),
+            $this->activity("{$code}-{$number}-evidence-review", 'reveal', 'Evidence Inspector', 'Evidence inspector', 'हर evidence card खोलें और तय करें कि submission में क्या दिखना चाहिए।', 'Open every evidence card and identify what the submission must show.', [
+                ['hi' => 'Final output', 'en' => 'Final output', 'detail_hi' => $profile['evidence'], 'detail_en' => 'The final output must be visible and verifiable.'],
+                ['hi' => 'Steps', 'en' => 'Steps', 'detail_hi' => 'मुख्य actions सही क्रम में दर्ज होने चाहिए।', 'detail_en' => 'The main actions must be recorded in the correct order.'],
+                ['hi' => 'समस्या और सुधार', 'en' => 'Problem and correction', 'detail_hi' => 'कम-से-कम एक कठिनाई तथा उसका समाधान लिखें।', 'detail_en' => 'Record at least one difficulty and its correction.'],
+                ['hi' => 'Learner explanation', 'en' => 'Learner explanation', 'detail_hi' => 'अपने शब्दों में बताएँ कि result सही क्यों है।', 'detail_en' => 'Explain in your own words why the result is correct.'],
+            ]),
+            $this->activity("{$code}-{$number}-safety-check", 'checklist', 'Safety Decision', 'Safety decision', 'वास्तविक उपयोग से पहले सभी safety checks स्वीकार करें।', 'Confirm every safety check before real-life use.', [
+                ['hi' => $profile['safety'], 'en' => 'Follow topic-specific safety and responsible-use guidance'],
+                ['hi' => 'Target, file या व्यक्ति की पहचान दोबारा जाँचें', 'en' => 'Recheck the target, file, or person'],
+                ['hi' => 'केवल आवश्यक और अनुमति प्राप्त data उपयोग करें', 'en' => 'Use only necessary and permitted data'],
+                ['hi' => 'Submit करने से पहले final result review करें', 'en' => 'Review the final result before submission'],
+            ]),
+            $this->activity("{$code}-{$number}-final-order", 'sequence', 'Final Take-a-Challenge', 'Final take-a-challenge', 'Session completion का सही क्रम चुनकर final readiness सिद्ध करें।', 'Prove final readiness by selecting the correct completion order.', [
+                ['order' => 1, 'hi' => 'सभी topic screens और activities पूरी करें', 'en' => 'Complete all topic screens and activities'],
+                ['order' => 2, 'hi' => 'सभी bilingual questions के उत्तर दें', 'en' => 'Answer all bilingual questions'],
+                ['order' => 3, 'hi' => 'Practical response और evidence review करें', 'en' => 'Review the practical response and evidence'],
+                ['order' => 4, 'hi' => 'Score, active time और status देखकर submit करें', 'en' => 'Check score, active time, and status before submission'],
+            ]),
+        ];
+    }
+
+    private function activity(string $id, string $type, string $titleHi, string $titleEn, string $instructionHi, string $instructionEn, array $items): array
+    {
+        return [
+            'id' => $id,
+            'type' => $type,
+            'title_hi' => $titleHi,
+            'title_en' => $titleEn,
+            'instruction_hi' => $instructionHi,
+            'instruction_en' => $instructionEn,
+            'items' => $items,
+        ];
     }
 
     private function questions(string $code, int $number, string $topic, array $profile): array

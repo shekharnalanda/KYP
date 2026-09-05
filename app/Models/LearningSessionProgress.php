@@ -17,6 +17,7 @@ class LearningSessionProgress extends Model
         'completed_steps',
         'active_seconds',
         'quiz_answers',
+        'activity_states',
         'quiz_score',
         'practical_response',
         'practical_submitted_at',
@@ -29,6 +30,7 @@ class LearningSessionProgress extends Model
         return [
             'completed_steps' => 'array',
             'quiz_answers' => 'array',
+            'activity_states' => 'array',
             'quiz_score' => 'decimal:2',
             'practical_submitted_at' => 'datetime',
             'last_activity_at' => 'datetime',

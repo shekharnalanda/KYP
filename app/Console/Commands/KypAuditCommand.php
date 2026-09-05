@@ -42,10 +42,18 @@ class KypAuditCommand extends Command
         $authoredCourseware = LearningSession::whereNotNull('courseware')->get()->filter(function ($session): bool {
             $steps = collect($session->courseware['steps'] ?? []);
             $questions = $steps->flatMap(fn (array $step) => $step['interactions'] ?? []);
+            $activities = $steps->pluck('activity')->filter();
 
             return $steps->count() === 10
                 && $steps->sum('minutes') === 120
                 && $questions->count() >= 10
+                && $activities->count() === 10
+                && $activities->every(fn (array $activity) =>
+                    filled($activity['title_hi'] ?? null)
+                    && filled($activity['title_en'] ?? null)
+                    && count($activity['items'] ?? []) >= 4
+                    && collect($activity['items'])->every(fn (array $item) => filled($item['hi'] ?? null) && filled($item['en'] ?? null))
+                )
                 && $questions->every(fn (array $question) =>
                     filled($question['prompt_hi'] ?? null)
                     && filled($question['prompt_en'] ?? null)
@@ -53,7 +61,7 @@ class KypAuditCommand extends Command
                     && collect($question['options'])->every(fn (array $option) => filled($option['hi'] ?? null) && filled($option['en'] ?? null))
                 );
         })->count();
-        $checks[] = ['Learning', '135 bilingual 10-question interactive sessions', $authoredCourseware === 135];
+        $checks[] = ['Learning', '135 bilingual activity-rich interactive sessions', $authoredCourseware === 135];
 
         $thresholds = Course::whereIn('code', ['CIT', 'CLS', 'CSS', 'AI-DM'])->pluck('minimum_exam_sessions', 'code');
         $checks[] = ['Eligibility', 'Locked session thresholds', (int) $thresholds->get('CIT') === 48 && (int) $thresholds->get('CLS') === 32 && (int) $thresholds->get('CSS') === 16 && (int) $thresholds->get('AI-DM') === 12];

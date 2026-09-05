@@ -92,13 +92,16 @@ class LearningSessionController extends Controller
             'completed_steps.*' => ['string', 'max:60'],
             'quiz_answers' => ['nullable', 'array', 'max:30'],
             'quiz_answers.*' => ['string', 'max:500'],
+            'activity_states' => ['nullable', 'array', 'max:30'],
+            'activity_states.*' => ['boolean'],
             'practical_response' => ['nullable', 'string', 'max:8000'],
         ]);
 
         $courseware = $coursewareService->for($session);
         $allowedSteps = $coursewareService->stepIds($courseware);
+        $allowedActivities = $coursewareService->activityIds($courseware);
 
-        $progress = DB::transaction(function () use ($request, $session, $data, $courseware, $coursewareService, $allowedSteps) {
+        $progress = DB::transaction(function () use ($request, $session, $data, $courseware, $coursewareService, $allowedSteps, $allowedActivities) {
             $record = LearningSessionProgress::where('user_id', $request->user()->id)
                 ->where('learning_session_id', $session->id)
                 ->lockForUpdate()
@@ -125,6 +128,10 @@ class LearningSessionController extends Controller
                 ->all();
 
             $answers = array_merge($record->quiz_answers ?? [], $data['quiz_answers'] ?? []);
+            $activityStates = collect(array_merge($record->activity_states ?? [], $data['activity_states'] ?? []))
+                ->filter(fn ($complete, $activityId) => $complete === true && in_array($activityId, $allowedActivities, true))
+                ->map(fn () => true)
+                ->all();
             $practical = array_key_exists('practical_response', $data)
                 ? trim((string) $data['practical_response'])
                 : $record->practical_response;
@@ -138,6 +145,7 @@ class LearningSessionController extends Controller
                 'completed_steps' => $steps,
                 'active_seconds' => min(((int) $session->required_active_minutes) * 60, ((int) $record->active_seconds) + $credit),
                 'quiz_answers' => $answers,
+                'activity_states' => $activityStates,
                 'quiz_score' => $coursewareService->score($courseware, $answers),
                 'practical_response' => $practical,
                 'practical_submitted_at' => filled($practical) ? ($record->practical_submitted_at ?? now()) : null,
@@ -151,6 +159,7 @@ class LearningSessionController extends Controller
             'saved' => true,
             'active_seconds' => $progress->active_seconds,
             'quiz_score' => (float) ($progress->quiz_score ?? 0),
+            'activity_states' => $progress->activity_states ?? [],
             'completed_steps' => $progress->completed_steps ?? [],
         ]);
     }
@@ -162,21 +171,25 @@ class LearningSessionController extends Controller
 
         $courseware = $coursewareService->for($session);
         $requiredSteps = $coursewareService->stepIds($courseware);
+        $requiredActivities = $coursewareService->activityIds($courseware);
         $progress = LearningSessionProgress::where('user_id', $request->user()->id)
             ->where('learning_session_id', $session->id)
             ->firstOrFail();
 
         $missingSteps = array_diff($requiredSteps, $progress->completed_steps ?? []);
+        $missingActivities = array_diff($requiredActivities, array_keys(array_filter($progress->activity_states ?? [])));
         $requiredSeconds = ((int) $session->required_active_minutes) * 60;
 
-        if ($progress->active_seconds < $requiredSeconds || $missingSteps || blank($progress->practical_response) || (float) $progress->quiz_score < (float) $session->passing_score) {
+        if ($progress->active_seconds < $requiredSeconds || $missingSteps || $missingActivities || blank($progress->practical_response) || (float) $progress->quiz_score < (float) $session->passing_score) {
             throw ValidationException::withMessages([
                 'session' => sprintf(
-                    'Session अभी complete नहीं है: active time %d/%d मिनट, steps %d/%d, quiz %.0f/%d और practical submission आवश्यक है।',
+                    'Session अभी complete नहीं है: active time %d/%d मिनट, steps %d/%d, activities %d/%d, quiz %.0f/%d और practical submission आवश्यक है।',
                     intdiv((int) $progress->active_seconds, 60),
                     (int) $session->required_active_minutes,
                     count($requiredSteps) - count($missingSteps),
                     count($requiredSteps),
+                    count($requiredActivities) - count($missingActivities),
+                    count($requiredActivities),
                     (float) $progress->quiz_score,
                     (int) $session->passing_score
                 ),

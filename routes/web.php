@@ -7,6 +7,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\IrisConnectorController;
 use App\Http\Controllers\LearningSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResultController;
@@ -14,6 +15,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
 Route::get('/verify-certificate/{token}', [ResultController::class, 'verify'])->middleware('throttle:60,1')->name('certificate.verify');
+
+Route::prefix('api/iris')->group(function (): void {
+    Route::get('/health', [IrisConnectorController::class, 'health'])->middleware('throttle:30,1');
+    Route::get('/candidates', [IrisConnectorController::class, 'candidates'])->middleware('throttle:12,1');
+    Route::post('/enroll', [IrisConnectorController::class, 'enroll'])->middleware('throttle:20,1');
+    Route::post('/attendance', [IrisConnectorController::class, 'attendance'])->middleware('throttle:120,1');
+});
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'create'])->name('login');

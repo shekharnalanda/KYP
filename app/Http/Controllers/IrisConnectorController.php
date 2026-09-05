@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceRecord;
+use App\Models\Course;
 use App\Models\IrisAttendanceEvent;
 use App\Models\IrisProfile;
 use App\Models\LearningSession;
@@ -46,6 +47,54 @@ class IrisConnectorController extends Controller
             ]);
 
         return response()->json(['data' => $profiles]);
+    }
+
+    public function catalog(Request $request): JsonResponse
+    {
+        $this->authorizeConnector($request);
+
+        $courses = Course::query()
+            ->where('is_active', true)
+            ->with(['sessions' => fn ($query) => $query
+                ->whereNotNull('published_at')
+                ->orderBy('session_number')])
+            ->orderBy('position')
+            ->get()
+            ->map(fn (Course $course) => [
+                'id' => $course->id,
+                'code' => $course->code,
+                'name' => $course->name,
+                'sessions' => $course->sessions->map(fn (LearningSession $session) => [
+                    'id' => $session->id,
+                    'session_number' => $session->session_number,
+                    'title_hi' => $session->title_hi,
+                    'title_en' => $session->title_en,
+                    'duration_minutes' => $session->duration_minutes,
+                ])->values(),
+            ]);
+
+        return response()->json(['data' => $courses]);
+    }
+
+    public function students(Request $request): JsonResponse
+    {
+        $this->authorizeConnector($request);
+
+        $students = User::query()
+            ->where('role', 'student')
+            ->where('status', 'active')
+            ->whereHas('enrollments', fn ($query) => $query->where('status', 'active'))
+            ->withExists(['irisProfile as iris_enrolled' => fn ($query) => $query->where('is_active', true)])
+            ->orderBy('name')
+            ->get(['id', 'name', 'student_id'])
+            ->map(fn (User $student) => [
+                'id' => $student->id,
+                'student_id' => $student->student_id,
+                'name' => $student->name,
+                'iris_enrolled' => (bool) $student->iris_enrolled,
+            ]);
+
+        return response()->json(['data' => $students]);
     }
 
     public function enroll(Request $request): JsonResponse

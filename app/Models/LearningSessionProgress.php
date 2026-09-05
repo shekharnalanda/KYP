@@ -13,6 +13,7 @@ class LearningSessionProgress extends Model
         'user_id',
         'learning_session_id',
         'current_step',
+        'furthest_step',
         'completed_steps',
         'active_seconds',
         'quiz_answers',

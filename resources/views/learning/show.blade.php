@@ -17,6 +17,10 @@
         'AI-DM' => [['प्रॉम्प्ट', 'Prompt'], ['AI प्रारूप', 'AI Draft'], ['सत्यापन', 'Verify'], ['सुधार', 'Improve']],
     ];
     $flow = $flowMap[$session->course->code] ?? $flowMap['CIT'];
+    $studentMode = auth()->user()->hasRole('student');
+    $currentStepNumber = (int) ($progress?->current_step ?? 0);
+    $furthestStepNumber = max($currentStepNumber, (int) ($progress?->furthest_step ?? 0));
+    $completedStepIds = collect($savedSteps);
 @endphp
 <div class="panel-shell"><div class="container">
 <div class="panel courseware-shell" data-student="{{ auth()->user()->hasRole('student') ? '1' : '0' }}">
@@ -39,15 +43,65 @@
         <div id="save-state" class="save-state">Auto-save ready</div>
     </div>
 
+    <button type="button" class="course-menu-toggle" id="course-menu-toggle" aria-expanded="false" aria-controls="course-tree">☰ सभी Sessions और Topics</button>
     <div class="courseware-grid">
-        <aside class="step-nav" aria-label="Session steps">
-            @foreach($steps as $index => $step)
-                <button type="button" class="step-link {{ in_array($step['id'], $savedSteps, true) ? 'done' : '' }}" data-step-target="{{ $index }}">
-                    <span>{{ $index + 1 }}</span>
-                    <b>{{ $step['title'] }}</b>
-                    <small>{{ $step['minutes'] }} मिनट</small>
-                </button>
-            @endforeach
+        <aside class="course-tree" id="course-tree" aria-label="{{ $session->course->code }} course sessions">
+            <div class="tree-head">
+                <strong>{{ $session->course->code }} Course Flow</strong>
+                <small>{{ $courseSessions->count() }} sessions • एक ही learning window</small>
+            </div>
+            <div class="status-legend" aria-label="Status colour guide">
+                <span class="legend-pending">● नया</span>
+                <span class="legend-active">● चालू</span>
+                <span class="legend-complete">● पूरा</span>
+                <span class="legend-skipped">● छूटा</span>
+                <span class="legend-locked">● लॉक</span>
+            </div>
+            <div class="session-tree-list">
+                @foreach($courseSessions as $courseSession)
+                    @php
+                        $isCurrentSession = $courseSession->id === $session->id;
+                        $isSessionDone = $completedSessionIds->contains($courseSession->id);
+                        $sessionProgress = $courseProgressMap->get($courseSession->id);
+                        $previousSession = $courseSessions->firstWhere('session_number', $courseSession->session_number - 1);
+                        $isLocked = $studentMode && $previousSession && ! $completedSessionIds->contains($previousSession->id);
+                        $wasLeftIncomplete = $studentMode && $sessionProgress && ! $isSessionDone && ! $isCurrentSession;
+                        $sessionState = $isSessionDone ? 'complete' : ($isCurrentSession ? 'active' : ($isLocked ? 'locked' : ($wasLeftIncomplete ? 'skipped' : 'pending')));
+                    @endphp
+                    <div class="session-branch state-{{ $sessionState }}">
+                        @if($isLocked)
+                            <div class="session-row" aria-disabled="true">
+                                <span class="state-dot"></span>
+                                <span><b>Session {{ str_pad($courseSession->session_number, 2, '0', STR_PAD_LEFT) }}</b><small>{{ $courseSession->title_hi }}</small></span>
+                                <em>🔒</em>
+                            </div>
+                        @else
+                            <a class="session-row" href="{{ route('learning.show', $courseSession) }}" @if($isCurrentSession) aria-current="page" @endif>
+                                <span class="state-dot"></span>
+                                <span><b>Session {{ str_pad($courseSession->session_number, 2, '0', STR_PAD_LEFT) }}</b><small>{{ $courseSession->title_hi }}</small></span>
+                                <em>{{ $isSessionDone ? '✓' : ($wasLeftIncomplete ? '!' : '›') }}</em>
+                            </a>
+                        @endif
+
+                        @if($isCurrentSession)
+                            <div class="topic-flow" aria-label="Current session topic flow">
+                                @foreach($steps as $index => $step)
+                                    @php
+                                        $stepDone = $completed || $completedStepIds->contains($step['id']);
+                                        $stepSkipped = ! $stepDone && $index < $furthestStepNumber;
+                                        $stepState = $stepDone ? 'complete' : ($index === $currentStepNumber ? 'active' : ($stepSkipped ? 'skipped' : 'pending'));
+                                    @endphp
+                                    <button type="button" class="step-link state-{{ $stepState }}" data-step-target="{{ $index }}">
+                                        <span class="state-dot"></span>
+                                        <b>{{ $index + 1 }}. {{ $step['title'] }}</b>
+                                        <small>{{ $step['minutes'] }} मिनट</small>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
         </aside>
 
         <main class="step-stage">
@@ -115,8 +169,8 @@
 </div></div></div>
 
 <style>
-.courseware-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}.learning-status{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:24px 0;padding:18px;border:1px solid #cfe0f4;border-radius:18px;background:#f7fbff}.learning-status>div{display:grid;gap:5px}.learning-status span{color:var(--muted);font-size:14px}.status-grow{flex:1;min-width:220px}.progress-track{height:10px;border-radius:99px;background:#dce8f6;overflow:hidden}.progress-track div{height:100%;background:linear-gradient(90deg,var(--teal),#0b86d7);transition:width .35s}.save-state{font-size:13px;color:#057d78}.courseware-grid{display:grid;grid-template-columns:270px 1fr;gap:24px}.step-nav{display:grid;gap:9px;align-content:start;position:sticky;top:18px}.step-link{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:10px;text-align:left;padding:12px;border:1px solid #d8e5f3;background:#fff;border-radius:13px;color:var(--ink);cursor:pointer}.step-link span{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eaf2fb;color:var(--navy);font-weight:800}.step-link b{font-size:13px}.step-link small{color:var(--muted);font-size:11px}.step-link.active{border-color:var(--teal);box-shadow:0 0 0 3px rgba(17,197,189,.13)}.step-link.done span{background:#d9fbef;color:#087443}.step-stage{min-width:0}.learning-step{min-height:550px;padding:30px;border:1px solid #dce8f6;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(7,39,83,.07)}.step-meta{display:flex;justify-content:space-between;color:#057d78;font-weight:800;font-size:12px}.learning-step h2{font-size:clamp(26px,4vw,38px);color:var(--navy)}.lesson-copy{font-size:17px;line-height:1.85;white-space:normal}.process-animation{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 24px;padding:25px 18px;border-radius:18px;background:linear-gradient(130deg,#062b63,#0b6b8c);overflow:hidden;color:#fff}.flow-line{position:absolute;left:11%;right:11%;top:45px;height:4px;border-radius:9px;background:rgba(255,255,255,.35)}.flow-pulse{position:absolute;left:0;display:block;width:16px;height:16px;margin-top:-6px;border-radius:50%;background:#ffd166;box-shadow:0 0 18px #ffd166;animation:flowMove 4s linear infinite}.flow-node{position:relative;z-index:1;text-align:center}.flow-number{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 10px;border-radius:50%;background:#fff;color:#06366b;font-weight:900}.flow-node strong,.flow-node small{display:block}.flow-node small{margin-top:3px;color:#d9f7ff}@keyframes flowMove{from{left:0}to{left:calc(100% - 16px)}}.interaction-card{margin-top:26px;padding:22px;border-radius:17px;background:#f2f9ff;border:1px solid #cfe0f4}.question-hi{font-size:18px;font-weight:800;margin-bottom:3px}.question-en{margin-top:0;color:#38536f;font-size:15px}.choice{display:flex;gap:10px;align-items:flex-start;padding:12px;margin:9px 0;background:#fff;border:1px solid #dce8f6;border-radius:11px;cursor:pointer}.choice input{margin-top:5px;flex:0 0 auto}.choice span{display:block}.option-en{display:block;margin-top:5px;color:#526a82;font-weight:500;line-height:1.45}.answer-feedback{font-weight:700;margin-top:10px}.interaction-card textarea{width:100%;padding:14px;border-radius:12px;border:1px solid #bfd1e5;font:inherit;line-height:1.6}.step-actions{display:flex;justify-content:space-between;gap:12px;margin-top:28px}.notice{margin:18px 0;padding:14px;border-radius:12px}.success{background:#e8fff4;color:#087443;border:1px solid #a9e8cc}.error-box{background:#fff0ee;color:#a12a20;border:1px solid #f1bab4}.completion-note{text-align:center;color:var(--muted);font-size:13px}.full{width:100%;margin-top:22px}
-@media(max-width:850px){.courseware-grid{grid-template-columns:1fr}.step-nav{position:static;grid-template-columns:repeat(2,1fr)}.learning-step{padding:22px}.step-link{grid-template-columns:32px 1fr}.step-link small{display:none}}@media(prefers-reduced-motion:reduce){.flow-pulse{animation:none}}@media(max-width:650px){.process-animation{grid-template-columns:repeat(2,1fr)}.flow-line{display:none}}@media(max-width:520px){.step-nav{grid-template-columns:1fr}.step-actions{flex-direction:column-reverse}.step-actions .btn{width:100%}}
+.courseware-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}.learning-status{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:24px 0;padding:18px;border:1px solid #cfe0f4;border-radius:18px;background:#f7fbff}.learning-status>div{display:grid;gap:5px}.learning-status span{color:var(--muted);font-size:14px}.status-grow{flex:1;min-width:220px}.progress-track{height:10px;border-radius:99px;background:#dce8f6;overflow:hidden}.progress-track div{height:100%;background:linear-gradient(90deg,var(--teal),#0b86d7);transition:width .35s}.save-state{font-size:13px;color:#057d78}.course-menu-toggle{display:none;width:100%;margin:0 0 14px;padding:13px 16px;border:1px solid #b9cee5;border-radius:12px;background:#fff;color:#082c5c;font-weight:800;text-align:left}.courseware-grid{display:grid;grid-template-columns:minmax(300px,350px) minmax(0,1fr);gap:24px}.course-tree{position:sticky;top:14px;align-self:start;max-height:calc(100vh - 28px);overflow:auto;border:1px solid #cfe0f4;border-radius:18px;background:#f8fbff;box-shadow:0 10px 28px rgba(7,39,83,.07)}.tree-head{position:sticky;top:0;z-index:3;display:grid;gap:4px;padding:16px;background:#062b63;color:#fff}.tree-head small{color:#cce7ff}.status-legend{display:flex;flex-wrap:wrap;gap:7px 11px;padding:11px 14px;border-bottom:1px solid #dbe8f5;background:#fff;font-size:11px;font-weight:800}.legend-pending{color:#151c27}.legend-active{color:#086acb}.legend-complete{color:#078143}.legend-skipped{color:#c22b2b}.legend-locked{color:#8995a5}.session-tree-list{padding:9px}.session-branch{margin-bottom:7px}.session-row{display:grid;grid-template-columns:14px minmax(0,1fr) 22px;align-items:center;gap:9px;width:100%;padding:10px;border:1px solid transparent;border-radius:11px;color:#151c27;text-decoration:none;background:#fff}.session-row:hover{border-color:#a9c8e8}.session-row>span:nth-child(2){display:grid;gap:2px;min-width:0}.session-row b{font-size:12px}.session-row small{overflow:hidden;color:inherit;font-size:11px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}.session-row em{font-style:normal;font-weight:900;text-align:center}.state-dot{display:block;width:10px!important;height:10px!important;border-radius:50%;background:#151c27!important}.session-branch.state-active>.session-row{border-color:#1782d4;background:#eaf5ff;color:#075fa7}.session-branch.state-active>.session-row .state-dot,.step-link.state-active .state-dot{background:#0878cf!important;box-shadow:0 0 0 4px rgba(8,120,207,.13)}.session-branch.state-complete>.session-row{color:#087443}.session-branch.state-complete>.session-row .state-dot,.step-link.state-complete .state-dot{background:#0a9b55!important}.session-branch.state-skipped>.session-row{border-color:#f0c0c0;background:#fff5f5;color:#b42323}.session-branch.state-skipped>.session-row .state-dot,.step-link.state-skipped .state-dot{background:#cf3030!important}.session-branch.state-locked>.session-row{background:#f0f3f6;color:#8995a5;cursor:not-allowed}.session-branch.state-locked>.session-row .state-dot{background:#a5afbb!important}.topic-flow{display:grid;gap:5px;margin:7px 0 12px;padding:7px 0 7px 19px;border-left:2px solid #bfd6ec}.step-link{display:grid;grid-template-columns:14px minmax(0,1fr) auto;align-items:center;gap:8px;width:100%;padding:9px;border:1px solid #d8e5f3;background:#fff;border-radius:10px;color:#151c27;cursor:pointer;text-align:left}.step-link b{font-size:11px;line-height:1.3}.step-link small{color:inherit;font-size:10px}.step-link.state-active{border-color:#0878cf;background:#edf7ff;color:#075fa7}.step-link.state-complete{border-color:#a7dfc3;background:#effcf5;color:#087443}.step-link.state-skipped{border-color:#efb4b4;background:#fff2f2;color:#b42323}.step-link.state-pending{color:#151c27}.step-stage{min-width:0}.learning-step{min-height:550px;padding:30px;border:1px solid #dce8f6;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(7,39,83,.07)}.step-meta{display:flex;justify-content:space-between;color:#057d78;font-weight:800;font-size:12px}.learning-step h2{font-size:clamp(26px,4vw,38px);color:var(--navy)}.lesson-copy{font-size:17px;line-height:1.85;white-space:normal}.process-animation{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 24px;padding:25px 18px;border-radius:18px;background:linear-gradient(130deg,#062b63,#0b6b8c);overflow:hidden;color:#fff}.flow-line{position:absolute;left:11%;right:11%;top:45px;height:4px;border-radius:9px;background:rgba(255,255,255,.35)}.flow-pulse{position:absolute;left:0;display:block;width:16px;height:16px;margin-top:-6px;border-radius:50%;background:#ffd166;box-shadow:0 0 18px #ffd166;animation:flowMove 4s linear infinite}.flow-node{position:relative;z-index:1;text-align:center}.flow-number{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 10px;border-radius:50%;background:#fff;color:#06366b;font-weight:900}.flow-node strong,.flow-node small{display:block}.flow-node small{margin-top:3px;color:#d9f7ff}@keyframes flowMove{from{left:0}to{left:calc(100% - 16px)}}.interaction-card{margin-top:26px;padding:22px;border-radius:17px;background:#f2f9ff;border:1px solid #cfe0f4}.question-hi{font-size:18px;font-weight:800;margin-bottom:3px}.question-en{margin-top:0;color:#38536f;font-size:15px}.choice{display:flex;gap:10px;align-items:flex-start;padding:12px;margin:9px 0;background:#fff;border:1px solid #dce8f6;border-radius:11px;cursor:pointer}.choice input{margin-top:5px;flex:0 0 auto}.choice span{display:block}.option-en{display:block;margin-top:5px;color:#526a82;font-weight:500;line-height:1.45}.answer-feedback{font-weight:700;margin-top:10px}.interaction-card textarea{width:100%;padding:14px;border-radius:12px;border:1px solid #bfd1e5;font:inherit;line-height:1.6}.step-actions{display:flex;justify-content:space-between;gap:12px;margin-top:28px}.notice{margin:18px 0;padding:14px;border-radius:12px}.success{background:#e8fff4;color:#087443;border:1px solid #a9e8cc}.error-box{background:#fff0ee;color:#a12a20;border:1px solid #f1bab4}.completion-note{text-align:center;color:var(--muted);font-size:13px}.full{width:100%;margin-top:22px}
+@media(max-width:900px){.course-menu-toggle{display:block}.courseware-grid{grid-template-columns:1fr}.course-tree{display:none;position:static;max-height:65vh}.course-tree.mobile-open{display:block}.learning-step{padding:22px}}@media(prefers-reduced-motion:reduce){.flow-pulse{animation:none}}@media(max-width:650px){.process-animation{grid-template-columns:repeat(2,1fr)}.flow-line{display:none}}@media(max-width:520px){.step-actions{flex-direction:column-reverse}.step-actions .btn{width:100%}}
 </style>
 
 @if(auth()->user()->hasRole('student') && !$completed)
@@ -138,6 +192,11 @@
         steps.forEach((step, i) => step.hidden = i !== current);
         nav.forEach((item, i) => item.classList.toggle('active', i === current));
         document.getElementById('progress-fill').style.width = (completed.size / Math.max(1, steps.length) * 100) + '%';
+        nav.forEach((item, i) => {
+            item.classList.remove('state-pending', 'state-active', 'state-complete', 'state-skipped');
+            const done = completed.has(steps[i].dataset.stepId);
+            item.classList.add(done ? 'state-complete' : (i === current ? 'state-active' : (i < current ? 'state-skipped' : 'state-pending')));
+        });
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
@@ -171,7 +230,7 @@
     nav.forEach((item, i) => item.addEventListener('click', () => { current = i; render(); save(); }));
     document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => {
         completed.add(steps[current].dataset.stepId);
-        nav[current].classList.add('done');
+        nav[current].classList.add('state-complete');
         if (current < steps.length - 1) current++;
         render();
         save();
@@ -196,6 +255,12 @@
         }
     }, @json((int)config('kyp.courseware.heartbeat_seconds', 15) * 1000));
     window.addEventListener('beforeunload', () => save());
+    const menuToggle = document.getElementById('course-menu-toggle');
+    const courseTree = document.getElementById('course-tree');
+    menuToggle?.addEventListener('click', () => {
+        const open = courseTree.classList.toggle('mobile-open');
+        menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
     render();
 })();
 </script>
@@ -205,6 +270,8 @@
     const steps=[...document.querySelectorAll('.learning-step')],nav=[...document.querySelectorAll('.step-link')];let current=0;
     const render=()=>{steps.forEach((s,i)=>s.hidden=i!==current);nav.forEach((n,i)=>n.classList.toggle('active',i===current));};
     nav.forEach((n,i)=>n.addEventListener('click',()=>{current=i;render()}));
+    const menuToggle=document.getElementById('course-menu-toggle'),courseTree=document.getElementById('course-tree');
+    menuToggle?.addEventListener('click',()=>{const open=courseTree.classList.toggle('mobile-open');menuToggle.setAttribute('aria-expanded',open?'true':'false')});
     document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{current=Math.min(steps.length-1,current+1);render()}));
     document.querySelectorAll('[data-prev]').forEach(b=>b.addEventListener('click',()=>{current=Math.max(0,current-1);render()}));render();
 })();

@@ -13,7 +13,7 @@ $done = $completedIds->contains($session->id);
 $record = $progressMap->get($session->id);
 $percent = $done ? 100 : ($record ? min(99, round(($record->active_seconds / max(1, $session->required_active_minutes * 60)) * 100)) : 0);
 @endphp
-<article class="card"><div class="icon">{{ $session->session_number }}</div><h3>{{ $session->title_hi }}</h3><p>{{ $session->duration_minutes }} minutes • 8 interactive phases</p>
+<article class="card"><div class="icon">{{ $session->session_number }}</div><h3>{{ $session->title_hi }}</h3><p>{{ $session->duration_minutes }} minutes • 10 interactive topic screens</p>
 @if(auth()->user()->hasRole('student'))<div style="height:8px;background:#e6eef8;border-radius:9px;overflow:hidden;margin:12px 0"><div style="width:{{ $percent }}%;height:100%;background:var(--teal)"></div></div><small style="color:var(--muted)">{{ $percent }}% active progress</small>@endif
 <div style="margin-top:14px"><a class="btn {{ $done ? 'btn-light' : 'btn-primary' }}" href="{{ route('learning.show', $session) }}">{{ $done ? 'Completed — Review' : ($record ? 'Resume Session' : 'Start Session') }}</a></div></article>
 @endforeach

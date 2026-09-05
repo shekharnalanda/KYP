@@ -44,20 +44,40 @@ class LearningSessionController extends Controller
         $completed = false;
         $progress = null;
         $courseware = $coursewareService->for($session);
+        $courseSessions = LearningSession::where('course_id', $session->course_id)
+            ->orderBy('session_number')
+            ->get();
+        $courseProgressMap = collect();
+        $completedSessionIds = collect();
 
         if ($request->user()->hasRole('student')) {
-            $completed = ActivityRecord::where('user_id', $request->user()->id)
-                ->where('learning_session_id', $session->id)
+            $completedSessionIds = ActivityRecord::where('user_id', $request->user()->id)
                 ->where('status', 'completed')
-                ->exists();
+                ->whereIn('learning_session_id', $courseSessions->pluck('id'))
+                ->pluck('learning_session_id');
 
-            $progress = LearningSessionProgress::firstOrCreate(
+            $courseProgressMap = LearningSessionProgress::where('user_id', $request->user()->id)
+                ->whereIn('learning_session_id', $courseSessions->pluck('id'))
+                ->get()
+                ->keyBy('learning_session_id');
+
+            $completed = $completedSessionIds->contains($session->id);
+            $progress = $courseProgressMap->get($session->id) ?? LearningSessionProgress::firstOrCreate(
                 ['user_id' => $request->user()->id, 'learning_session_id' => $session->id],
                 ['last_activity_at' => now()]
             );
+            $courseProgressMap->put($session->id, $progress);
         }
 
-        return view('learning.show', compact('session', 'completed', 'progress', 'courseware'));
+        return view('learning.show', compact(
+            'session',
+            'completed',
+            'progress',
+            'courseware',
+            'courseSessions',
+            'courseProgressMap',
+            'completedSessionIds'
+        ));
     }
 
     public function progress(Request $request, LearningSession $session, CoursewareService $coursewareService): JsonResponse
@@ -111,6 +131,10 @@ class LearningSessionController extends Controller
 
             $record->fill([
                 'current_step' => min((int) $data['current_step'], max(0, count($allowedSteps) - 1)),
+                'furthest_step' => max(
+                    (int) $record->furthest_step,
+                    min((int) $data['current_step'], max(0, count($allowedSteps) - 1))
+                ),
                 'completed_steps' => $steps,
                 'active_seconds' => min(((int) $session->required_active_minutes) * 60, ((int) $record->active_seconds) + $credit),
                 'quiz_answers' => $answers,

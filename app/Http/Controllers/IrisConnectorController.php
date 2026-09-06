@@ -176,6 +176,14 @@ class IrisConnectorController extends Controller
                 ->where('status', 'active'))
             ->firstOrFail();
 
+        abort_unless(
+            IrisProfile::where('user_id', $student->id)
+                ->where('is_active', true)
+                ->exists(),
+            422,
+            'Student iris enrollment is required before biometric attendance.'
+        );
+
         $result = DB::transaction(function () use ($validated, $capturedAt, $session, $student): array {
             $existing = IrisAttendanceEvent::where('event_uuid', $validated['event_uuid'])->first();
             if ($existing) {

@@ -121,17 +121,27 @@ class AdminApplicationController extends Controller
                 'id_card_token' => (string) Str::uuid(),
             ])->save();
 
-            Enrollment::updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'course_id' => $admission->course_id,
-                ],
-                [
-                    'status' => 'active',
-                    'enrolled_at' => now(),
-                    'completed_at' => null,
-                ]
-            );
+            // KYP is one integrated 270-hour program.
+            // Every approved KYP student is enrolled in all four modules.
+            foreach (
+                \App\Models\Course::whereIn(
+                    'code',
+                    ['CIT','CLS','CSS','AI-DM']
+                )->where('is_active', true)->get()
+                as $course
+            ) {
+                Enrollment::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'course_id' => $course->id,
+                    ],
+                    [
+                        'status' => 'active',
+                        'enrolled_at' => now(),
+                        'completed_at' => null,
+                    ]
+                );
+            }
 
             $admission->update([
                 'status' => 'approved',

@@ -18,6 +18,9 @@ use App\Http\Controllers\AdminApplicationController;
 use App\Http\Controllers\AdminExceptionalCompletionController;
 
 
+Route::post('/email-otp/send', [PublicApplicationController::class, 'sendOtp'])->middleware('throttle:3,10')->name('public.otp.send');
+Route::post('/email-otp/verify', [PublicApplicationController::class, 'verifyOtp'])->middleware('throttle:10,10')->name('public.otp.verify');
+
 Route::get('/admission', [PublicApplicationController::class, 'admissionForm'])->name('admission.form');
 Route::post('/admission', [PublicApplicationController::class, 'admissionStore'])->name('admission.store');
 Route::get('/admission/success/{number}', [PublicApplicationController::class, 'admissionSuccess'])->name('admission.success');

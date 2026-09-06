@@ -1,0 +1,27 @@
+# Build output
+build/
+release/
+*.exe
+*.pdb
+
+# Mantra proprietary/runtime binaries
+runtime/*.dll
+runtime/*.sys
+runtime/*.cat
+runtime/*.inf
+
+# Secrets
+*.token
+*.secret
+connector-token.dat
+appsettings.local.json
+.env
+.env.*
+
+# Biometric material — NEVER COMMIT
+*.iris
+*.template
+*.biometric
+captures/
+templates/
+biometric-data/

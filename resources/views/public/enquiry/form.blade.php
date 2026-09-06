@@ -2,75 +2,163 @@
 @section('title','Enquiry | KYP')
 @section('body')
 
-<div class="panel-shell">
-<div class="container">
-<div class="panel" style="max-width:850px;margin:auto">
+<x-public-program-style />
 
-<span class="eyebrow" style="color:#057d78;background:#e8fffd">KYP ENQUIRY</span>
-<h1>Course Enquiry Form</h1>
-<p style="color:var(--muted)">अपनी पसंदीदा branch और course चुनकर enquiry भेजें।</p>
+<div class="kpv-page">
+<div class="kpv-shell">
+
+<x-public-program-head />
+
+<div class="kpv-body">
 
 @if($errors->any())
-<div class="notice error-box">
-@foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach
+<div class="kpv-errors">
+@foreach($errors->all() as $error)
+<div>• {{ $error }}</div>
+@endforeach
 </div>
 @endif
 
-<form method="POST" action="{{ route('enquiry.store') }}">
+<form method="POST"
+      action="{{ route('enquiry.store') }}">
 @csrf
 
-<div class="form-grid">
-<div class="field">
-<label>Name *</label>
-<input name="name" value="{{ old('name') }}" required>
+<section class="kpv-section">
+
+<h2>KYP Enquiry</h2>
+
+<p>
+Kushal Youth Program के बारे में जानकारी प्राप्त करने के लिए
+अपनी details और preferred branch दर्ज करें।
+</p>
+
+<div class="kpv-grid">
+
+<div class="kpv-field">
+<label>Selected Program</label>
+
+<div class="kpv-selected">
+<strong>Kushal Youth Program (KYP)</strong><br>
+135 Sessions • 270 Hours • All 4 Modules Included
+</div>
 </div>
 
-<div class="field">
-<label>Mobile *</label>
-<input name="mobile" value="{{ old('mobile') }}" required>
-</div>
-
-<div class="field">
-<label>Email</label>
-<input type="email" name="email" value="{{ old('email') }}">
-</div>
-
-<div class="field">
-<label>Qualification</label>
-<input name="qualification" value="{{ old('qualification') }}">
-</div>
-
-<div class="field">
+<div class="kpv-field">
 <label>Preferred Branch *</label>
+
 <select name="branch_id" required>
-<option value="">Select Branch</option>
+
+<option value="">
+Select Branch
+</option>
+
 @foreach($branches as $branch)
-<option value="{{ $branch->id }}">{{ $branch->name }}</option>
+
+<option
+ value="{{ $branch->id }}"
+ @selected(old('branch_id')==$branch->id)>
+
+{{ $branch->name }}
+
+</option>
+
 @endforeach
+
 </select>
 </div>
 
-<div class="field">
-<label>Interested Course</label>
-<select name="course_id">
-<option value="">Select Course</option>
-@foreach($courses as $course)
-<option value="{{ $course->id }}">{{ $course->code }} — {{ $course->name }}</option>
-@endforeach
-</select>
 </div>
+</section>
+
+
+<section class="kpv-section">
+
+<h2>Contact Details</h2>
+
+<p>
+Email OTP verification के बाद ही enquiry submit होगी।
+</p>
+
+<div class="kpv-grid">
+
+<div class="kpv-field">
+<label>Full Name *</label>
+
+<input
+ name="name"
+ value="{{ old('name') }}"
+ required>
 </div>
 
-<div class="field">
-<label>Message</label>
-<textarea name="message" rows="4">{{ old('message') }}</textarea>
+
+<div class="kpv-field">
+<label>Mobile Number *</label>
+
+<input
+ name="mobile"
+ value="{{ old('mobile') }}"
+ required>
 </div>
 
-<button class="btn btn-primary" type="submit">Send Enquiry</button>
-<a class="btn btn-light" href="{{ route('home') }}">Home</a>
+
+<div class="kpv-field full">
+
+<x-email-otp
+ purpose="enquiry"
+ input-id="enquiry-email"
+/>
+
+</div>
+
+
+<div class="kpv-field">
+<label>Qualification</label>
+
+<input
+ name="qualification"
+ value="{{ old('qualification') }}">
+</div>
+
+
+<div class="kpv-field full">
+<label>Your Message</label>
+
+<textarea
+ name="message"
+ placeholder="KYP admission, course structure, branch या अन्य जानकारी के बारे में अपना प्रश्न लिखें।">{{ old('message') }}</textarea>
+
+</div>
+
+</div>
+</section>
+
+
+<div class="kpv-actions">
+
+<button
+ class="btn btn-primary"
+ type="submit">
+
+Submit KYP Enquiry
+
+</button>
+
+<a
+ class="btn btn-light"
+ href="{{ route('home') }}">
+
+Back to Home
+
+</a>
+
+</div>
 
 </form>
+
 </div>
 </div>
 </div>
+
+<x-email-otp-script />
+
 @endsection

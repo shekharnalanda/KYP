@@ -112,4 +112,300 @@
 </section>
 </main>
 <footer><div class="container">© {{ date('Y') }} Kushal Youth Program • Skills for the Digital Future</div></footer>
+
+<!-- KYP-DOWNLOAD-CENTER-V32 -->
+
+<section class="kyp-download-center">
+<div class="container">
+
+<div class="kyp-download-head">
+
+<span>OFFICIAL RESOURCES</span>
+
+<h2>Downloads & Resources</h2>
+
+<p>
+Official software and resources for
+Kushal Youth Programme learning and
+secure biometric attendance.
+</p>
+
+</div>
+
+<div class="kyp-download-grid">
+
+<div class="kyp-download-card kyp-featured-download">
+
+<div class="kyp-download-icon">◉</div>
+
+<h3>KYP Iris Connector V3.2</h3>
+
+<p>
+Final secure biometric attendance connector
+for Mantra MIS100V2.
+</p>
+
+<div class="kyp-download-meta">
+Windows 64-bit • Secure Edition • Final / Locked
+</div>
+
+<a
+class="kyp-download-btn"
+href="/downloads/kyp-iris/KYP-Iris-Connector-V3.2-Final.zip">
+Download KYP Iris Connector
+</a>
+
+</div>
+
+
+<div class="kyp-download-card">
+
+<div class="kyp-download-icon">◎</div>
+
+<h3>Mantra MIS100V2</h3>
+
+<p>
+Required Mantra iris device driver and
+support software.
+</p>
+
+<a
+class="kyp-resource-btn"
+href="https://www.mantratec.com/"
+target="_blank"
+rel="noopener">
+Mantra Official Resources
+</a>
+
+</div>
+
+
+<div class="kyp-download-card">
+
+<div class="kyp-download-icon">▣</div>
+
+<h3>Microsoft .NET Framework 4.8</h3>
+
+<p>
+Required Windows runtime for the
+KYP Iris Connector.
+</p>
+
+<a
+class="kyp-resource-btn"
+href="https://dotnet.microsoft.com/download/dotnet-framework/net48"
+target="_blank"
+rel="noopener">
+Microsoft Official Download
+</a>
+
+</div>
+
+</div>
+
+
+<div class="kyp-download-security">
+
+<strong>Secure Biometric Attendance</strong>
+
+<span>
+Verified iris identification is required
+for every Check-In and Check-Out.
+</span>
+
+</div>
+
+</div>
+</section>
+
+<style>
+
+.kyp-download-center{
+ padding:70px 20px;
+ background:#f3f8ff;
+}
+
+.kyp-download-center .container{
+ max-width:1180px;
+ margin:auto;
+}
+
+.kyp-download-head{
+ text-align:center;
+ max-width:760px;
+ margin:0 auto 38px;
+}
+
+.kyp-download-head span{
+ font-weight:800;
+ letter-spacing:1.4px;
+ color:#0874d1;
+ font-size:12px;
+}
+
+.kyp-download-head h2{
+ margin:8px 0 10px;
+ font-size:36px;
+ color:#073b78;
+}
+
+.kyp-download-head p{
+ color:#607086;
+ font-size:16px;
+}
+
+.kyp-download-grid{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:22px;
+}
+
+.kyp-download-card{
+ background:#fff;
+ border:1px solid #dce8f6;
+ border-radius:20px;
+ padding:28px;
+ box-shadow:0 12px 34px rgba(18,68,120,.08);
+}
+
+.kyp-featured-download{
+ border:2px solid #0c83d8;
+}
+
+.kyp-download-icon{
+ font-size:34px;
+ color:#0874d1;
+ margin-bottom:14px;
+}
+
+.kyp-download-card h3{
+ color:#073b78;
+ margin:0 0 10px;
+}
+
+.kyp-download-card p{
+ color:#607086;
+ min-height:70px;
+}
+
+.kyp-download-meta{
+ font-size:12px;
+ font-weight:700;
+ color:#52708f;
+ margin:12px 0 18px;
+}
+
+.kyp-download-btn,
+.kyp-resource-btn{
+ display:inline-block;
+ padding:12px 20px;
+ border-radius:10px;
+ font-weight:800;
+ text-decoration:none;
+}
+
+.kyp-download-btn{
+ background:#078c5a;
+ color:#fff;
+}
+
+.kyp-resource-btn{
+ background:#eaf3ff;
+ color:#075aa9;
+}
+
+.kyp-download-security{
+ margin-top:25px;
+ padding:17px 22px;
+ background:#e8f8f1;
+ border-radius:14px;
+ color:#126444;
+ display:flex;
+ gap:12px;
+ flex-wrap:wrap;
+}
+
+@media(max-width:850px){
+
+ .kyp-download-grid{
+  grid-template-columns:1fr;
+ }
+
+ .kyp-download-card p{
+  min-height:auto;
+ }
+
+}
+
+</style>
+
+
+<!-- KYP-MOBILE-INSTALL-V1 -->
+
+<section class="kyp-mobile-install">
+
+<div>
+
+<strong>
+Kushal Youth Programme Mobile App
+</strong>
+
+<span>
+Student learning, attendance, progress,
+results and KYP account access on mobile.
+</span>
+
+</div>
+
+<span class="kyp-mobile-coming">
+Mobile App • Coming Soon
+</span>
+
+</section>
+
+<style>
+
+.kyp-mobile-install{
+ max-width:1180px;
+ margin:22px auto 32px;
+ padding:20px 24px;
+ border-radius:18px;
+ background:#073b78;
+ color:#fff;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:20px;
+}
+
+.kyp-mobile-install strong{
+ display:block;
+ font-size:19px;
+ margin-bottom:5px;
+}
+
+.kyp-mobile-install span{
+ color:#d7e9ff;
+}
+
+.kyp-mobile-coming{
+ white-space:nowrap;
+ padding:13px 22px;
+ background:#fff;
+ color:#073b78 !important;
+ border-radius:10px;
+ font-weight:900;
+}
+
+@media(max-width:700px){
+
+ .kyp-mobile-install{
+  flex-direction:column;
+  align-items:flex-start;
+ }
+
+}
+
+</style>
+
 @endsection

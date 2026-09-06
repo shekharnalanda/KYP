@@ -12,6 +12,113 @@ use Illuminate\View\View;
 
 class ResultController extends Controller
 {
+    private function kypDocumentData(
+        \App\Models\User $student
+    ): array {
+        $codes = ['CIT','CLS','CSS'];
+
+        $moduleResults = [];
+
+        foreach ($codes as $code) {
+            $moduleResults[$code] = Result::query()
+                ->where('user_id', $student->id)
+                ->whereNotNull('published_at')
+                ->where('result_status', 'pass')
+                ->whereHas(
+                    'examAttempt.exam.course',
+                    fn ($q) => $q->where('code', $code)
+                )
+                ->with('examAttempt.exam.course')
+                ->latest('published_at')
+                ->first();
+        }
+
+        $scores = collect($moduleResults)
+            ->filter()
+            ->map(
+                fn ($result) =>
+                    (float) $result->final_score
+            );
+
+        $allCoreReady =
+            collect($codes)->every(
+                fn ($code) =>
+                    isset($moduleResults[$code])
+            );
+
+        $overall = $allCoreReady
+            ? round($scores->avg(), 2)
+            : null;
+
+        $grade = null;
+        $division = null;
+
+        if ($overall !== null) {
+            $grade =
+                $overall >= 90 ? 'A+' :
+                ($overall >= 80 ? 'A' :
+                ($overall >= 70 ? 'B+' :
+                ($overall >= 60 ? 'B' :
+                ($overall >= 50 ? 'C' : 'D'))));
+
+            $division =
+                $overall >= 75 ? 'DISTINCTION' :
+                ($overall >= 60 ? 'FIRST DIVISION' :
+                ($overall >= 50 ? 'SECOND DIVISION' :
+                'PASS'));
+        }
+
+        $aiCourse = \App\Models\Course::where(
+            'code',
+            'AI-DM'
+        )->first();
+
+        $aiCompleted = false;
+
+        if ($aiCourse) {
+            $aiSessionIds =
+                $aiCourse->sessions()->pluck('id');
+
+            $aiCompleted =
+                $aiSessionIds->isNotEmpty() &&
+                \App\Models\ActivityRecord::where(
+                    'user_id',
+                    $student->id
+                )
+                ->whereIn(
+                    'learning_session_id',
+                    $aiSessionIds
+                )
+                ->where('status','completed')
+                ->distinct()
+                ->count('learning_session_id')
+                >= $aiCourse->total_sessions;
+        }
+
+        $admission = \App\Models\Admission::query()
+            ->where('user_id',$student->id)
+            ->where('status','approved')
+            ->latest('approved_at')
+            ->first();
+
+        $parentName =
+            $admission?->father_name
+            ?: $admission?->guardian_name
+            ?: $admission?->mother_name
+            ?: '—';
+
+        return [
+            'moduleResults' => $moduleResults,
+            'allCoreReady' => $allCoreReady,
+            'overall' => $overall,
+            'grade' => $grade,
+            'division' => $division,
+            'aiCompleted' => $aiCompleted,
+            'admission' => $admission,
+            'parentName' => $parentName,
+        ];
+    }
+
     public function index(): View
     {
         $results = Result::with(['user', 'examAttempt.exam.course', 'certificate'])->latest()->paginate(30);
@@ -84,7 +191,12 @@ class ResultController extends Controller
             'certificate'
         ]);
 
-        return view('student.marksheet', compact('result'));
+        $document = $this->kypDocumentData($result->user);
+
+        return view(
+            'student.marksheet',
+            compact('result','document')
+        );
     }
 
     public function adminCertificate(Certificate $certificate): View
@@ -96,7 +208,13 @@ class ResultController extends Controller
             'result.examAttempt.exam.course'
         ]);
 
-        return view('student.certificate', compact('certificate'));
+        $document =
+            $this->kypDocumentData($certificate->user);
+
+        return view(
+            'student.certificate',
+            compact('certificate','document')
+        );
     }
 
     public function marksheet(Request $request, Result $result): View
@@ -104,7 +222,12 @@ class ResultController extends Controller
         abort_unless($result->user_id === $request->user()->id && $result->published_at, 403);
         $result->load(['user', 'examAttempt.exam.course', 'certificate']);
 
-        return view('student.marksheet', compact('result'));
+        $document = $this->kypDocumentData($result->user);
+
+        return view(
+            'student.marksheet',
+            compact('result','document')
+        );
     }
 
     public function certificate(Request $request, Certificate $certificate): View
@@ -112,7 +235,13 @@ class ResultController extends Controller
         abort_unless($certificate->user_id === $request->user()->id && $certificate->status === 'issued', 403);
         $certificate->load(['user', 'result.examAttempt.exam.course']);
 
-        return view('student.certificate', compact('certificate'));
+        $document =
+            $this->kypDocumentData($certificate->user);
+
+        return view(
+            'student.certificate',
+            compact('certificate','document')
+        );
     }
 
     public function verify(string $token): View

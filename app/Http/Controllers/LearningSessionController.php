@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityRecord;
-use App\Models\AttendanceRecord;
 use App\Models\Course;
 use App\Models\LearningSession;
 use App\Models\LearningSessionProgress;
@@ -208,10 +207,9 @@ class LearningSessionController extends Controller
                 ]]
             );
 
-            AttendanceRecord::updateOrCreate(
-                ['user_id' => $request->user()->id, 'learning_session_id' => $session->id, 'mode' => 'lab'],
-                ['course_id' => $session->course_id, 'attendance_date' => today(), 'status' => 'completed', 'minutes_completed' => $session->duration_minutes]
-            );
+            // Courseware completion and biometric attendance are independent.
+            // Lab attendance is credited only by verified MIS100V2 iris
+            // check-in/check-out through IrisConnectorController.
         });
 
         $next = LearningSession::where('course_id', $session->course_id)

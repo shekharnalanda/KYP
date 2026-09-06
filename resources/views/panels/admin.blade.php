@@ -154,6 +154,10 @@
         <b>A</b><span>Attendance</span>
     </a>
 
+    <a class="kyp-side-link" href="{{ route('admin.iris-software') }}">
+        <b>◉</b><span>Iris / Biometric Setup</span>
+    </a>
+
     <a class="kyp-side-link" href="{{ route('admin.results') }}">
         <b>R</b><span>Results & Certificates</span>
     </a>

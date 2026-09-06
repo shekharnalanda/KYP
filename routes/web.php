@@ -76,6 +76,9 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
     });
 
     Route::middleware('role:teacher,admin,master_admin')->group(function (): void {
+        Route::view('/admin/iris-software', 'admin.iris-software')
+            ->name('admin.iris-software');
+
         Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::post('/attendance', [AttendanceController::class, 'store'])->middleware('throttle:60,1')->name('attendance.store');
         Route::post('/attendance/bulk', [AttendanceController::class, 'bulkStore'])->middleware('throttle:20,1')->name('attendance.bulk');

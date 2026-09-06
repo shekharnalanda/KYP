@@ -80,14 +80,17 @@
         </div>
 
         <div style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:24px;">
-            <h3>Iris Setup & Support</h3>
+            <h3>Microsoft .NET Framework 4.8</h3>
+
             <p>
-                Installation/support resources required for the
-                KYP Iris Connector and attendance workstation.
+                Required Windows runtime for the KYP Iris Connector.
+                Install it only when the attendance computer requires it.
             </p>
 
             <a
-                href="/downloads/kyp-iris/"
+                href="https://dotnet.microsoft.com/download/dotnet-framework/net48"
+                target="_blank"
+                rel="noopener"
                 style="
                     display:inline-block;
                     padding:11px 18px;
@@ -98,7 +101,7 @@
                     font-weight:700;
                 "
             >
-                Open Iris Resources
+                Microsoft Official Download
             </a>
         </div>
 

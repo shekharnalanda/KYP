@@ -261,6 +261,72 @@
 
 </x-portal-shell>
 
+@if(auth()->user()->hasRole('teacher'))
+<script>
+(() => {
+    const scrollKey = 'kyp-teacher-learning-scroll';
+
+    function saveTeacherPosition() {
+        sessionStorage.setItem(scrollKey, String(window.scrollY));
+    }
+
+    function restoreTeacherPosition() {
+        const saved = Number(sessionStorage.getItem(scrollKey));
+
+        if (Number.isFinite(saved) && saved > 0) {
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: saved,
+                    behavior: 'auto'
+                });
+            });
+        }
+    }
+
+    restoreTeacherPosition();
+
+    // Preserve position when Teacher opens another session.
+    document.querySelectorAll('.session-row[href]').forEach(link => {
+        link.addEventListener('click', saveTeacherPosition);
+    });
+
+    // Internal topic/step navigation must never jump to page top.
+    document.querySelectorAll('.step-link').forEach((button, index) => {
+        button.addEventListener('click', () => {
+            const y = window.scrollY;
+
+            requestAnimationFrame(() => {
+                window.scrollTo({
+                    top: y,
+                    behavior: 'auto'
+                });
+            });
+        });
+    });
+
+    // Preserve position while interacting with teaching activities.
+    document.querySelectorAll(
+        '[data-reveal-item], [data-sequence-order], [data-check-item], [data-observe-play], [data-prev], [data-next]'
+    ).forEach(control => {
+        control.addEventListener('click', () => {
+            sessionStorage.setItem(scrollKey, String(window.scrollY));
+        });
+    });
+
+    // Keep latest position while Teacher is inside learning workspace.
+    let scrollTimer;
+
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimer);
+
+        scrollTimer = setTimeout(() => {
+            sessionStorage.setItem(scrollKey, String(window.scrollY));
+        }, 120);
+    }, {passive:true});
+})();
+</script>
+@endif
+
 @if(auth()->user()->hasRole('student') && !$completed)
 <script>
 (() => {

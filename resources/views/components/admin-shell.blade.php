@@ -123,6 +123,11 @@
 <b>A</b> Attendance
 </a>
 
+<a class="kas-link {{ $active==='iris-software'?'on':'' }}"
+   href="{{ route('admin.iris-software') }}">
+<b>◉</b> Iris / Biometric Setup
+</a>
+
 <a class="kas-link {{ $active==='results'?'on':'' }}" href="{{ route('admin.results') }}">
 <b>R</b> Results & Certificates
 </a>

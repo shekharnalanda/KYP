@@ -76,9 +76,6 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
     });
 
     Route::middleware('role:teacher,admin,master_admin')->group(function (): void {
-        Route::view('/admin/iris-software', 'admin.iris-software')
-            ->name('admin.iris-software');
-
         Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::post('/attendance', [AttendanceController::class, 'store'])->middleware('throttle:60,1')->name('attendance.store');
         Route::post('/attendance/bulk', [AttendanceController::class, 'bulkStore'])->middleware('throttle:20,1')->name('attendance.bulk');
@@ -88,6 +85,8 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
 
     Route::middleware('role:admin,master_admin')->group(function (): void {
         Route::get('/admin', [DashboardController::class, 'admin'])->name('admin.dashboard');
+        Route::view('/admin/iris-software', 'admin.iris-software')
+            ->name('admin.iris-software');
         Route::get('/admin/branches', [AdminApplicationController::class, 'branches'])->name('admin.branches');
         Route::post('/admin/branches', [AdminApplicationController::class, 'storeBranch'])->middleware('throttle:20,1')->name('admin.branches.store');
         Route::put('/admin/branches/{branch}', [AdminApplicationController::class, 'updateBranch'])->middleware('throttle:30,1')->name('admin.branches.update');

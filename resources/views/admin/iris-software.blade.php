@@ -1,6 +1,9 @@
-@extends('layouts.app')
-
-@section('content')
+<x-admin-shell
+    active="iris-software"
+    eyebrow="SYSTEM SETUP"
+    title="Iris / Biometric Setup"
+    subtitle="Authorized KYP biometric attendance software एवं installation resources."
+>
 <div style="max-width:1180px;margin:30px auto;padding:0 20px;">
 
     <div style="margin-bottom:24px;">
@@ -120,4 +123,4 @@
     </div>
 
 </div>
-@endsection
+</x-admin-shell>

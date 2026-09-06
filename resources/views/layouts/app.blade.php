@@ -23,6 +23,23 @@
         @media(max-width:900px){.links a:not(.btn){display:none}.hero-grid{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}.panel-grid{grid-template-columns:1fr}.hero-card{max-width:520px}.topbar .container{justify-content:center}.topbar span:last-child{display:none}}
         @media(max-width:560px){nav{min-height:68px}.brand strong{font-size:15px}.brand small{font-size:11px}.brand img,.brand-fallback{width:48px;height:48px}.cards{grid-template-columns:1fr}.hero{padding:54px 0}.hero h1{font-size:40px}.btn{padding:11px 15px}}
     </style>
+
+<link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+<meta name="theme-color" content="#073b78">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="{{ asset('images/app-icons/kyp-192.png') }}">
+
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker
+            .register('/service-worker.js')
+            .catch(function () {});
+    });
+}
+</script>
+
 </head>
 <body>
 @yield('body')

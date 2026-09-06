@@ -253,11 +253,73 @@ results and KYP account access on mobile.
 
 </div>
 
-<span class="kyp-mobile-coming">
-Mobile App • Coming Soon
-</span>
+<button
+type="button"
+class="kyp-mobile-coming"
+id="kyp-install-app"
+>
+📱 Install Mobile App
+</button>
 
 </section>
+
+<script>
+(() => {
+    const button = document.getElementById('kyp-install-app');
+    if (!button) return;
+
+    let installPrompt = null;
+
+    const installed =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+
+    if (installed) {
+        button.textContent = '✓ KYP App Installed';
+        button.disabled = true;
+        return;
+    }
+
+    window.addEventListener('beforeinstallprompt', event => {
+        event.preventDefault();
+        installPrompt = event;
+        button.textContent = '📱 Install Mobile App';
+    });
+
+    button.addEventListener('click', async () => {
+
+        if (installPrompt) {
+            installPrompt.prompt();
+
+            try {
+                await installPrompt.userChoice;
+            } finally {
+                installPrompt = null;
+            }
+
+            return;
+        }
+
+        if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+            alert(
+                'Safari में Share खोलें और Add to Home Screen चुनें।'
+            );
+            return;
+        }
+
+        alert(
+            'Chrome menu में Install app या Add to Home screen चुनें।'
+        );
+    });
+
+    window.addEventListener('appinstalled', () => {
+        installPrompt = null;
+        button.textContent = '✓ KYP App Installed';
+        button.disabled = true;
+    });
+})();
+</script>
+
 
 <style>
 
@@ -285,6 +347,9 @@ Mobile App • Coming Soon
 }
 
 .kyp-mobile-coming{
+ border:0;
+ cursor:pointer;
+ font:inherit;
  white-space:nowrap;
  padding:13px 22px;
  background:#fff;

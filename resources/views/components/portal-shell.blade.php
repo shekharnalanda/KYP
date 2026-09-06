@@ -22,7 +22,25 @@ $roleLabel = $isStudent ? 'Student' : 'Teacher';
 .kps-toplink:hover{background:rgba(255,255,255,.11);color:#fff}
 .kps-toplink.on{background:#0b65b8;color:#fff;box-shadow:0 5px 14px rgba(0,0,0,.14)}
 .kps-toplink b{font-size:13px}
-.kps-toplogout{border:0;font:inherit;cursor:pointer}
+.kps-toplogout{
+border:0;
+font:inherit;
+cursor:pointer;
+background:transparent;
+color:#e5effc;
+width:auto;
+margin:0;
+appearance:none;
+-webkit-appearance:none;
+}
+.kps-toplogout:hover{
+background:rgba(255,255,255,.11);
+color:#fff;
+}
+.kps-toplogout b,
+.kps-toplogout span{
+color:inherit;
+}
 .kps-topform{margin:0}
 .kps-student-layout{width:min(1480px,96%);margin:auto;padding:25px 0 45px}
 .kps-student-layout .kps-main{width:100%}

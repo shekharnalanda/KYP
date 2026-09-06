@@ -77,6 +77,8 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
 
     Route::middleware('role:teacher,admin,master_admin')->group(function (): void {
         Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('/attendance/export/csv', [AttendanceController::class, 'exportCsv'])->name('attendance.export.csv');
+        Route::get('/attendance/report/print', [AttendanceController::class, 'printReport'])->name('attendance.report.print');
         Route::post('/attendance', [AttendanceController::class, 'store'])->middleware('throttle:60,1')->name('attendance.store');
         Route::post('/attendance/bulk', [AttendanceController::class, 'bulkStore'])->middleware('throttle:20,1')->name('attendance.bulk');
     });

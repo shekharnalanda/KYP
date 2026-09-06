@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
 {
@@ -23,9 +24,28 @@ class AttendanceController extends Controller
             ->with(['enrollments' => fn ($query) => $query->where('status', 'active')])
             ->orderBy('name')
             ->get(['id', 'name', 'student_id']);
-        $recent = AttendanceRecord::with(['user', 'course', 'learningSession', 'recorder'])->latest()->limit(25)->get();
+        $query = $this->reportQuery($request);
 
-        return view('attendance.index', compact('courses', 'students', 'recent'));
+        $records = (clone $query)->paginate(50)->withQueryString();
+
+        $summaryQuery = $this->reportQuery($request);
+
+        $summary = [
+            'records' => (clone $summaryQuery)->count(),
+            'completed' => (clone $summaryQuery)->where('status', 'completed')->count(),
+            'centre_iris' => (clone $summaryQuery)->where('source', 'centre_iris')->count(),
+            'online_lab' => (clone $summaryQuery)->where('mode', 'online_lab')->count(),
+            'classroom' => (clone $summaryQuery)->where('mode', 'classroom')->count(),
+            'auto_checkout' => (clone $summaryQuery)->where('checkout_source', 'system_auto')->count(),
+            'minutes' => (int) (clone $summaryQuery)->sum('minutes_completed'),
+        ];
+
+        return view('attendance.index', compact(
+            'courses',
+            'students',
+            'records',
+            'summary'
+        ));
     }
 
     public function store(Request $request): RedirectResponse
@@ -101,6 +121,152 @@ class AttendanceController extends Controller
         });
 
         return back()->with('status', count($validated['records']).' students की bulk attendance सुरक्षित कर दी गई है।');
+    }
+
+    public function exportCsv(Request $request): StreamedResponse
+    {
+        $records = $this->reportQuery($request)->get();
+
+        $filename = 'KYP-Attendance-'.now()->format('Y-m-d-His').'.csv';
+
+        return response()->streamDownload(function () use ($records): void {
+            $out = fopen('php://output', 'w');
+
+            // UTF-8 BOM for Microsoft Excel / Hindi compatibility.
+            fwrite($out, "\xEF\xBB\xBF");
+
+            fputcsv($out, [
+                'Date',
+                'Student ID',
+                'Student Name',
+                'Course',
+                'Session',
+                'Attendance Mode',
+                'Source',
+                'Mark-In',
+                'Mark-Out',
+                'Mark-Out Source',
+                'Minutes',
+                'Status',
+            ]);
+
+            foreach ($records as $record) {
+                fputcsv($out, [
+                    optional($record->attendance_date)->format('d-m-Y'),
+                    $record->user?->student_id,
+                    $record->user?->name,
+                    $record->course?->code.' - '.$record->course?->name,
+                    $record->learningSession
+                        ? 'Session '.$record->learningSession->session_number.' - '.$record->learningSession->title_en
+                        : '',
+                    $this->modeLabel($record),
+                    $this->sourceLabel($record),
+                    optional($record->checked_in_at)->format('d-m-Y h:i A'),
+                    optional($record->checked_out_at)->format('d-m-Y h:i A'),
+                    $this->checkoutLabel($record),
+                    $record->minutes_completed,
+                    ucfirst((string) $record->status),
+                ]);
+            }
+
+            fclose($out);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    public function printReport(Request $request): View
+    {
+        $records = $this->reportQuery($request)->get();
+
+        $summary = [
+            'records' => $records->count(),
+            'completed' => $records->where('status', 'completed')->count(),
+            'centre_iris' => $records->where('source', 'centre_iris')->count(),
+            'online_lab' => $records->where('mode', 'online_lab')->count(),
+            'classroom' => $records->where('mode', 'classroom')->count(),
+            'auto_checkout' => $records->where('checkout_source', 'system_auto')->count(),
+            'minutes' => (int) $records->sum('minutes_completed'),
+        ];
+
+        return view('attendance.print', compact('records', 'summary'));
+    }
+
+    private function reportQuery(Request $request)
+    {
+        $query = AttendanceRecord::query()
+            ->with(['user', 'course', 'learningSession', 'recorder'])
+            ->orderByDesc('attendance_date')
+            ->orderByDesc('id');
+
+        if ($request->filled('student_id')) {
+            $query->where('user_id', (int) $request->input('student_id'));
+        }
+
+        if ($request->filled('course_id')) {
+            $query->where('course_id', (int) $request->input('course_id'));
+        }
+
+        if ($request->filled('learning_session_id')) {
+            $query->where('learning_session_id', (int) $request->input('learning_session_id'));
+        }
+
+        if ($request->filled('mode')) {
+            $mode = (string) $request->input('mode');
+
+            if ($mode === 'centre_iris') {
+                $query->where('mode', 'lab')->where('source', 'centre_iris');
+            } elseif (in_array($mode, ['online_lab', 'classroom'], true)) {
+                $query->where('mode', $mode);
+            }
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', (string) $request->input('status'));
+        }
+
+        if ($request->filled('checkout_source')) {
+            $query->where('checkout_source', (string) $request->input('checkout_source'));
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('attendance_date', '>=', $request->input('date_from'));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('attendance_date', '<=', $request->input('date_to'));
+        }
+
+        return $query;
+    }
+
+    private function modeLabel(AttendanceRecord $record): string
+    {
+        return match ($record->mode) {
+            'online_lab' => 'Online Lab',
+            'classroom' => 'Classroom',
+            'lab' => 'Centre Iris Lab',
+            default => ucfirst((string) $record->mode),
+        };
+    }
+
+    private function sourceLabel(AttendanceRecord $record): string
+    {
+        return match ($record->source) {
+            'centre_iris' => 'MIS100V2 Iris',
+            'online_portal' => 'Online Portal',
+            default => $record->recorded_by ? 'Manual Staff Entry' : 'System',
+        };
+    }
+
+    private function checkoutLabel(AttendanceRecord $record): string
+    {
+        return match ($record->checkout_source) {
+            'iris' => 'Iris Mark-Out',
+            'system_auto' => 'System Auto Mark-Out',
+            'courseware_completion' => 'Online Completion',
+            default => '-',
+        };
     }
 
     private function validateSessionCourse(int $sessionId, int $courseId): void

@@ -42,7 +42,9 @@
 </div>
 @endif
 
-<div class="courseware-shell" data-student="{{ auth()->user()->hasRole('student') ? '1' : '0' }}">
+<div class="courseware-shell"
+     id="learning-workspace"
+     data-student="{{ auth()->user()->hasRole('student') ? '1' : '0' }}">
 
     @if(session('status'))<div class="notice success">{{ session('status') }}</div>@endif
     @error('session')<div class="notice error-box">{{ $message }}</div>@enderror
@@ -206,7 +208,10 @@
                 @if($completed)
                     <div class="notice success">यह interactive session complete है। आप इसे revision के लिए देख रहे हैं।</div>
                 @else
-                    <form method="POST" action="{{ route('learning.complete', $session) }}" id="complete-form">
+                    <form method="POST"
+                      action="{{ route('learning.complete', $session) }}"
+                      id="complete-form"
+                      onsubmit="sessionStorage.setItem('kyp-learning-scroll', String(window.scrollY))">
                         @csrf
                         <button class="btn full" type="submit">Final Check करके Session Complete करें</button>
                         <p class="completion-note">सभी {{ count($steps) }} चरण, 120 active minutes, practical response और minimum {{ $session->passing_score }}% quiz score आवश्यक है।</p>
@@ -259,6 +264,31 @@
 @if(auth()->user()->hasRole('student') && !$completed)
 <script>
 (() => {
+    const workspace = document.getElementById('learning-workspace');
+    const scrollKey = 'kyp-learning-scroll';
+
+    function saveLearningPosition() {
+        if (workspace) {
+            sessionStorage.setItem(scrollKey, String(window.scrollY));
+        }
+    }
+
+    function restoreLearningPosition() {
+        const saved = Number(sessionStorage.getItem(scrollKey));
+
+        if (Number.isFinite(saved) && saved > 0) {
+            requestAnimationFrame(() => {
+                window.scrollTo({top: saved, behavior: 'auto'});
+            });
+        }
+    }
+
+    restoreLearningPosition();
+
+    document.querySelectorAll('.session-row[href]').forEach(link => {
+        link.addEventListener('click', saveLearningPosition);
+    });
+
     const steps = [...document.querySelectorAll('.learning-step')];
     const nav = [...document.querySelectorAll('.step-link')];
     const token = document.querySelector('meta[name="csrf-token"]')?.content || @json(csrf_token());
@@ -281,7 +311,7 @@
             const done = completed.has(steps[i].dataset.stepId);
             item.classList.add(done ? 'state-complete' : (i === current ? 'state-active' : (i < current ? 'state-skipped' : 'state-pending')));
         });
-        window.scrollTo({top: 0, behavior: 'smooth'});
+
     }
 
     async function save(extra = {}) {
@@ -368,7 +398,13 @@
         }, 4800);
     }));
 
-    nav.forEach((item, i) => item.addEventListener('click', () => { current = i; render(); save(); }));
+    nav.forEach((item, i) => item.addEventListener('click', () => {
+        const y = window.scrollY;
+        current = i;
+        render();
+        window.scrollTo({top: y, behavior: 'auto'});
+        save();
+    }));
     document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => {
         const step = steps[current];
         const gate = step.querySelector('[data-step-gate]');

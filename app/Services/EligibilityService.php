@@ -15,8 +15,8 @@ class EligibilityService
             $labSessions = AttendanceRecord::query()
                 ->where('user_id', $user->id)
                 ->where('course_id', $course->id)
-                ->where('mode', 'lab')
-                ->whereIn('status', ['present', 'completed'])
+                ->whereIn('mode', ['lab', 'online_lab'])
+                ->where('status', 'completed')
                 ->distinct('learning_session_id')
                 ->count('learning_session_id');
 

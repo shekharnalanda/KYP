@@ -12,7 +12,13 @@ class InternalAssessmentService
     {
         $totalSessions = max(1, (int) $course->total_sessions);
 
-        $labSessions = $this->completedSessions($user, $course, 'lab');
+        $labSessions = AttendanceRecord::query()
+            ->where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->whereIn('mode', ['lab', 'online_lab'])
+            ->where('status', 'completed')
+            ->distinct('learning_session_id')
+            ->count('learning_session_id');
         $classroomSessions = $this->completedSessions($user, $course, 'classroom');
 
         return [

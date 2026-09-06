@@ -208,6 +208,10 @@ class IrisConnectorController extends Controller
             if ($validated['event_type'] === 'check_in') {
                 $attendance->status = 'present';
                 $attendance->minutes_completed = 0;
+                $attendance->source = 'centre_iris';
+                $attendance->checked_in_at = $capturedAt;
+                $attendance->checked_out_at = null;
+                $attendance->checkout_source = null;
             } else {
                 $checkIn = IrisAttendanceEvent::query()
                     ->where('user_id', $student->id)
@@ -225,6 +229,10 @@ class IrisConnectorController extends Controller
                     max(0, $checkIn->captured_at->diffInMinutes($capturedAt))
                 );
                 $attendance->minutes_completed = $minutes;
+                $attendance->source = 'centre_iris';
+                $attendance->checked_in_at = $checkIn->captured_at;
+                $attendance->checked_out_at = $capturedAt;
+                $attendance->checkout_source = 'iris';
                 $attendance->status = $minutes >= (int) config('iris.minimum_session_minutes', 110)
                     ? 'completed'
                     : 'present';

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityRecord;
+use App\Models\AttendanceRecord;
 use App\Models\Course;
 use App\Models\LearningSession;
 use App\Models\LearningSessionProgress;
@@ -207,9 +208,41 @@ class LearningSessionController extends Controller
                 ]]
             );
 
-            // Courseware completion and biometric attendance are independent.
-            // Lab attendance is credited only by verified MIS100V2 iris
-            // check-in/check-out through IrisConnectorController.
+            // Hybrid KYP Lab Attendance:
+            // Genuine interactive courseware completion may be credited as
+            // Online Lab when no completed Centre-Iris Lab record exists.
+            $physicalLab = AttendanceRecord::query()
+                ->where('user_id', $request->user()->id)
+                ->where('learning_session_id', $session->id)
+                ->where('mode', 'lab')
+                ->where('source', 'centre_iris')
+                ->where('status', 'completed')
+                ->exists();
+
+            if (! $physicalLab) {
+                AttendanceRecord::updateOrCreate(
+                    [
+                        'user_id' => $request->user()->id,
+                        'learning_session_id' => $session->id,
+                        'mode' => 'online_lab',
+                    ],
+                    [
+                        'course_id' => $session->course_id,
+                        'attendance_date' => now()->toDateString(),
+                        'source' => 'online_portal',
+                        'status' => 'completed',
+                        'minutes_completed' => min(
+                            (int) $session->duration_minutes,
+                            intdiv((int) $progress->active_seconds, 60)
+                        ),
+                        'checked_in_at' => $progress->created_at,
+                        'checked_out_at' => now(),
+                        'checkout_source' => 'courseware_completion',
+                        'recorded_by' => null,
+                        'biometric_reference' => null,
+                    ]
+                );
+            }
         });
 
         $next = LearningSession::where('course_id', $session->course_id)

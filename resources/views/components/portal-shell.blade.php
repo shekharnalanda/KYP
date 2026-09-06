@@ -17,7 +17,7 @@ $roleLabel = $isStudent ? 'Student' : 'Teacher';
 .kps-top{background:linear-gradient(135deg,#031b3f,#073b78);color:#fff}
 .kps-topin{width:min(1380px,94%);height:76px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}
 .kps-brand,.kps-user{display:flex;align-items:center;gap:12px}
-.kps-student-nav{display:flex;align-items:center;justify-content:center;gap:5px;flex:1;min-width:0}
+.kps-portal-nav{display:flex;align-items:center;justify-content:center;gap:5px;flex:1;min-width:0}
 .kps-toplink{display:flex;align-items:center;gap:7px;padding:10px 11px;border-radius:10px;color:#e5effc;font-size:12px;font-weight:800;white-space:nowrap;transition:.18s}
 .kps-toplink:hover{background:rgba(255,255,255,.11);color:#fff}
 .kps-toplink.on{background:#0b65b8;color:#fff;box-shadow:0 5px 14px rgba(0,0,0,.14)}
@@ -42,8 +42,8 @@ color:#fff;
 color:inherit;
 }
 .kps-topform{margin:0}
-.kps-student-layout{width:min(1480px,96%);margin:auto;padding:25px 0 45px}
-.kps-student-layout .kps-main{width:100%}
+.kps-full-layout{width:min(1480px,96%);margin:auto;padding:25px 0 45px}
+.kps-full-layout .kps-main{width:100%}
 
 .kps-brand img{width:54px;height:54px;border-radius:50%;background:#fff;padding:3px;object-fit:contain}
 .kps-brand strong,.kps-brand small,.kps-user strong,.kps-user small{display:block}
@@ -77,7 +77,7 @@ color:inherit;
 .kps-metric small{color:#718198}
 
 @media(max-width:1100px){
-.kps-student-nav{gap:2px}
+.kps-portal-nav{gap:2px}
 .kps-toplink{padding:9px 7px;font-size:11px}
 .kps-toplink b{display:none}
 }
@@ -88,14 +88,14 @@ color:inherit;
 .kps-topin.student-top{height:auto;min-height:76px;flex-wrap:wrap;padding:10px 0}
 .kps-topin.student-top .kps-brand{order:1}
 .kps-topin.student-top .kps-user{order:2}
-.kps-student-nav{order:3;flex-basis:100%;justify-content:flex-start;overflow-x:auto;padding:5px 0 2px;scrollbar-width:thin}
+.kps-portal-nav{order:3;flex-basis:100%;justify-content:flex-start;overflow-x:auto;padding:5px 0 2px;scrollbar-width:thin}
 .kps-toplink{flex:0 0 auto}
 }
 @media(max-width:600px){
 .kps-user>div{display:none}
 .kps-mci{width:48px;height:48px}
 .kps-layout{width:94%}
-.kps-student-layout{width:94%;padding-top:18px}
+.kps-full-layout{width:94%;padding-top:18px}
 .kps-side{grid-template-columns:1fr 1fr}
 .kps-link b{display:none}
 .kps-content{padding:16px}
@@ -106,7 +106,7 @@ color:inherit;
 <div class="kps">
 
 <header class="kps-top">
-<div class="kps-topin {{ $isStudent ? 'student-top' : '' }}">
+<div class="kps-topin student-top">
 
 <div class="kps-brand">
 <img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP Logo">
@@ -116,11 +116,10 @@ color:inherit;
 </div>
 </div>
 
-@if($isStudent)
-<nav class="kps-student-nav" aria-label="Student navigation">
+<nav class="kps-portal-nav" aria-label="{{ $roleLabel }} navigation">
 
 <a class="kps-toplink {{ $active==='dashboard'?'on':'' }}"
-   href="{{ route('student.dashboard') }}">
+   href="{{ route($dashboardRoute) }}">
 <b>⌂</b><span>Dashboard</span>
 </a>
 
@@ -129,10 +128,17 @@ color:inherit;
 <b>L</b><span>Learning Sessions</span>
 </a>
 
+@if($isStudent)
 <a class="kps-toplink {{ $active==='exams'?'on':'' }}"
    href="{{ route('student.exams') }}">
 <b>X</b><span>Online Exams</span>
 </a>
+@else
+<a class="kps-toplink {{ $active==='attendance'?'on':'' }}"
+   href="{{ route('attendance.index') }}">
+<b>A</b><span>Attendance</span>
+</a>
+@endif
 
 <a class="kps-toplink {{ $active==='password'?'on':'' }}"
    href="{{ route('profile.password.edit') }}">
@@ -149,7 +155,6 @@ color:inherit;
 </form>
 
 </nav>
-@endif
 
 <div class="kps-user">
 <div>
@@ -164,49 +169,9 @@ color:inherit;
 </div>
 </header>
 
-<div class="{{ $isStudent ? 'kps-student-layout' : 'kps-layout' }}">
+<div class="kps-full-layout">
 
-@if(!$isStudent)
-<aside class="kps-side">
-<div class="kps-label">{{ strtoupper($roleLabel) }} PORTAL</div>
 
-<a class="kps-link {{ $active==='dashboard'?'on':'' }}"
-href="{{ route($dashboardRoute) }}">
-<b>⌂</b> Dashboard
-</a>
-
-<a class="kps-link {{ $active==='learning'?'on':'' }}"
-href="{{ route('learning.index') }}">
-<b>L</b> Learning Sessions
-</a>
-
-@if($isStudent)
-<a class="kps-link {{ $active==='exams'?'on':'' }}"
-href="{{ route('student.exams') }}">
-<b>X</b> Online Exams
-</a>
-@else
-<a class="kps-link {{ $active==='attendance'?'on':'' }}"
-href="{{ route('attendance.index') }}">
-<b>A</b> Attendance
-</a>
-@endif
-
-<div class="kps-sep"></div>
-
-<a class="kps-link {{ $active==='password'?'on':'' }}"
-href="{{ route('profile.password.edit') }}">
-<b>⚙</b> Change Password
-</a>
-
-<form method="POST" action="{{ route('logout') }}">
-@csrf
-<button type="submit" class="kps-link kps-logout">
-<b>↪</b> Logout
-</button>
-</form>
-</aside>
-@endif
 
 <main class="kps-main">
 

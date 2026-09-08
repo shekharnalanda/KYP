@@ -124,6 +124,41 @@
                     <h2>{{ $step['title'] }}</h2>
                     <div class="lesson-copy">{!! nl2br(e($step['content'] ?? '')) !!}</div>
 
+                    @if(isset($step['media']))
+                        @php($media = $step['media'])
+                        @php($visualSymbols = ['monitor'=>'▣','processor'=>'CPU','memory'=>'RAM','disk'=>'◉','storage'=>'SSD','keyboard'=>'⌨','listen'=>'♫','dialogue'=>'💬','speak'=>'🎙','review'=>'✓','situation'=>'👥','choice'=>'↗','action'=>'▶','result'=>'★','prompt'=>'{ }','ai'=>'AI','verify'=>'✓','campaign'=>'↗','identify'=>'◎','tool'=>'⚙','process'=>'⇄','evidence'=>'✓'])
+                        <section class="media-lab" data-media-lab>
+                            <div class="media-head">
+                                <div><span>VISUAL • AUDIO • ANIMATION</span><h3>{{ $media['title_hi'] }}</h3><small lang="en">{{ $media['title_en'] }}</small></div>
+                                <div class="audio-actions">
+                                    <button type="button" class="media-button" data-speak-text="{{ $media['narration_hi'] }}" data-speak-lang="hi-IN">🔊 हिन्दी सुनें</button>
+                                    <button type="button" class="media-button" data-speak-text="{{ $media['narration_en'] }}" data-speak-lang="en-IN">🔊 Listen English</button>
+                                </div>
+                            </div>
+                            <div class="visual-gallery" aria-label="Topic visual identification cards">
+                                @foreach($media['cards'] as $cardIndex => $card)
+                                    <button type="button" class="visual-card {{ $cardIndex === ($media['focus'] ?? -1) ? 'is-focus' : '' }}" data-visual-card>
+                                        <span class="visual-object visual-{{ $card['icon'] }}">{{ $visualSymbols[$card['icon']] ?? '◆' }}</span>
+                                        <strong>{{ $card['hi'] }}</strong><small lang="en">{{ $card['en'] }}</small>
+                                        <span class="visual-detail">{{ $card['detail_hi'] }}<small lang="en">{{ $card['detail_en'] }}</small></span>
+                                    </button>
+                                @endforeach
+                            </div>
+                            <div class="story-player" data-story-player>
+                                <div class="story-screen">
+                                    @foreach($media['storyboard'] as $frameIndex => $frame)
+                                        <article class="story-frame" data-story-frame {{ $frameIndex ? 'hidden' : '' }}>
+                                            <span class="character" aria-hidden="true">{{ ['👩‍💻','💭','🧑‍🤝‍🧑','🏆'][$frameIndex] ?? '●' }}</span>
+                                            <div><b>दृश्य {{ $frameIndex + 1 }}</b><p>{{ $frame['hi'] }}</p><small lang="en">{{ $frame['en'] }}</small></div>
+                                        </article>
+                                    @endforeach
+                                </div>
+                                <button type="button" class="media-button story-play" data-story-play>▶ छोटा animated lesson चलाएँ</button>
+                                <span class="story-status" aria-live="polite">दृश्य 1 / {{ count($media['storyboard']) }}</span>
+                            </div>
+                        </section>
+                    @endif
+
                     @if(isset($step['activity']))
                         @php($activity = $step['activity'])
                         @php($activityComplete = (bool)(($progress?->activity_states ?? [])[$activity['id']] ?? false))
@@ -247,12 +282,17 @@
  padding:0;
  background:transparent
 }
+.media-lab{margin:28px 0;padding:22px;border:1px solid #b8d8e8;border-radius:20px;background:linear-gradient(145deg,#f3fbff,#fffaf0)}
+.media-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.media-head>div:first-child>span{font-size:10px;font-weight:900;letter-spacing:.09em;color:#087443}.media-head h3{margin:6px 0 2px;color:#062b63}.media-head small,.visual-card small,.story-frame small{display:block;color:#50677f}.audio-actions{display:flex;gap:8px;flex-wrap:wrap}.media-button{padding:9px 12px;border:1px solid #8ebad5;border-radius:10px;background:#fff;color:#06366b;font-weight:800;cursor:pointer}.media-button:hover{background:#eaf7ff}
+.visual-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin:18px 0}.visual-card{display:flex;flex-direction:column;align-items:center;min-height:185px;padding:14px;border:1px solid #c9dae8;border-radius:16px;background:#fff;color:#12375f;text-align:center;cursor:pointer;transition:.2s}.visual-card:hover,.visual-card.is-open{transform:translateY(-3px);border-color:#0a9b55;box-shadow:0 8px 20px rgba(6,43,99,.1)}.visual-card.is-focus{background:#eefcff}.visual-object{display:grid;place-items:center;width:86px;height:72px;margin-bottom:10px;border-radius:14px;background:linear-gradient(145deg,#062b63,#0b86d7);color:#fff;font-size:24px;font-weight:900;box-shadow:inset 0 -8px 0 rgba(0,0,0,.13)}.visual-memory{background:repeating-linear-gradient(90deg,#078143 0 14px,#10a65d 14px 24px)}.visual-disk{border-radius:8px;background:linear-gradient(#3d4652 0 67%,#aeb7c1 67%)}.visual-storage{background:linear-gradient(145deg,#555,#aab4bf)}.visual-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed #b9ccdb;font-size:12px;line-height:1.5}.visual-card.is-open .visual-detail{display:block}
+.story-player{padding:15px;border-radius:16px;background:#062b63;color:#fff}.story-screen{min-height:122px}.story-frame{display:grid;grid-template-columns:80px 1fr;gap:16px;align-items:center;animation:storyIn .5s ease}.story-frame .character{display:grid;place-items:center;width:75px;height:75px;border-radius:50%;background:#fff4c8;font-size:35px}.story-frame p{margin:6px 0;line-height:1.5}.story-frame small{color:#d5ecff}.story-play{margin-right:10px}.story-status{font-size:12px;color:#d5ecff}@keyframes storyIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
 @media(max-width:700px){
  .courseware-teacher-mode,
  .courseware-student-mode{
    align-items:flex-start;
    flex-direction:column
  }
+ .media-head{display:grid}.audio-actions{width:100%}.media-button{flex:1}.story-frame{grid-template-columns:58px 1fr}.story-frame .character{width:54px;height:54px;font-size:27px}
 }
 
 .courseware-head{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}.learning-status{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:24px 0;padding:18px;border:1px solid #cfe0f4;border-radius:18px;background:#f7fbff}.learning-status>div{display:grid;gap:5px}.learning-status span{color:var(--muted);font-size:14px}.status-grow{flex:1;min-width:220px}.progress-track{height:10px;border-radius:99px;background:#dce8f6;overflow:hidden}.progress-track div{height:100%;background:linear-gradient(90deg,var(--teal),#0b86d7);transition:width .35s}.save-state{font-size:13px;color:#057d78}.course-menu-toggle{display:none;width:100%;margin:0 0 14px;padding:13px 16px;border:1px solid #b9cee5;border-radius:12px;background:#fff;color:#082c5c;font-weight:800;text-align:left}.courseware-grid{display:grid;grid-template-columns:minmax(300px,350px) minmax(0,1fr);gap:24px}.course-tree{position:sticky;top:14px;align-self:start;max-height:calc(100vh - 28px);overflow:auto;border:1px solid #cfe0f4;border-radius:18px;background:#f8fbff;box-shadow:0 10px 28px rgba(7,39,83,.07)}.tree-head{position:sticky;top:0;z-index:3;display:grid;gap:4px;padding:16px;background:#062b63;color:#fff}.tree-head small{color:#cce7ff}.status-legend{display:flex;flex-wrap:wrap;gap:7px 11px;padding:11px 14px;border-bottom:1px solid #dbe8f5;background:#fff;font-size:11px;font-weight:800}.legend-pending{color:#151c27}.legend-active{color:#086acb}.legend-complete{color:#078143}.legend-skipped{color:#c22b2b}.legend-locked{color:#8995a5}.session-tree-list{padding:9px}.session-branch{margin-bottom:7px}.session-row{display:grid;grid-template-columns:14px minmax(0,1fr) 22px;align-items:center;gap:9px;width:100%;padding:10px;border:1px solid transparent;border-radius:11px;color:#151c27;text-decoration:none;background:#fff}.session-row:hover{border-color:#a9c8e8}.session-row>span:nth-child(2){display:grid;gap:2px;min-width:0}.session-row b{font-size:12px}.session-row small{overflow:hidden;color:inherit;font-size:11px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}.session-row em{font-style:normal;font-weight:900;text-align:center}.state-dot{display:block;width:10px!important;height:10px!important;border-radius:50%;background:#151c27!important}.session-branch.state-active>.session-row{border-color:#1782d4;background:#eaf5ff;color:#075fa7}.session-branch.state-active>.session-row .state-dot,.step-link.state-active .state-dot{background:#0878cf!important;box-shadow:0 0 0 4px rgba(8,120,207,.13)}.session-branch.state-complete>.session-row{color:#087443}.session-branch.state-complete>.session-row .state-dot,.step-link.state-complete .state-dot{background:#0a9b55!important}.session-branch.state-skipped>.session-row{border-color:#f0c0c0;background:#fff5f5;color:#b42323}.session-branch.state-skipped>.session-row .state-dot,.step-link.state-skipped .state-dot{background:#cf3030!important}.session-branch.state-locked>.session-row{background:#f0f3f6;color:#8995a5;cursor:not-allowed}.session-branch.state-locked>.session-row .state-dot{background:#a5afbb!important}.topic-flow{display:grid;gap:5px;margin:7px 0 12px;padding:7px 0 7px 19px;border-left:2px solid #bfd6ec}.step-link{display:grid;grid-template-columns:14px minmax(0,1fr) auto;align-items:center;gap:8px;width:100%;padding:9px;border:1px solid #d8e5f3;background:#fff;border-radius:10px;color:#151c27;cursor:pointer;text-align:left}.step-link b{font-size:11px;line-height:1.3}.step-link small{color:inherit;font-size:10px}.step-link.state-active{border-color:#0878cf;background:#edf7ff;color:#075fa7}.step-link.state-complete{border-color:#a7dfc3;background:#effcf5;color:#087443}.step-link.state-skipped{border-color:#efb4b4;background:#fff2f2;color:#b42323}.step-link.state-pending{color:#151c27}.step-stage{min-width:0}.learning-step{min-height:550px;padding:30px;border:1px solid #dce8f6;border-radius:22px;background:#fff;box-shadow:0 14px 38px rgba(7,39,83,.07)}.step-meta{display:flex;justify-content:space-between;color:#057d78;font-weight:800;font-size:12px}.learning-step h2{font-size:clamp(26px,4vw,38px);color:var(--navy)}.lesson-copy{font-size:17px;line-height:1.85;white-space:normal}.process-animation{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 24px;padding:25px 18px;border-radius:18px;background:linear-gradient(130deg,#062b63,#0b6b8c);overflow:hidden;color:#fff}.flow-line{position:absolute;left:11%;right:11%;top:45px;height:4px;border-radius:9px;background:rgba(255,255,255,.35)}.flow-pulse{position:absolute;left:0;display:block;width:16px;height:16px;margin-top:-6px;border-radius:50%;background:#ffd166;box-shadow:0 0 18px #ffd166;animation:flowMove 4s linear infinite}.flow-node{position:relative;z-index:1;text-align:center}.flow-number{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 10px;border-radius:50%;background:#fff;color:#06366b;font-weight:900}.flow-node strong,.flow-node small{display:block}.flow-node small{margin-top:3px;color:#d9f7ff}@keyframes flowMove{from{left:0}to{left:calc(100% - 16px)}}.skill-activity{margin:28px 0;padding:22px;border:2px solid #cbddec;border-radius:18px;background:linear-gradient(180deg,#f9fcff,#f1f8ff)}.skill-activity.is-complete{border-color:#92d7b5;background:linear-gradient(180deg,#f7fffb,#eafaf2)}.activity-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.activity-heading>div>span{display:inline-block;padding:4px 8px;border-radius:99px;background:#0b6b8c;color:#fff;font-size:10px;font-weight:900;letter-spacing:.08em}.activity-heading h3{margin:8px 0 2px;color:#092e60;font-size:21px}.activity-heading p{margin:0;color:#526a82;font-size:13px}.activity-badge{padding:7px 10px;border-radius:9px;background:#fff3cf;color:#8a5a00;font-size:11px;white-space:nowrap}.is-complete .activity-badge{background:#dff7ea;color:#087443}.activity-instruction{padding:12px 14px;border-left:4px solid #0b86d7;background:#fff;line-height:1.55}.activity-instruction small,.reveal-card small,.sequence-item small,.activity-checklist small,.activity-flow-node small{display:block;margin-top:4px;color:#526a82;font-weight:500}.reveal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.reveal-card{min-height:105px;padding:15px;border:1px solid #bad1e8;border-radius:14px;background:#fff;color:#12375f;text-align:left;cursor:pointer;transition:.2s}.reveal-card:hover{transform:translateY(-2px);border-color:#0b86d7}.reveal-front,.reveal-detail{display:block}.reveal-front b,.reveal-detail b{display:block}.reveal-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed #b8cbdf;color:#087443}.reveal-card.is-open{border-color:#37a874;background:#f1fff8}.reveal-card.is-open .reveal-detail{display:block}.sequence-board{display:grid;gap:9px}.sequence-item{display:grid;grid-template-columns:34px minmax(0,1fr);gap:3px 10px;align-items:center;padding:12px;border:1px solid #c8daeb;border-radius:12px;background:#fff;color:#173b61;text-align:left;cursor:pointer}.sequence-item>span{grid-row:1/3;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#edf3fa;color:#637a92;font-weight:900}.sequence-item small{grid-column:2}.sequence-item.is-selected{border-color:#39ad76;background:#edfff6;color:#087443}.sequence-item.is-selected>span{background:#0a9b55;color:#fff}.activity-checklist{display:grid;gap:9px}.activity-checklist label{display:flex;gap:11px;align-items:flex-start;padding:12px;border:1px solid #c8daeb;border-radius:12px;background:#fff;cursor:pointer}.activity-checklist input{width:19px;height:19px;accent-color:#0a9b55;flex:0 0 auto}.activity-checklist span,.activity-checklist b{display:block}.activity-flow{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:24px 12px;margin-bottom:14px;border-radius:15px;background:#062b63;color:#fff;overflow:hidden}.activity-flow-track{position:absolute;left:10%;right:10%;top:43px;height:4px;background:rgba(255,255,255,.3)}.activity-flow-track i{position:absolute;left:0;top:-6px;width:16px;height:16px;border-radius:50%;background:#ffd166;box-shadow:0 0 16px #ffd166}.activity-flow.is-playing .activity-flow-track i{animation:activityTravel 4.5s linear forwards}.activity-flow-node{position:relative;z-index:1;text-align:center}.activity-flow-node>span{display:grid;place-items:center;width:40px;height:40px;margin:0 auto 9px;border-radius:50%;background:#fff;color:#06366b;font-weight:900}.activity-flow-node b{display:block}.activity-flow-node small{color:#cfefff}@keyframes activityTravel{from{left:0}to{left:calc(100% - 16px)}}.activity-feedback{min-height:22px;margin-top:12px;color:#087443;font-weight:800}.step-gate-message{display:none;margin-top:18px;padding:12px;border:1px solid #efb4b4;border-radius:11px;background:#fff2f2;color:#b42323;font-weight:800}.step-gate-message.show{display:block}.interaction-card{margin-top:26px;padding:22px;border-radius:17px;background:#f2f9ff;border:1px solid #cfe0f4}.question-hi{font-size:18px;font-weight:800;margin-bottom:3px}.question-en{margin-top:0;color:#38536f;font-size:15px}.choice{display:flex;gap:10px;align-items:flex-start;padding:12px;margin:9px 0;background:#fff;border:1px solid #dce8f6;border-radius:11px;cursor:pointer}.choice input{margin-top:5px;flex:0 0 auto}.choice span{display:block}.option-en{display:block;margin-top:5px;color:#526a82;font-weight:500;line-height:1.45}.answer-feedback{font-weight:700;margin-top:10px}.interaction-card textarea{width:100%;padding:14px;border-radius:12px;border:1px solid #bfd1e5;font:inherit;line-height:1.6}.step-actions{display:flex;justify-content:space-between;gap:12px;margin-top:28px}.notice{margin:18px 0;padding:14px;border-radius:12px}.success{background:#e8fff4;color:#087443;border:1px solid #a9e8cc}.error-box{background:#fff0ee;color:#a12a20;border:1px solid #f1bab4}.completion-note{text-align:center;color:var(--muted);font-size:13px}.full{width:100%;margin-top:22px}
@@ -260,6 +300,47 @@
 </style>
 
 </x-portal-shell>
+
+<script>
+(() => {
+    document.querySelectorAll('[data-visual-card]').forEach(card => card.addEventListener('click', () => card.classList.toggle('is-open')));
+
+    document.querySelectorAll('[data-speak-text]').forEach(button => button.addEventListener('click', () => {
+        if (!('speechSynthesis' in window)) {
+            button.textContent = 'इस browser में audio उपलब्ध नहीं है';
+            return;
+        }
+        window.speechSynthesis.cancel();
+        const speech = new SpeechSynthesisUtterance(button.dataset.speakText);
+        speech.lang = button.dataset.speakLang || 'hi-IN';
+        speech.rate = .88;
+        window.speechSynthesis.speak(speech);
+    }));
+
+    document.querySelectorAll('[data-story-play]').forEach(button => button.addEventListener('click', () => {
+        const player = button.closest('[data-story-player]');
+        const frames = [...player.querySelectorAll('[data-story-frame]')];
+        const status = player.querySelector('.story-status');
+        let currentFrame = 0;
+        button.disabled = true;
+        frames.forEach((frame, index) => frame.hidden = index !== 0);
+        status.textContent = `दृश्य 1 / ${frames.length}`;
+        const timer = setInterval(() => {
+            frames[currentFrame].hidden = true;
+            currentFrame++;
+            if (currentFrame >= frames.length) {
+                clearInterval(timer);
+                frames[frames.length - 1].hidden = false;
+                status.textContent = 'Animation पूरा हुआ • Completed';
+                button.disabled = false;
+                return;
+            }
+            frames[currentFrame].hidden = false;
+            status.textContent = `दृश्य ${currentFrame + 1} / ${frames.length}`;
+        }, 2200);
+    }));
+})();
+</script>
 
 @if(auth()->user()->hasRole('teacher'))
 <script>

@@ -17,11 +17,14 @@ class CoursewareContentBuilder
         $questions = $this->questions($code, $number, $topic, $profile);
         $activities = $this->activities($code, $number, $topic, $profile);
 
+        $media = $this->mediaPack($code, $number, $topic, $profile);
+
 
         $courseware = [
-            'version' => 4,
+            'version' => 5,
             'language' => 'hi-en',
             'topic' => $topic,
+            'media_standard' => 'KYP low-bandwidth bilingual visual learning v1',
             'outcomes' => [
                 "{$topic} की जरूरी अवधारणाओं को अपने शब्दों में समझाना",
                 "{$topic} से जुड़ी सही प्रक्रिया को क्रम से पूरा करना",
@@ -104,10 +107,86 @@ class CoursewareContentBuilder
         foreach ($courseware['steps'] as $index => &$step) {
             $step['interactions'] = [$questions[$index]];
             $step['activity'] = $activities[$index];
+            $step['media'] = $this->stepMedia($media, $index, $step['title'], $topic);
         }
         unset($step);
 
         return $courseware;
+    }
+
+    private function stepMedia(array $media, int $index, string $stepTitle, string $topic): array
+    {
+        $scene = $media['storyboard'][$index % count($media['storyboard'])];
+
+        return [
+            'title_hi' => $stepTitle.' — दृश्य और ऑडियो से सीखें',
+            'title_en' => $stepTitle.' — learn with visuals and audio',
+            'narration_hi' => "आज का विषय {$topic} है। {$scene['hi']} चित्रों को खोलकर नाम और उपयोग पहचानिए, फिर animation देखकर प्रक्रिया समझिए।",
+            'narration_en' => "Today's topic is {$topic}. {$scene['en']} Open the visual cards, identify their names and uses, then watch the animation to understand the process.",
+            'cards' => $media['cards'],
+            'storyboard' => $media['storyboard'],
+            'focus' => ($index % count($media['cards'])),
+        ];
+    }
+
+    private function mediaPack(string $code, int $number, string $topic, array $profile): array
+    {
+        if ($code === 'CIT' && $number <= 5) {
+            $cards = [
+                $this->visual('monitor', 'LCD मॉनिटर', 'LCD Monitor', 'स्क्रीन पर text, image और result दिखाता है।', 'Displays text, images, and results on the screen.'),
+                $this->visual('processor', 'CPU / प्रोसेसर', 'CPU / Processor', 'निर्देशों को process करके computer का काम नियंत्रित करता है।', 'Processes instructions and controls computer operations.'),
+                $this->visual('memory', 'RAM', 'Random Access Memory', 'चल रहे programs का अस्थायी working data रखती है।', 'Temporarily holds working data for running programs.'),
+                $this->visual('disk', 'Floppy Disk', 'Floppy Disk', 'पुराना removable storage माध्यम; पहचान और storage history के लिए।', 'An older removable storage medium used to understand storage history.'),
+                $this->visual('storage', 'HDD / SSD', 'HDD / SSD', 'Files और software को स्थायी रूप से store करते हैं।', 'Stores files and software permanently.'),
+                $this->visual('keyboard', 'Keyboard और Mouse', 'Keyboard and Mouse', 'Computer को data और commands देने वाले input devices हैं।', 'Input devices used to enter data and commands.'),
+            ];
+        } elseif ($code === 'CLS') {
+            $cards = [
+                $this->visual('listen', 'ध्यान से सुनें', 'Listen carefully', 'मुख्य शब्द, tone और भाव पहचानिए।', 'Identify key words, tone, and meaning.'),
+                $this->visual('dialogue', 'संवाद', 'Dialogue', "{$topic} की परिस्थिति में विनम्र बातचीत का अभ्यास कीजिए।", "Practise a polite conversation for {$topic}."),
+                $this->visual('speak', 'बोलकर अभ्यास', 'Speak aloud', 'स्पष्ट pronunciation और सही गति से दोहराइए।', 'Repeat with clear pronunciation and suitable pace.'),
+                $this->visual('review', 'सुनें और सुधारें', 'Listen and improve', 'अपनी आवाज सुनकर एक सुधार लागू कीजिए।', 'Listen to yourself and make one improvement.'),
+            ];
+        } elseif ($code === 'CSS') {
+            $cards = [
+                $this->visual('situation', 'कार्यस्थल की स्थिति', 'Workplace situation', $profile['scenario'], 'Observe the people, place, and purpose of the situation.'),
+                $this->visual('choice', 'सही विकल्प', 'Right choice', 'सम्मानजनक, सुरक्षित और जिम्मेदार response चुनिए।', 'Choose a respectful, safe, and responsible response.'),
+                $this->visual('action', 'व्यवहार में करें', 'Act it out', "{$topic} पर साथी के साथ role-play कीजिए।", "Role-play {$topic} with a partner."),
+                $this->visual('result', 'परिणाम जाँचें', 'Review the result', $profile['evidence'], 'Use evidence and feedback to review the result.'),
+            ];
+        } elseif ($code === 'AI-DM') {
+            $cards = [
+                $this->visual('prompt', 'स्पष्ट निर्देश', 'Clear prompt', 'उद्देश्य, context, सीमा और output format लिखिए।', 'State the goal, context, constraints, and output format.'),
+                $this->visual('ai', 'AI प्रारूप', 'AI draft', 'Output को सुझाव मानिए, verified fact नहीं।', 'Treat the output as a suggestion, not a verified fact.'),
+                $this->visual('verify', 'तथ्य और privacy जाँच', 'Verify facts and privacy', $profile['safety'], 'Check facts, sources, bias, consent, and privacy.'),
+                $this->visual('campaign', 'मानवीय सुधार', 'Human improvement', 'Audience और उद्देश्य के अनुसार final work सुधारिए।', 'Improve the final work for its audience and purpose.'),
+            ];
+        } else {
+            $terms = collect(explode(',', $profile['terms']))->map(fn ($term) => trim($term))->filter()->values();
+            $icons = ['identify', 'tool', 'process', 'evidence'];
+            $cards = collect($icons)->map(fn ($icon, $index) => $this->visual(
+                $icon,
+                $terms[$index] ?? ['पहचान', 'साधन', 'प्रक्रिया', 'प्रमाण'][$index],
+                ['Identify', 'Tool', 'Process', 'Evidence'][$index],
+                [$profile['foundation'], $profile['method'], $profile['correct_process'], $profile['evidence']][$index],
+                ['Understand the key concept with a visual example.', 'Choose the correct tool or method.', 'Perform the process in the correct order.', 'Verify and preserve reliable evidence.'][$index],
+            ))->all();
+        }
+
+        return [
+            'cards' => $cards,
+            'storyboard' => [
+                ['icon' => 'observe', 'hi' => "रीना {$topic} से जुड़ी परिस्थिति और साधन पहचानती है।", 'en' => 'Reena identifies the situation and tools related to the topic.'],
+                ['icon' => 'think', 'hi' => 'वह उद्देश्य समझकर सही तरीका चुनती है।', 'en' => 'She understands the goal and chooses the correct method.'],
+                ['icon' => 'practice', 'hi' => 'वह चरणबद्ध अभ्यास करती है और गलती पर रुककर सुधार करती है।', 'en' => 'She practises step by step and corrects errors as they occur.'],
+                ['icon' => 'success', 'hi' => 'अंत में वह output, safety और evidence जाँचकर समझाती है।', 'en' => 'Finally, she checks the output, safety, and evidence and explains it.'],
+            ],
+        ];
+    }
+
+    private function visual(string $icon, string $hi, string $en, string $detailHi, string $detailEn): array
+    {
+        return compact('icon', 'hi', 'en') + ['detail_hi' => $detailHi, 'detail_en' => $detailEn];
     }
 
     private function profile(string $code, int $number, string $topic): array

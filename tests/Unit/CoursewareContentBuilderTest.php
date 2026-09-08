@@ -59,8 +59,25 @@ class CoursewareContentBuilderTest extends TestCase
         $this->assertStringContainsString('LCD', $labels);
         $this->assertStringContainsString('CPU', $labels);
         $this->assertStringContainsString('RAM', $labels);
-        $this->assertStringContainsString('Floppy', $labels);
         $this->assertStringContainsString('HDD', $labels);
+    }
+
+    public function test_cit_sessions_receive_different_topic_specific_visuals(): void
+    {
+        $course = new \App\Models\Course(['code' => 'CIT']);
+        $labels = [];
+
+        foreach ([2 => 'कंप्यूटर हार्डवेयर की पहचान', 3 => 'इनपुट डिवाइस का उपयोग', 4 => 'आउटपुट डिवाइस का उपयोग', 6 => 'Storage Devices और क्षमता'] as $number => $topic) {
+            $session = new \App\Models\LearningSession(['session_number' => $number, 'title_hi' => $topic]);
+            $session->setRelation('course', $course);
+            $labels[$number] = collect(app(CoursewareContentBuilder::class)->build($session)['steps'][0]['media']['cards'])->pluck('hi')->all();
+        }
+
+        $this->assertSame(['Motherboard', 'CPU / Processor', 'RAM', 'HDD / SSD'], $labels[2]);
+        $this->assertSame(['Keyboard', 'Mouse', 'Scanner', 'Microphone'], $labels[3]);
+        $this->assertSame(['LCD Monitor', 'Printer', 'Speaker', 'Projector'], $labels[4]);
+        $this->assertSame(['Hard Disk', 'SSD', 'Pen Drive', 'Floppy Disk'], $labels[6]);
+        $this->assertCount(4, array_unique(array_map(fn (array $items) => implode('|', $items), $labels)));
     }
 
     public static function courseProvider(): array

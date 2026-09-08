@@ -30,6 +30,7 @@ class BuildKypCoursewareCommand extends Command
                 $minutes = (int) $steps->sum('minutes');
                 $questions = $steps->flatMap(fn (array $step) => $step['interactions'] ?? [])->values();
                 $activities = $steps->pluck('activity')->filter()->values();
+                $mediaBlocks = $steps->pluck('media')->filter()->values();
                 $bilingualActivities = $activities->every(fn (array $activity) =>
                     filled($activity['title_hi'] ?? null)
                     && filled($activity['title_en'] ?? null)
@@ -45,7 +46,15 @@ class BuildKypCoursewareCommand extends Command
                     && collect($question['options'])->every(fn (array $option) => filled($option['hi'] ?? null) && filled($option['en'] ?? null))
                 );
 
-                if ($steps->count() !== 10 || $minutes !== 120 || $questions->count() < 10 || ! $bilingual || $activities->count() !== 10 || ! $bilingualActivities || ! $steps->contains('type', 'practical')) {
+                $validMedia = $mediaBlocks->count() === 10 && $mediaBlocks->every(fn (array $media) =>
+                    filled($media['narration_hi'] ?? null)
+                    && filled($media['narration_en'] ?? null)
+                    && count($media['cards'] ?? []) >= 4
+                    && count($media['storyboard'] ?? []) >= 4
+                    && collect($media['cards'])->every(fn (array $card) => filled($card['hi'] ?? null) && filled($card['en'] ?? null) && filled($card['detail_hi'] ?? null) && filled($card['detail_en'] ?? null))
+                );
+
+                if (($courseware['version'] ?? 0) !== 5 || $steps->count() !== 10 || $minutes !== 120 || $questions->count() < 10 || ! $bilingual || $activities->count() !== 10 || ! $bilingualActivities || ! $validMedia || ! $steps->contains('type', 'practical')) {
                     throw new \RuntimeException("Invalid courseware generated for {$session->course->code}-{$session->session_number}");
                 }
 
@@ -70,11 +79,12 @@ class BuildKypCoursewareCommand extends Command
             'sessions' => $items->count(),
             'authored' => $items->filter(fn ($item) => is_array($item->courseware) && count($item->courseware['steps'] ?? []) === 10)->count(),
             'activities' => $items->sum(fn ($item) => collect($item->courseware['steps'] ?? [])->whereNotNull('activity')->count()),
+            'media' => $items->sum(fn ($item) => collect($item->courseware['steps'] ?? [])->whereNotNull('media')->count()),
             'questions' => $items->sum(fn ($item) => collect($item->courseware['steps'] ?? [])->sum(fn (array $step) => count($step['interactions'] ?? []))),
             'minutes' => $items->sum(fn ($item) => collect($item->courseware['steps'] ?? [])->sum('minutes')),
         ]);
 
-        $this->table(['Course', 'Sessions', 'Authored', 'Activities', 'Questions', 'Minutes'], $counts->map(fn ($data, $code) => [$code, ...array_values($data)])->values()->all());
+        $this->table(['Course', 'Sessions', 'Authored', 'Activities', 'Media', 'Questions', 'Minutes'], $counts->map(fn ($data, $code) => [$code, ...array_values($data)])->values()->all());
         $this->info("Updated {$updated} sessions. Detailed courseware is available for ".LearningSession::whereNotNull('courseware')->count().' sessions.');
 
         return self::SUCCESS;

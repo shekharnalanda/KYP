@@ -14,10 +14,9 @@ class CoursewareContentBuilder
         $profile = $this->profile($code, $number, $topic);
         $stage = ['देखें और पहचानें', 'समझाकर बताएँ', 'निर्देश के साथ करें', 'स्वयं करके जाँचें', 'त्रुटि खोजकर सुधारें'][$number % 5];
 
-        $questions = $this->questions($code, $number, $topic, $profile);
-        $activities = $this->activities($code, $number, $topic, $profile);
-
         $media = $this->mediaPack($code, $number, $topic, $profile);
+        $questions = $this->questions($code, $number, $topic, $profile);
+        $activities = $this->activities($code, $number, $topic, $profile, $media);
 
 
         $courseware = [
@@ -131,35 +130,28 @@ class CoursewareContentBuilder
 
     private function mediaPack(string $code, int $number, string $topic, array $profile): array
     {
-        if ($code === 'CIT' && $number <= 5) {
-            $cards = [
-                $this->visual('monitor', 'LCD मॉनिटर', 'LCD Monitor', 'स्क्रीन पर text, image और result दिखाता है।', 'Displays text, images, and results on the screen.'),
-                $this->visual('processor', 'CPU / प्रोसेसर', 'CPU / Processor', 'निर्देशों को process करके computer का काम नियंत्रित करता है।', 'Processes instructions and controls computer operations.'),
-                $this->visual('memory', 'RAM', 'Random Access Memory', 'चल रहे programs का अस्थायी working data रखती है।', 'Temporarily holds working data for running programs.'),
-                $this->visual('disk', 'Floppy Disk', 'Floppy Disk', 'पुराना removable storage माध्यम; पहचान और storage history के लिए।', 'An older removable storage medium used to understand storage history.'),
-                $this->visual('storage', 'HDD / SSD', 'HDD / SSD', 'Files और software को स्थायी रूप से store करते हैं।', 'Stores files and software permanently.'),
-                $this->visual('keyboard', 'Keyboard और Mouse', 'Keyboard and Mouse', 'Computer को data और commands देने वाले input devices हैं।', 'Input devices used to enter data and commands.'),
-            ];
+        if ($code === 'CIT') {
+            $cards = $this->citVisuals($number, $topic, $profile);
         } elseif ($code === 'CLS') {
             $cards = [
-                $this->visual('listen', 'ध्यान से सुनें', 'Listen carefully', 'मुख्य शब्द, tone और भाव पहचानिए।', 'Identify key words, tone, and meaning.'),
-                $this->visual('dialogue', 'संवाद', 'Dialogue', "{$topic} की परिस्थिति में विनम्र बातचीत का अभ्यास कीजिए।", "Practise a polite conversation for {$topic}."),
-                $this->visual('speak', 'बोलकर अभ्यास', 'Speak aloud', 'स्पष्ट pronunciation और सही गति से दोहराइए।', 'Repeat with clear pronunciation and suitable pace.'),
-                $this->visual('review', 'सुनें और सुधारें', 'Listen and improve', 'अपनी आवाज सुनकर एक सुधार लागू कीजिए।', 'Listen to yourself and make one improvement.'),
+                $this->visual($this->topicIcon($topic), $topic, 'Today’s communication skill', "चित्र देखकर {$topic} की परिस्थिति, व्यक्ति और उद्देश्य पहचानिए।", 'Use the picture to identify the situation, people, and purpose.'),
+                $this->visual('listen', 'Model सुनिए', 'Listen to the model', "{$topic} के मुख्य शब्द, tone और pronunciation पहचानिए।", 'Identify the key words, tone, and pronunciation.'),
+                $this->visual('dialogue', "{$topic} संवाद", 'Topic dialogue', "{$topic} पर सही opening, response और closing वाला संवाद बनाइए।", 'Build a dialogue with a suitable opening, response, and closing.'),
+                $this->visual('speak', 'Record और सुधार', 'Record and improve', 'बोलकर सुनिए; pronunciation, grammar और confidence में एक सुधार कीजिए।', 'Listen to your recording and improve pronunciation, grammar, or confidence.'),
             ];
         } elseif ($code === 'CSS') {
             $cards = [
-                $this->visual('situation', 'कार्यस्थल की स्थिति', 'Workplace situation', $profile['scenario'], 'Observe the people, place, and purpose of the situation.'),
-                $this->visual('choice', 'सही विकल्प', 'Right choice', 'सम्मानजनक, सुरक्षित और जिम्मेदार response चुनिए।', 'Choose a respectful, safe, and responsible response.'),
-                $this->visual('action', 'व्यवहार में करें', 'Act it out', "{$topic} पर साथी के साथ role-play कीजिए।", "Role-play {$topic} with a partner."),
-                $this->visual('result', 'परिणाम जाँचें', 'Review the result', $profile['evidence'], 'Use evidence and feedback to review the result.'),
+                $this->visual($this->topicIcon($topic), $topic, 'Today’s employability skill', "Visual situation में {$topic} का सही और गलत व्यवहार पहचानिए।", 'Identify effective and ineffective behaviour in the visual situation.'),
+                $this->visual('situation', 'स्थिति और संकेत', 'Situation and cues', $profile['scenario'], 'Observe the people, place, need, and workplace cues.'),
+                $this->visual('choice', "{$topic} का निर्णय", 'Make the decision', 'दिए विकल्पों में सम्मानजनक, सुरक्षित और जिम्मेदार action चुनिए।', 'Choose a respectful, safe, and responsible action.'),
+                $this->visual('action', 'Role-play और feedback', 'Role-play and feedback', "{$topic} की भूमिका निभाकर साथी से evidence-based feedback लीजिए।", 'Role-play the topic and collect evidence-based peer feedback.'),
             ];
         } elseif ($code === 'AI-DM') {
             $cards = [
-                $this->visual('prompt', 'स्पष्ट निर्देश', 'Clear prompt', 'उद्देश्य, context, सीमा और output format लिखिए।', 'State the goal, context, constraints, and output format.'),
-                $this->visual('ai', 'AI प्रारूप', 'AI draft', 'Output को सुझाव मानिए, verified fact नहीं।', 'Treat the output as a suggestion, not a verified fact.'),
-                $this->visual('verify', 'तथ्य और privacy जाँच', 'Verify facts and privacy', $profile['safety'], 'Check facts, sources, bias, consent, and privacy.'),
-                $this->visual('campaign', 'मानवीय सुधार', 'Human improvement', 'Audience और उद्देश्य के अनुसार final work सुधारिए।', 'Improve the final work for its audience and purpose.'),
+                $this->visual($this->topicIcon($topic), $topic, 'Today’s AI/Digital task', "{$topic} के input, tool, output और उपयोगकर्ता को visual flow में पहचानिए।", 'Identify the input, tool, output, and user in the visual flow.'),
+                $this->visual('prompt', "{$topic} का input", 'Topic input', 'उद्देश्य, context, audience, सीमा और desired format स्पष्ट कीजिए।', 'Define the goal, context, audience, constraints, and desired format.'),
+                $this->visual('verify', "{$topic} verification", 'Verify the work', $profile['safety'], 'Check facts, sources, bias, copyright, consent, and privacy.'),
+                $this->visual('campaign', 'Output और measurement', 'Output and measurement', $profile['evidence'], 'Review the output against the goal and a measurable result.'),
             ];
         } else {
             $terms = collect(explode(',', $profile['terms']))->map(fn ($term) => trim($term))->filter()->values();
@@ -182,6 +174,69 @@ class CoursewareContentBuilder
                 ['icon' => 'success', 'hi' => 'अंत में वह output, safety और evidence जाँचकर समझाती है।', 'en' => 'Finally, she checks the output, safety, and evidence and explains it.'],
             ],
         ];
+    }
+
+    private function citVisuals(int $number, string $topic, array $profile): array
+    {
+        $sets = [
+            1 => [['computer','Desktop Computer','Desktop Computer'],['laptop','Laptop','Laptop'],['tablet','Tablet','Tablet'],['mobile','Smartphone','Smartphone']],
+            2 => [['motherboard','Motherboard','Motherboard'],['processor','CPU / Processor','CPU / Processor'],['memory','RAM','RAM'],['storage','HDD / SSD','HDD / SSD']],
+            3 => [['keyboard','Keyboard','Keyboard'],['mouse','Mouse','Mouse'],['scanner','Scanner','Scanner'],['microphone','Microphone','Microphone']],
+            4 => [['monitor','LCD Monitor','LCD Monitor'],['printer','Printer','Printer'],['speaker','Speaker','Speaker'],['projector','Projector','Projector']],
+            5 => [['processor','CPU / Processor','CPU / Processor'],['memory','RAM','RAM'],['motherboard','Motherboard','Motherboard'],['process','Input–Process–Output','Input–Process–Output']],
+            6 => [['hdd','Hard Disk','Hard Disk'],['ssd','SSD','Solid State Drive'],['pendrive','Pen Drive','USB Flash Drive'],['disk','Floppy Disk','Floppy Disk']],
+            7 => [['system','System Software','System Software'],['application','Application Software','Application Software'],['browser','Web Browser','Web Browser'],['office','Office Application','Office Application']],
+            8 => [['windows','Operating System','Operating System'],['desktop','Desktop','Desktop'],['folder','File System','File System'],['settings','System Settings','System Settings']],
+            9 => [['desktop','Desktop','Desktop'],['start','Start Menu','Start Menu'],['taskbar','Taskbar','Taskbar'],['window','Application Window','Application Window']],
+            10 => [['display','Display Setting','Display Setting'],['audio','Audio Setting','Audio Setting'],['accessibility','Accessibility','Accessibility'],['network','Network Setting','Network Setting']],
+            11 => [['folder','Folder','Folder'],['file','File','File'],['new','New Item','New Item'],['path','File Path','File Path']],
+            12 => [['copy','Copy','Copy'],['move','Move','Move'],['rename','Rename','Rename'],['delete','Delete','Delete']],
+            13 => [['search','Search','Search'],['recycle','Recycle Bin','Recycle Bin'],['backup','Backup','Backup'],['restore','Restore','Restore']],
+            14 => [['posture','सही बैठने की मुद्रा','Correct posture'],['hands','हाथों की स्थिति','Hand position'],['monitor','Monitor की ऊँचाई','Monitor height'],['keyboard','Keyboard दूरी','Keyboard distance']],
+            15 => [['hindi','हिन्दी Unicode','Hindi Unicode'],['keyboard','हिन्दी Keyboard','Hindi Keyboard'],['unicode','Unicode Font','Unicode Font'],['accuracy','शुद्धता','Accuracy']],
+            16 => [['english','English Keyboard','English Keyboard'],['wpm','Words Per Minute','Words Per Minute'],['accuracy','Typing Accuracy','Typing Accuracy'],['timer','Speed Test','Speed Test']],
+        ];
+
+        $spec = $sets[$number] ?? $this->citTopicSpec($number, $topic);
+
+        return collect($spec)->map(fn (array $item) => $this->visual(
+            $item[0], $item[1], $item[2],
+            "{$topic} में {$item[1]} को पहचानिए, उसका सही उपयोग बताइए और practical screen पर खोजकर दिखाइए।",
+            "Identify {$item[2]} in this topic, explain its correct use, and locate or demonstrate it in the practical task."
+        ))->all();
+    }
+
+    private function citTopicSpec(int $number, string $topic): array
+    {
+        return match (true) {
+            $number <= 26 => [['document',$topic,'Topic tool'],['format','Formatting','Formatting'],['layout','Layout / Preview','Layout / Preview'],['export','Save / Export','Save / Export']],
+            $number <= 37 => [['spreadsheet',$topic,'Topic feature'],['cell','Cell / Range','Cell / Range'],['formula','Formula / Data','Formula / Data'],['chart','Result / Chart','Result / Chart']],
+            $number <= 44 => [['presentation',$topic,'Topic feature'],['slide','Slide Canvas','Slide Canvas'],['visual','Text / Visual','Text / Visual'],['slideshow','Slide Show','Slide Show']],
+            $number <= 49 => [['internet',$topic,'Topic service'],['browser','Browser / App','Browser / App'],['verify','Verified source','Verified source'],['share','Safe sharing','Safe sharing']],
+            $number <= 56 => [['security',$topic,'Safety topic'],['warning','Risk signal','Risk signal'],['shield','Protection step','Protection step'],['receipt','Verification evidence','Verification evidence']],
+            default => [['troubleshoot',$topic,'Topic challenge'],['plan','Plan','Plan'],['tool','Correct tool','Correct tool'],['evidence','Tested result','Tested result']],
+        };
+    }
+
+    private function topicIcon(string $topic): string
+    {
+        return match (true) {
+            str_contains($topic, 'Telephone') => 'phone',
+            str_contains($topic, 'Email') || str_contains($topic, 'Letter') || str_contains($topic, 'Writing') => 'mail',
+            str_contains($topic, 'Interview') || str_contains($topic, 'Resume') => 'interview',
+            str_contains($topic, 'Time') => 'clock',
+            str_contains($topic, 'Financial') || str_contains($topic, 'Budget') => 'money',
+            str_contains($topic, 'Team') || str_contains($topic, 'Group') => 'team',
+            str_contains($topic, 'Goal') || str_contains($topic, 'Career') => 'target',
+            str_contains($topic, 'Stress') => 'wellbeing',
+            str_contains($topic, 'AI') || str_contains($topic, 'Prompt') => 'ai',
+            str_contains($topic, 'SEO') || str_contains($topic, 'Search') => 'search',
+            str_contains($topic, 'Social Media') || str_contains($topic, 'Digital Presence') => 'social',
+            str_contains($topic, 'Campaign') => 'campaign',
+            str_contains($topic, 'Listening') => 'listen',
+            str_contains($topic, 'Speaking') || str_contains($topic, 'Conversation') || str_contains($topic, 'Dialogue') => 'speak',
+            default => 'topic',
+        };
     }
 
     private function visual(string $icon, string $hi, string $en, string $detailHi, string $detailEn): array
@@ -283,7 +338,7 @@ class CoursewareContentBuilder
         return $this->make('व्यावहारिक कौशल विकास', "{$topic} को concept, process और verified output के रूप में सीखना चाहिए।", 'उद्देश्य समझें, चरणबद्ध task करें, result जाँचें और evidence प्रस्तुत करें।', "{$topic} पर guided तथा independent task पूरा करें।", 'पूर्ण output, checklist और learner explanation', 'सुरक्षा, privacy, honesty और permission का पालन करें।', 'वास्तविक जीवन में कौशल लागू करना है।', 'concept, process, practice, evidence, review', 'समझकर चरणबद्ध अभ्यास और verification करना');
     }
 
-    private function activities(string $code, int $number, string $topic, array $profile): array
+    private function activities(string $code, int $number, string $topic, array $profile, array $media): array
     {
         $flow = match ($code) {
             'CLS' => [['सुनें', 'Listen'], ['समझें', 'Understand'], ['बोलें', 'Speak'], ['समीक्षा करें', 'Review']],
@@ -314,12 +369,7 @@ class CoursewareContentBuilder
         ];
 
         return [
-            $this->activity("{$code}-{$number}-explore", 'reveal', 'विषय को खोजें', 'Explore the topic', 'चारों cards खोलकर विषय, उपयोग और expected result समझें।', 'Open all four cards to understand the topic, use, and expected result.', [
-                ['hi' => $topic, 'en' => 'Session topic', 'detail_hi' => $profile['foundation'], 'detail_en' => 'Understand the core idea before starting the practical task.'],
-                ['hi' => 'वास्तविक उपयोग', 'en' => 'Real-life use', 'detail_hi' => $profile['domain'], 'detail_en' => 'Connect this skill with a real learning or workplace situation.'],
-                ['hi' => 'कार्य-पद्धति', 'en' => 'Working method', 'detail_hi' => $profile['method'], 'detail_en' => 'Follow the method carefully and observe every visible result.'],
-                ['hi' => 'सफलता का प्रमाण', 'en' => 'Success evidence', 'detail_hi' => $profile['evidence'], 'detail_en' => 'Keep a verified output and explain what you learned.'],
-            ]),
+            $this->activity("{$code}-{$number}-explore", 'reveal', "{$topic} — Visual पहचान", "{$topic} — visual identification", 'चारों अलग visuals खोलिए, उनका नाम, उपयोग और topic से संबंध समझिए।', 'Open all four distinct visuals and learn their name, use, and connection to the topic.', $media['cards']),
             $this->activity("{$code}-{$number}-terms", 'reveal', 'जरूरी शब्द पहचानें', 'Identify key terms', 'हर card खोलें और शब्द को topic के उदाहरण से जोड़ें।', 'Open every card and connect the term with a topic example.', collect(explode(',', $profile['terms']))->map(fn ($term) => [
                 'hi' => trim($term), 'en' => trim($term),
                 'detail_hi' => "{$topic} में इस शब्द का अर्थ और एक उदाहरण अपने शब्दों में बताएँ।",

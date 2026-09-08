@@ -20,7 +20,7 @@ class CoursewareContentBuilderTest extends TestCase
         $courseware = app(CoursewareContentBuilder::class)->build($session);
         $steps = collect($courseware['steps']);
 
-        $this->assertSame(4, $courseware['version']);
+        $this->assertSame(5, $courseware['version']);
         $this->assertCount(10, $steps);
         $this->assertSame(120, $steps->sum('minutes'));
         $questions = $steps->flatMap(fn (array $step) => $step['interactions'] ?? []);
@@ -38,8 +38,29 @@ class CoursewareContentBuilderTest extends TestCase
             && count($activity['items']) >= 4
         ));
         $this->assertTrue($steps->contains('type', 'practical'));
+        $this->assertTrue($steps->every(fn (array $step) =>
+            filled($step['media']['narration_hi'] ?? null)
+            && filled($step['media']['narration_en'] ?? null)
+            && count($step['media']['cards'] ?? []) >= 4
+            && count($step['media']['storyboard'] ?? []) === 4
+        ));
         $this->assertStringContainsString($topic, $steps->first()['content']);
         $this->assertCount(3, $courseware['outcomes']);
+    }
+
+    public function test_hardware_session_contains_identification_visuals(): void
+    {
+        $course = new \App\Models\Course(['code' => 'CIT']);
+        $session = new \App\Models\LearningSession(['session_number' => 2, 'title_hi' => 'कंप्यूटर हार्डवेयर की पहचान']);
+        $session->setRelation('course', $course);
+
+        $labels = collect(app(CoursewareContentBuilder::class)->build($session)['steps'][0]['media']['cards'])->pluck('hi')->implode(' ');
+
+        $this->assertStringContainsString('LCD', $labels);
+        $this->assertStringContainsString('CPU', $labels);
+        $this->assertStringContainsString('RAM', $labels);
+        $this->assertStringContainsString('Floppy', $labels);
+        $this->assertStringContainsString('HDD', $labels);
     }
 
     public static function courseProvider(): array

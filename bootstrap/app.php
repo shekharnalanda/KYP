@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(SecurityHeadersMiddleware::class);
         $middleware->validateCsrfTokens(except: [
             'api/iris/*',
+            'api/mci/daily-videos/*',
         ]);
         $middleware->alias([
             'role' => RoleMiddleware::class,

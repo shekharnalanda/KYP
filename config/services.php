@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'mci_daily_video_sync' => [
+        'token' => env('MCI_DAILY_VIDEO_SYNC_TOKEN'),
+    ],
+
 ];

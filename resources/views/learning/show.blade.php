@@ -118,6 +118,27 @@
         </aside>
 
         <main class="step-stage">
+            @if($session->theory_youtube_video_id)
+                <section class="daily-theory-video" aria-labelledby="daily-theory-heading">
+                    <div class="daily-theory-copy">
+                        <span>DAILY THEORY VIDEO</span>
+                        <h2 id="daily-theory-heading">Day {{ $session->theory_video_day }} · दिन का थ्योरी वीडियो</h2>
+                        <p>यह वीडियो इस दिन के समूह में आने वाले sessions के लिए साझा है।</p>
+                    </div>
+                    <div class="daily-theory-player">
+                        <iframe
+                            src="https://www.youtube-nocookie.com/embed/{{ $session->theory_youtube_video_id }}?rel=0"
+                            title="KYP Day {{ $session->theory_video_day }} theory video"
+                            loading="lazy"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <a class="daily-theory-open" href="https://www.youtube.com/watch?v={{ $session->theory_youtube_video_id }}" target="_blank" rel="noopener noreferrer">YouTube पर अलग से खोलें ↗</a>
+                </section>
+            @endif
+
             @foreach($steps as $index => $step)
                 <section class="learning-step" data-step="{{ $index }}" data-step-id="{{ $step['id'] }}" hidden>
                     <div class="step-meta"><span>{{ strtoupper($step['type']) }}</span><span>⏱ {{ $step['minutes'] }} मिनट</span></div>
@@ -282,6 +303,13 @@
  padding:0;
  background:transparent
 }
+.daily-theory-video{margin:0 0 22px;padding:22px;border:1px solid #b8d8e8;border-radius:20px;background:linear-gradient(145deg,#f3fbff,#fffaf0)}
+.daily-theory-copy>span{font-size:10px;font-weight:900;letter-spacing:.09em;color:#087443}
+.daily-theory-copy h2{margin:6px 0;color:#062b63}
+.daily-theory-copy p{margin:0 0 16px;color:#526a82}
+.daily-theory-player{width:min(100%,900px);aspect-ratio:16/9;overflow:hidden;border-radius:15px;background:#062b63}
+.daily-theory-player iframe{width:100%;height:100%;border:0}
+.daily-theory-open{display:inline-flex;margin-top:12px;color:#075fa7;font-weight:800}
 .media-lab{margin:28px 0;padding:22px;border:1px solid #b8d8e8;border-radius:20px;background:linear-gradient(145deg,#f3fbff,#fffaf0)}
 .media-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.media-head>div:first-child>span{font-size:10px;font-weight:900;letter-spacing:.09em;color:#087443}.media-head h3{margin:6px 0 2px;color:#062b63}.media-head small,.visual-card small,.story-frame small{display:block;color:#50677f}.audio-actions{display:flex;gap:8px;flex-wrap:wrap}.media-button{padding:9px 12px;border:1px solid #8ebad5;border-radius:10px;background:#fff;color:#06366b;font-weight:800;cursor:pointer}.media-button:hover{background:#eaf7ff}
 .visual-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin:18px 0}.visual-card{display:flex;flex-direction:column;align-items:center;min-height:185px;padding:14px;border:1px solid #c9dae8;border-radius:16px;background:#fff;color:#12375f;text-align:center;cursor:pointer;transition:.2s}.visual-card:hover,.visual-card.is-open{transform:translateY(-3px);border-color:#0a9b55;box-shadow:0 8px 20px rgba(6,43,99,.1)}.visual-card.is-focus{background:#eefcff}.visual-object{display:grid;place-items:center;width:86px;height:72px;margin-bottom:10px;border-radius:14px;background:linear-gradient(145deg,#062b63,#0b86d7);color:#fff;font-size:24px;font-weight:900;box-shadow:inset 0 -8px 0 rgba(0,0,0,.13)}.visual-memory{background:repeating-linear-gradient(90deg,#078143 0 14px,#10a65d 14px 24px)}.visual-disk{border-radius:8px;background:linear-gradient(#3d4652 0 67%,#aeb7c1 67%)}.visual-storage{background:linear-gradient(145deg,#555,#aab4bf)}.visual-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed #b9ccdb;font-size:12px;line-height:1.5}.visual-card.is-open .visual-detail{display:block}

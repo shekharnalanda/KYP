@@ -9,6 +9,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\IrisConnectorController;
+use App\Http\Controllers\KypDailyVideoSyncController;
 use App\Http\Controllers\LearningSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResultController;
@@ -40,6 +41,11 @@ Route::prefix('api/iris')->group(function (): void {
     Route::get('/candidates', [IrisConnectorController::class, 'candidates'])->middleware('throttle:12,1');
     Route::post('/enroll', [IrisConnectorController::class, 'enroll'])->middleware('throttle:20,1');
     Route::post('/attendance', [IrisConnectorController::class, 'attendance'])->middleware('throttle:120,1');
+});
+
+Route::prefix('api/mci/daily-videos')->group(function (): void {
+    Route::post('/preview', [KypDailyVideoSyncController::class, 'preview'])->middleware('throttle:10,1');
+    Route::put('/sync', [KypDailyVideoSyncController::class, 'sync'])->middleware('throttle:5,1');
 });
 
 Route::middleware('guest')->group(function (): void {

@@ -11,7 +11,7 @@ class LearningSession extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'session_number', 'title_hi', 'title_en', 'objectives_hi', 'lesson_content_hi', 'classroom_notes_hi', 'lab_activity_hi', 'assessment_prompt_hi', 'delivery_mode', 'duration_minutes', 'content_status', 'published_at', 'courseware', 'required_active_minutes', 'passing_score'];
+    protected $fillable = ['course_id', 'session_number', 'title_hi', 'title_en', 'objectives_hi', 'lesson_content_hi', 'classroom_notes_hi', 'lab_activity_hi', 'assessment_prompt_hi', 'theory_video_day', 'theory_youtube_video_id', 'delivery_mode', 'duration_minutes', 'content_status', 'published_at', 'courseware', 'required_active_minutes', 'passing_score'];
 
     protected function casts(): array
     {

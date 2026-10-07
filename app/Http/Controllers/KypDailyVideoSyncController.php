@@ -106,7 +106,7 @@ class KypDailyVideoSyncController extends Controller
             'videos' => ['required', 'array', 'size:67'],
             'videos.*' => ['required', 'array:day,youtube_video_id'],
             'videos.*.day' => ['required', 'integer', 'min:1', 'max:67', 'distinct'],
-            'videos.*.youtube_video_id' => ['required', 'string', 'regex:/^[A-Za-z0-9_-]{11}$/'],
+            'videos.*.youtube_video_id' => ['required', 'string', 'regex:/^[A-Za-z0-9_-]{11}$/', 'distinct'],
         ])->validate();
 
         $videos = collect($validated['videos'])->sortBy('day')->values()->all();
@@ -137,6 +137,36 @@ class KypDailyVideoSyncController extends Controller
                 'ok' => false,
                 'message' => 'Expected 135 active KYP sessions across the course catalog; found '.$sessions->count().'. No videos were changed.',
             ], 409));
+        }
+
+        $expectedCourses = [
+            ['CIT', 60],
+            ['CLS', 40],
+            ['CSS', 20],
+            ['AI-DM', 15],
+        ];
+        $expectedCounts = array_column($expectedCourses, 1, 0);
+        $actualCourses = $courses->map(fn (Course $course): array => [
+            (string) $course->code,
+            $course->sessions->count(),
+        ])->values()->all();
+
+        if ($actualCourses !== $expectedCourses) {
+            abort(response()->json([
+                'ok' => false,
+                'message' => 'KYP course order or session totals changed. Expected CIT 60, CLS 40, CSS 20 and AI-DM 15 in that order; no videos were changed.',
+            ], 409));
+        }
+
+        foreach ($courses as $course) {
+            $expectedCount = $expectedCounts[$course->code];
+            $numbers = $course->sessions->pluck('session_number')->map(fn ($number) => (int) $number)->all();
+            if ($numbers !== range(1, $expectedCount)) {
+                abort(response()->json([
+                    'ok' => false,
+                    'message' => 'KYP session numbering changed in '.$course->code.'. Expected 1–'.$expectedCount.'; no videos were changed.',
+                ], 409));
+            }
         }
 
         return [$courses, $sessions, $this->structureHash($courses)];
@@ -219,3 +249,4 @@ class KypDailyVideoSyncController extends Controller
         });
     }
 }
+

@@ -38,7 +38,7 @@
 @else
 <div class="courseware-student-mode">
     <strong>Student Interactive Mode</strong>
-    <span>Active learning time, activities, quiz और practical progress automatically save होंगे।</span>
+    <span>कोई भी Session या Topic खोलें। Active learning time, activities, quiz और practical progress automatically save होंगे।</span>
 </div>
 @endif
 
@@ -68,7 +68,6 @@
                 <span class="legend-active">● चालू</span>
                 <span class="legend-complete">● पूरा</span>
                 <span class="legend-skipped">● छूटा</span>
-                <span class="legend-locked">● लॉक</span>
             </div>
             <div class="session-tree-list">
                 @foreach($courseSessions as $courseSession)
@@ -76,25 +75,16 @@
                         $isCurrentSession = $courseSession->id === $session->id;
                         $isSessionDone = $completedSessionIds->contains($courseSession->id);
                         $sessionProgress = $courseProgressMap->get($courseSession->id);
-                        $previousSession = $courseSessions->firstWhere('session_number', $courseSession->session_number - 1);
-                        $isLocked = $studentMode && $previousSession && ! $completedSessionIds->contains($previousSession->id);
                         $wasLeftIncomplete = $studentMode && $sessionProgress && ! $isSessionDone && ! $isCurrentSession;
-                        $sessionState = $isSessionDone ? 'complete' : ($isCurrentSession ? 'active' : ($isLocked ? 'locked' : ($wasLeftIncomplete ? 'skipped' : 'pending')));
+                        $sessionState = $isSessionDone ? 'complete' : ($isCurrentSession ? 'active' : ($wasLeftIncomplete ? 'skipped' : 'pending'));
                     @endphp
                     <div class="session-branch state-{{ $sessionState }}">
-                        @if($isLocked)
-                            <div class="session-row" aria-disabled="true">
-                                <span class="state-dot"></span>
-                                <span><b>Session {{ str_pad($courseSession->session_number, 2, '0', STR_PAD_LEFT) }}</b><small>{{ $courseSession->title_hi }}</small></span>
-                                <em>🔒</em>
-                            </div>
-                        @else
                             <a class="session-row" href="{{ route('learning.show', $courseSession) }}" @if($isCurrentSession) aria-current="page" @endif>
                                 <span class="state-dot"></span>
                                 <span><b>Session {{ str_pad($courseSession->session_number, 2, '0', STR_PAD_LEFT) }}</b><small>{{ $courseSession->title_hi }}</small></span>
                                 <em>{{ $isSessionDone ? '✓' : ($wasLeftIncomplete ? '!' : '›') }}</em>
                             </a>
-                        @endif
+
 
                         @if($isCurrentSession)
                             <div class="topic-flow" aria-label="Current session topic flow">
@@ -135,7 +125,7 @@
                             allowfullscreen
                         ></iframe>
                     </div>
-                    <a class="daily-theory-open" href="https://www.youtube.com/watch?v={{ $session->theory_youtube_video_id }}" target="_blank" rel="noopener noreferrer">YouTube पर अलग से खोलें ↗</a>
+                    <a class="daily-theory-open" href="https://www.youtube.com/watch?v={{ $session->theory_youtube_video_id }}">YouTube पर वीडियो खोलें ↗</a>
                 </section>
             @endif
 
@@ -592,20 +582,13 @@
         const questionReady = !question || Object.prototype.hasOwnProperty.call(answers, question.name);
         const practicalReady = !practical || practical.value.trim().length >= 20;
 
-        if (!activityReady || !questionReady || !practicalReady) {
-            const missing = [];
-            if (!activityReady) missing.push('interactive activity');
-            if (!questionReady) missing.push('bilingual question');
-            if (!practicalReady) missing.push('कम-से-कम 20 अक्षरों का practical record');
-            gate.textContent = 'पहले पूरा करें • Complete first: ' + missing.join(', ');
-            gate.classList.add('show');
-            return;
-        }
-
+        // Navigation is free; skipping unfinished work never grants completion.
         gate.textContent = '';
         gate.classList.remove('show');
-        completed.add(step.dataset.stepId);
-        nav[current].classList.add('state-complete');
+        if (activityReady && questionReady && practicalReady) {
+            completed.add(step.dataset.stepId);
+            nav[current].classList.add('state-complete');
+        }
         if (current < steps.length - 1) current++;
         render();
         save();

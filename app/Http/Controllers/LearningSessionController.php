@@ -39,7 +39,6 @@ class LearningSessionController extends Controller
     public function show(Request $request, LearningSession $session, CoursewareService $coursewareService): View
     {
         $session->load('course');
-        $this->ensureSequentialAccess($request, $session);
 
         $completed = false;
         $progress = null;
@@ -83,7 +82,6 @@ class LearningSessionController extends Controller
     public function progress(Request $request, LearningSession $session, CoursewareService $coursewareService): JsonResponse
     {
         abort_unless($request->user()->hasRole('student'), 403);
-        $this->ensureSequentialAccess($request, $session);
 
         $data = $request->validate([
             'current_step' => ['required', 'integer', 'min:0', 'max:30'],
@@ -167,7 +165,6 @@ class LearningSessionController extends Controller
     public function complete(Request $request, LearningSession $session, CoursewareService $coursewareService): RedirectResponse
     {
         abort_unless($request->user()->hasRole('student'), 403);
-        $this->ensureSequentialAccess($request, $session);
 
         $courseware = $coursewareService->for($session);
         $requiredSteps = $coursewareService->stepIds($courseware);
@@ -250,28 +247,8 @@ class LearningSessionController extends Controller
             ->first();
 
         return $next
-            ? redirect()->route('learning.show', $next)->with('status', 'Session complete—अगला session unlock हो गया है।')
-            : redirect()->route('learning.index')->with('status', 'Course के सभी sessions complete हो गए।');
+            ? redirect()->route('learning.show', $next)->with('status', 'Session complete—आप कोई भी session खोल सकते हैं।')
+            : redirect()->route('learning.index')->with('status', 'यह session complete हो गया। किसी भी session पर लौट सकते हैं।');
     }
 
-    private function ensureSequentialAccess(Request $request, LearningSession $session): void
-    {
-        if (! $request->user()->hasRole('student')) {
-            return;
-        }
-
-        $previous = LearningSession::where('course_id', $session->course_id)
-            ->where('session_number', '<', $session->session_number)
-            ->orderByDesc('session_number')
-            ->first();
-
-        if ($previous) {
-            $previousCompleted = ActivityRecord::where('user_id', $request->user()->id)
-                ->where('learning_session_id', $previous->id)
-                ->where('status', 'completed')
-                ->exists();
-
-            abort_unless($previousCompleted, 403, 'Previous session must be completed first.');
-        }
-    }
 }

@@ -4,8 +4,8 @@
 <x-portal-shell
  active="learning"
  eyebrow="270-HOUR INTERACTIVE LEARNING PATH"
- title="क्रमबद्ध Learning Sessions"
- subtitle="हर session में active timer, interactive steps, knowledge check और practical work।"
+ title="Learning Sessions"
+ subtitle="कोई भी Session किसी भी क्रम में खोलें। अधूरा Session छोड़कर आगे पढ़ सकते हैं और बाद में लौट सकते हैं।"
 >
 
 <style>

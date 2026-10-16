@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('/home4/mcied45x/repositories/KYP')
+PUBLIC = Path('/home4/mcied45x/kyp.mciedu.com')
 STAGE = Path(__file__).resolve().parent.parent
 PHP = '/opt/cpanel/ea-php83/root/usr/bin/php'
 BACKUP = Path('/home4/mcied45x/kyp-deploy-backups') / ('public-guide-' + datetime.datetime.utcnow().strftime('%Y%m%d-%H%M%S'))
@@ -46,6 +47,8 @@ changes[name] = routes
 
 BACKUP.mkdir(parents=True)
 originals = {}
+public_original = None
+public_written = False
 try:
     for name, content in changes.items():
         target = ROOT / name
@@ -56,6 +59,14 @@ try:
             shutil.copy2(str(target), str(dest))
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content)
+    public_css = PUBLIC / 'css/program-guide.css'
+    public_original = public_css.read_bytes() if public_css.exists() else None
+    if public_css.exists():
+        shutil.copy2(str(public_css), str(BACKUP / 'live-program-guide.css'))
+    public_css.parent.mkdir(parents=True, exist_ok=True)
+    public_css.write_text(changes['public/css/program-guide.css'])
+    public_css.chmod(0o644)
+    public_written = True
     for name in changes:
         if name.endswith('.php'):
             subprocess.check_call([PHP, '-l', str(ROOT / name)])
@@ -64,6 +75,11 @@ try:
     smoke = '''require 'vendor/autoload.php'; $app = require 'bootstrap/app.php'; $kernel = $app->make(Illuminate\\Contracts\\Http\\Kernel::class); foreach (['/', '/courses/cit', '/courses/cls', '/courses/css', '/courses/ai-dm', '/login', '/admission', '/enquiry'] as $path) { $request = Illuminate\\Http\\Request::create('https://kyp.mciedu.com'.$path); $response = $kernel->handle($request); if ($response->getStatusCode() !== 200) { fwrite(STDERR, "Public page failed: ".$path." status ".$response->getStatusCode()."\\n"); exit(1); } echo "PAGE_OK ".$path."\\n"; $kernel->terminate($request, $response); }'''
     subprocess.check_call([PHP, '-r', smoke], cwd=str(ROOT))
 except Exception:
+    if public_written:
+        if public_original is None:
+            public_css.unlink()
+        else:
+            public_css.write_bytes(public_original)
     for name, original in originals.items():
         target = ROOT / name
         if original is None:

@@ -40,6 +40,7 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+@stack('head')
 </head>
 <body>
 @yield('body')

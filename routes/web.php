@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\StudentIdCardController;
+use App\Http\Controllers\AdminApplicationController;
 use App\Http\Controllers\AdminAssessmentController;
+use App\Http\Controllers\AdminExceptionalCompletionController;
 use App\Http\Controllers\AdminProgressController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AttendanceController;
@@ -12,12 +13,11 @@ use App\Http\Controllers\IrisConnectorController;
 use App\Http\Controllers\KypDailyVideoSyncController;
 use App\Http\Controllers\LearningSessionController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ResultController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicApplicationController;
-use App\Http\Controllers\AdminApplicationController;
-use App\Http\Controllers\AdminExceptionalCompletionController;
-
+use App\Http\Controllers\PublicCourseController;
+use App\Http\Controllers\ResultController;
+use App\Http\Controllers\StudentIdCardController;
+use Illuminate\Support\Facades\Route;
 
 Route::post('/email-otp/send', [PublicApplicationController::class, 'sendOtp'])->middleware('throttle:3,10')->name('public.otp.send');
 Route::post('/email-otp/verify', [PublicApplicationController::class, 'verifyOtp'])->middleware('throttle:10,10')->name('public.otp.verify');
@@ -30,8 +30,9 @@ Route::get('/enquiry', [PublicApplicationController::class, 'enquiryForm'])->nam
 Route::post('/enquiry', [PublicApplicationController::class, 'enquiryStore'])->name('enquiry.store');
 Route::get('/enquiry/success/{number}', [PublicApplicationController::class, 'enquirySuccess'])->name('enquiry.success');
 
-
-Route::view('/', 'home')->name('home');
+Route::get('/', [PublicCourseController::class, 'index'])->name('home');
+Route::get('/courses/{slug}', [PublicCourseController::class, 'show'])
+    ->where('slug', 'cit|cls|css|ai-dm')->name('public.courses.show');
 Route::get('/verify-certificate/{token}', [ResultController::class, 'verify'])->middleware('throttle:60,1')->name('certificate.verify');
 
 Route::prefix('api/iris')->group(function (): void {
@@ -125,7 +126,7 @@ Route::middleware(['auth', 'auth.session'])->group(function (): void {
         Route::get('/admin/results', [ResultController::class, 'index'])->name('admin.results');
         Route::get('/admin/results/{result}/marksheet', [ResultController::class, 'adminMarksheet'])->name('admin.result.marksheet');
         Route::get('/admin/certificates/{certificate}', [ResultController::class, 'adminCertificate'])->name('admin.result.certificate');
-        
+
         Route::post('/admin/results/bulk-print', [ResultController::class, 'bulkPrint'])->middleware('throttle:10,1')->name('admin.results.bulk');
         Route::post('/admin/results/{result}/publish', [ResultController::class, 'publish'])->middleware('throttle:30,1')->name('admin.results.publish');
     });

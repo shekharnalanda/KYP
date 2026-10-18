@@ -278,7 +278,20 @@ class CoursewareContentBuilder
         if ($number <= 49) {
             return $this->make('internet, email और online collaboration', "{$topic} में सही search/communication technique समय बचाती है और विश्वसनीय information तक पहुँच देती है।", 'स्पष्ट query/message बनाएँ, trusted result/recipient चुनें, details verify करें, आवश्यक action करें और sent/shared result जाँचें।', "{$topic} पर trusted information खोजें या professional communication/collaboration task पूरा करें।", 'verified source/recipient, स्पष्ट message/work product और successful send/share evidence', 'URL, sender, recipient, attachment permission और privacy settings जाँचें।', 'दूर बैठे सहकर्मी के साथ सुरक्षित रूप से information और file साझा करनी है।', 'browser, query, source, email etiquette, attachment, collaboration', 'trusted source/recipient verify करके स्पष्ट और सुरक्षित digital communication करना');
         }
-        if ($number <= 57) {
+        if ($number === 57) {
+            return $this->make(
+                'computer और operating-system troubleshooting',
+                "{$topic} में symptom, possible cause और safe diagnostic test को अलग करके fault का कारण खोजना आवश्यक है।",
+                'पहले error message और symptom लिखें; power, display input और बाहरी cable जाँचें; keyboard/mouse connection तथा Task Manager में app की स्थिति देखें; एक बार में एक सुरक्षित बदलाव करें और उसी test से परिणाम दोबारा जाँचें।',
+                'शिक्षक के सुरक्षित simulated no-display, disconnected keyboard और unresponsive application cases में symptom, check, result और next step की diagnostic log बनाएँ।',
+                'symptom-check-result log, दोहराए गए test का परिणाम और unresolved fault के लिए teacher escalation note',
+                'बिजली से जुड़े उपकरण का cabinet या power supply न खोलें; unsaved work बचाएँ; delete, format, registry edit या reset न करें; unfamiliar hardware fault शिक्षक को दें।',
+                'lab PC में display नहीं आता, keyboard नहीं चलता या एक application जवाब नहीं देता; learner को बिना data loss के कारण सीमित करना है।',
+                'symptom, power, display input, cable, connection, Task Manager, diagnostic log, escalation',
+                'symptom दर्ज करना, basic connections जाँचना, एक सुरक्षित change का test करना, result लिखना और जरूरत पर teacher को escalate करना'
+            );
+        }
+        if ($number <= 56) {
             return $this->make('cyber safety और digital public services', "{$topic} में पहचान, सहमति, privacy और transaction verification व्यक्ति तथा data की सुरक्षा के लिए अनिवार्य हैं।", 'official source खोलें, URL/identity verify करें, minimum data दें, MFA/secure method अपनाएँ और receipt/logout जाँचें।', "{$topic} पर safe/unsafe scenario पहचानें और official demo environment में सही प्रक्रिया दिखाएँ।", 'risk identification, सही protective action और बिना sensitive data के process evidence', 'OTP, password, PIN या personal document साझा न करें; केवल official verified service उपयोग करें।', 'एक suspicious message/service request मिलने पर सुरक्षित निर्णय लेना है।', 'privacy, consent, phishing, MFA, encryption, official portal', 'पहचान और URL verify करके minimum-data, secure authentication और documented completion अपनाना');
         }
 

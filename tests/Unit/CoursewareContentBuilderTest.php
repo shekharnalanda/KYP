@@ -56,7 +56,7 @@ class CoursewareContentBuilderTest extends TestCase
 
         $labels = collect(app(CoursewareContentBuilder::class)->build($session)['steps'][0]['media']['cards'])->pluck('hi')->implode(' ');
 
-        $this->assertStringContainsString('LCD', $labels);
+        $this->assertStringContainsString('Motherboard', $labels);
         $this->assertStringContainsString('CPU', $labels);
         $this->assertStringContainsString('RAM', $labels);
         $this->assertStringContainsString('HDD', $labels);

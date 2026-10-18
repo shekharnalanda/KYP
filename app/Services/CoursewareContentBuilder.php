@@ -282,7 +282,7 @@ class CoursewareContentBuilder
             return $this->make(
                 'computer और operating-system troubleshooting',
                 "{$topic} में symptom, possible cause और safe diagnostic test को अलग करके fault का कारण खोजना आवश्यक है।",
-                'पहले error message और symptom लिखें; power, display input और बाहरी cable जाँचें; keyboard/mouse connection तथा Task Manager में app की स्थिति देखें; एक बार में एक सुरक्षित बदलाव करें और उसी test से परिणाम दोबारा जाँचें।',
+                'पहले error message और symptom लिखें; power, display input और बाहरी cable जाँचें; keyboard/mouse connection तथा Task Manager में app की स्थिति देखें; एक बार में एक सुरक्षित बदलाव करें और उसी test से परिणाम दोबारा जाँचें; fault न सुलझे तो observations के साथ teacher को escalate करें।',
                 'शिक्षक के सुरक्षित simulated no-display, disconnected keyboard और unresponsive application cases में symptom, check, result और next step की diagnostic log बनाएँ।',
                 'symptom-check-result log, दोहराए गए test का परिणाम और unresolved fault के लिए teacher escalation note',
                 'बिजली से जुड़े उपकरण का cabinet या power supply न खोलें; unsaved work बचाएँ; delete, format, registry edit या reset न करें; unfamiliar hardware fault शिक्षक को दें।',

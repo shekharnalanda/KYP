@@ -29,6 +29,11 @@ class LearningSession extends Model
     public function getLabActivityHiAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
     public function getAssessmentPromptHiAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
 
+    public function getCoursewareAttribute($value): array {
+        $ware = is_array($value) ? $value : (json_decode((string)$value, true) ?: []);
+        return \App\Support\KypModuleNames::values($ware);
+    }
+
     public function course(): BelongsTo { return $this->belongsTo(Course::class); }
     public function attendanceRecords(): HasMany { return $this->hasMany(AttendanceRecord::class); }
     public function activityRecords(): HasMany { return $this->hasMany(ActivityRecord::class); }

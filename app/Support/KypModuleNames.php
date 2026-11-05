@@ -20,7 +20,13 @@ final class KypModuleNames
     }
     public static function values(mixed $value): mixed {
         if (is_string($value)) return self::text($value);
-        if (is_array($value)) return array_map([self::class,'values'], $value);
+        if (is_array($value)) {
+            foreach ($value as $key=>$child) {
+                if (in_array($key, ['id','code','subject','source_key','source_id','version','url','href','youtube_video_id','theory_youtube_video_id'], true)) continue;
+                $value[$key] = self::values($child);
+            }
+            return $value;
+        }
         return $value;
     }
 }

@@ -2,7 +2,7 @@
     active="iris-software"
     eyebrow="SYSTEM SETUP"
     title="Iris / Biometric Setup"
-    subtitle="Authorized KYP biometric attendance software एवं installation resources."
+    subtitle="Authorized YKK biometric attendance software एवं installation resources."
 >
 <div style="max-width:1180px;margin:30px auto;padding:0 20px;">
 
@@ -13,7 +13,7 @@
 
         <p style="margin:0;color:#64748b;">
             Administrator-only installation resources for the
-            KYP biometric attendance system.
+            YKK biometric attendance system.
         </p>
     </div>
 
@@ -25,7 +25,7 @@
         border-radius:12px;
     ">
         <strong>Mantra MIS100V2 Setup</strong><br>
-        Install these resources only on authorized KYP attendance computers.
+        Install these resources only on authorized YKK attendance computers.
     </div>
 
     <div style="
@@ -35,14 +35,14 @@
     ">
 
         <div style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:24px;">
-            <h3>KYP Iris Connector</h3>
+            <h3>YKK Iris Connector</h3>
             <p>
-                KYP Windows biometric attendance connector for
+                YKK Windows biometric attendance connector for
                 Mantra MIS100V2.
             </p>
 
             <a
-                href="/downloads/kyp-iris/KYP-Iris-Connector-V3.2-Final.zip"
+                href="/downloads/kyp-iris/YKK-Iris-Connector-V3.2-Final.zip"
                 style="
                     display:inline-block;
                     padding:11px 18px;
@@ -53,7 +53,7 @@
                     font-weight:700;
                 "
             >
-                Download KYP Iris Connector
+                Download YKK Iris Connector
             </a>
         </div>
 
@@ -86,7 +86,7 @@
             <h3>Microsoft .NET Framework 4.8</h3>
 
             <p>
-                Required Windows runtime for the KYP Iris Connector.
+                Required Windows runtime for the YKK Iris Connector.
                 Install it only when the attendance computer requires it.
             </p>
 

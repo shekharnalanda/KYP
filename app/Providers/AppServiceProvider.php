@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        config(['app.name'=>'YKK — युवा करियर कौशल कार्यक्रम']);
         //
     }
 }

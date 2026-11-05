@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Enquiry Submitted | KYP')
+@section('title','Enquiry Submitted | YKK')
 @section('body')
 <div class="panel-shell"><div class="container">
 <div class="panel" style="max-width:720px;margin:auto;text-align:center">

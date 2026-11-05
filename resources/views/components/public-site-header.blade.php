@@ -1,8 +1,8 @@
 <a class="skip-link" href="#main-content">मुख्य जानकारी पर जाएँ</a>
-<div class="topbar"><div class="container"><span>MCI Educational Group • कुशल यूथ प्रोग्राम</span><span>हिंदी में सीखें • Classroom + Lab</span></div></div>
+<div class="topbar"><div class="container"><span>MCI Educational Group • युवा करियर कौशल कार्यक्रम</span><span>हिंदी में सीखें • Classroom + Lab</span></div></div>
 <header class="program-header">
     <nav class="container" aria-label="मुख्य नेविगेशन">
-        <a class="brand" href="{{ route('home') }}"><img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP Logo"><span><strong>KUSHAL YOUTH PROGRAM</strong><small>कौशल से आत्मविश्वास, भविष्य की तैयारी</small></span></a>
+        <a class="brand" href="{{ route('home') }}"><img src="{{ asset('images/ykk-logo.webp') }}" alt="YKK Logo"><span><strong>युवा करियर कौशल कार्यक्रम</strong><small>कौशल से आत्मविश्वास, भविष्य की तैयारी</small></span></a>
         <div class="links">
             <a href="{{ route('home') }}#courses">पाठ्यक्रम</a>
             <a href="{{ route('home') }}#system">पढ़ाई का तरीका</a>

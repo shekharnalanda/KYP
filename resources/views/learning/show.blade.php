@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $session->title_hi.' | KYP')
+@section('title', $session->title_hi.' | YKK')
 @section('body')
 @php
     $steps = $courseware['steps'] ?? [];
@@ -118,7 +118,7 @@
                     <div class="daily-theory-player">
                         <iframe
                             src="https://www.youtube-nocookie.com/embed/{{ $session->theory_youtube_video_id }}?rel=0"
-                            title="KYP Day {{ $session->theory_video_day }} theory video"
+                            title="YKK Day {{ $session->theory_video_day }} theory video"
                             loading="lazy"
                             referrerpolicy="strict-origin-when-cross-origin"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

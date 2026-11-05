@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','KYP ID Cards')
+@section('title','YKK ID Cards')
 @section('body')
 
 @include('id-card.styles')

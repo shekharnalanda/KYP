@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'KYP Administration')
+@section('title', 'YKK Administration')
 
 @section('body')
 
@@ -94,9 +94,9 @@
 <header class="kyp-admin-header">
 <div class="kyp-admin-header-inner">
     <div class="kyp-admin-brand">
-        <div class="kyp-admin-mark">KYP</div>
+        <div class="kyp-admin-mark">YKK</div>
         <div>
-            <strong>Kushal Youth Program</strong>
+            <strong>युवा करियर कौशल कार्यक्रम</strong>
             <small>Central Administration</small>
         </div>
     </div>
@@ -163,7 +163,7 @@
 <section class="kyp-welcome">
     <div>
         <span class="kyp-eyebrow">ADMIN CONTROL CENTRE</span>
-        <h1>KYP Administration</h1>
+        <h1>YKK Administration</h1>
         <p>Learning, attendance, assessment, examination और certification का unified operational dashboard.</p>
         <div class="kyp-live"><i></i> Production system operational</div>
     </div>
@@ -257,7 +257,7 @@ $cards = [
     <div>
         <b>✓</b>
         <span>
-            <strong>KYP Production System</strong>
+            <strong>YKK Production System</strong>
             <small>Learning and assessment services are operational.</small>
         </span>
     </div>

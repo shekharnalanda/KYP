@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Kushal Youth Program",
-  "short_name": "KYP",
-  "description": "Kushal Youth Program Student Learning Portal",
+  "name": "YKK — युवा करियर कौशल कार्यक्रम",
+  "short_name": "YKK",
+  "description": "युवा करियर कौशल कार्यक्रम · Student Learning Portal",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,13 +10,13 @@
   "theme_color": "#073b78",
   "icons": [
     {
-      "src": "/images/app-icons/kyp-192.png",
+      "src": "/images/app-icons/ykk-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/app-icons/kyp-512.png",
+      "src": "/images/app-icons/ykk-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

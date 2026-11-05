@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','KYP Certificate')
+@section('title','YKK Certificate')
 @section('body')
 
 <x-kyp-document-style />
@@ -56,8 +56,8 @@ AI & Digital Skills completion आवश्यक है।
 
 <div>
 <img class="kdoc-logo"
- src="{{ asset('images/kyp-logo.webp') }}"
- alt="KYP">
+ src="{{ asset('images/ykk-logo.webp') }}"
+ alt="YKK">
 </div>
 
 </div>
@@ -92,7 +92,7 @@ S/o / D/o:
 
 <p>
 has successfully completed the
-<strong>Kushal Youth Program</strong> conducted by
+<strong>युवा करियर कौशल कार्यक्रम</strong> conducted by
 </p>
 
 <p class="kdoc-org">
@@ -190,7 +190,7 @@ MCI Educational Group
 </div>
 
 <div class="kdoc-note">
-Digitally generated from the KYP portal •
+Digitally generated from the YKK portal •
 This certificate confirms completion of an independent vocational
 education program of MCI Educational Group.
 </div>

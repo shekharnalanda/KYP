@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Exceptional Completion | KYP')
+@section('title','Exceptional Completion | YKK')
 @section('body')
 
 <x-admin-shell

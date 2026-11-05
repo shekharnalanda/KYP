@@ -1,13 +1,13 @@
 @extends('layouts.app')
-@section('title', 'Verify Student ID | KYP')
+@section('title', 'Verify Student ID | YKK')
 @section('body')
 
 <div class="panel-shell">
 <div class="container">
 <div class="panel" style="max-width:720px;margin:auto;text-align:center">
 
-<img src="{{ asset('images/kyp-logo.webp') }}"
- alt="KYP"
+<img src="{{ asset('images/ykk-logo.webp') }}"
+ alt="YKK"
  style="width:90px;height:90px;border-radius:50%">
 
 <h1>Student ID Verification</h1>
@@ -15,7 +15,7 @@
 @if($valid)
 
 <div style="padding:18px;border-radius:16px;background:#e8fff4;color:#087443;margin:20px 0">
-<strong>✓ VALID KYP STUDENT</strong>
+<strong>✓ VALID YKK STUDENT</strong>
 </div>
 
 <h2>{{ $student->name }}</h2>
@@ -24,7 +24,7 @@
 
 <p>
 <strong>Course:</strong>
-{{ $student->enrollments->pluck('course.code')->filter()->implode(', ') ?: 'KYP' }}
+{{ $student->enrollments->pluck('course.code')->filter()->implode(', ') ?: 'YKK' }}
 </p>
 
 <p><strong>Status:</strong> {{ strtoupper($student->status) }}</p>

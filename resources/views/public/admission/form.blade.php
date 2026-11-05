@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Online Admission | KYP')
+@section('title','Online Admission | YKK')
 @section('body')
 
 <x-public-program-style />
@@ -27,7 +27,7 @@
 <section class="kpv-section">
 <h2>Admission & Branch Selection</h2>
 <p>
-Program पहले से Kushal Youth Program (KYP) selected है।
+Program पहले से युवा करियर कौशल कार्यक्रम (YKK) selected है।
 केवल अपनी preferred branch चुनें।
 </p>
 
@@ -36,7 +36,7 @@ Program पहले से Kushal Youth Program (KYP) selected है।
 <div class="kpv-field">
 <label>Selected Program</label>
 <div class="kpv-selected">
-<strong>Kushal Youth Program (KYP)</strong><br>
+<strong>युवा करियर कौशल कार्यक्रम (YKK)</strong><br>
 135 Sessions • 270 Hours • All 4 Modules Included
 </div>
 </div>
@@ -231,7 +231,7 @@ Program पहले से Kushal Youth Program (KYP) selected है।
        required>
 <span>
 I confirm that the submitted information is correct and
-may be used for KYP admission and official student records.
+may be used for YKK admission and official student records.
 </span>
 </label>
 </div>
@@ -241,7 +241,7 @@ may be used for KYP admission and official student records.
 
 <div class="kpv-actions">
 <button class="btn btn-primary" type="submit">
-Submit KYP Admission
+Submit YKK Admission
 </button>
 
 <a class="btn btn-light"

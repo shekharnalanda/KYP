@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Online Exams | KYP')
+@section('title', 'Online Exams | YKK')
 @section('body')
 
 <x-portal-shell

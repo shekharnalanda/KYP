@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Exam Attempt | KYP')
+@section('title', 'Exam Attempt | YKK')
 @section('body')
 <div class="panel-shell"><div class="container"><div class="panel">
 <div style="display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap">

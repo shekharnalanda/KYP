@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','KYP Marksheet')
+@section('title','YKK Marksheet')
 @section('body')
 
 <x-kyp-document-style />
@@ -49,13 +49,13 @@ CICT, CLCS और CPSS के published results आवश्यक हैं।
 
 <div class="kdoc-title">
 <h1>STATEMENT OF MARKS</h1>
-<h2>KUSHAL YOUTH PROGRAM</h2>
+<h2>युवा करियर कौशल कार्यक्रम</h2>
 <p>VOCATIONAL • EMPLOYABILITY • DIGITAL SKILLS</p>
 </div>
 
 <img class="kdoc-logo"
- src="{{ asset('images/kyp-logo.webp') }}"
- alt="KYP">
+ src="{{ asset('images/ykk-logo.webp') }}"
+ alt="YKK">
 
 </div>
 
@@ -83,7 +83,7 @@ CICT, CLCS और CPSS के published results आवश्यक हैं।
 
 <div>
 <strong>Program:</strong>
-Kushal Youth Program (KYP)
+युवा करियर कौशल कार्यक्रम (YKK)
 </div>
 
 <div>
@@ -231,7 +231,7 @@ MCI Educational Group
 
 <div class="kdoc-note">
 This statement of marks is digitally generated from the
-Kushal Youth Program portal of MCI Educational Group.
+युवा करियर कौशल कार्यक्रम portal of MCI Educational Group.
 Overall performance is calculated from CICT, CLCS and CPSS assessments.
 </div>
 

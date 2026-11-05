@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Bulk KYP Documents')
+@section('title', 'Bulk YKK Documents')
 @section('body')
 <style>
 @media print {.no-print{display:none!important}.document-page{break-after:page;box-shadow:none!important;margin:0!important}.document-page:last-child{break-after:auto}}
@@ -9,7 +9,7 @@
 <div class="no-print" style="display:flex;justify-content:center;gap:12px"><button class="btn btn-primary" onclick="window.print()">Print / Save PDF</button><a class="btn btn-light" href="{{ route('admin.results') }}">Back</a></div>
 @foreach($results as $result)
 <section class="document-page">
-<div style="text-align:center"><img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP" style="width:95px;height:95px;border-radius:50%"><h1>Kushal Youth Program</h1>
+<div style="text-align:center"><img src="{{ asset('images/ykk-logo.webp') }}" alt="YKK" style="width:95px;height:95px;border-radius:50%"><h1>युवा करियर कौशल कार्यक्रम</h1>
 @if($documentType === 'certificate')
 <p>Certificate of Achievement / उपलब्धि प्रमाणपत्र</p><h2 style="font-size:32px;color:#0f766e">{{ $result->user->name }}</h2><p>has successfully completed the assessment requirements of</p><h2>{{ $result->examAttempt->exam->course->name }}</h2><p><strong>Final Score:</strong> {{ $result->final_score }}/100</p><p><strong>Certificate No:</strong> {{ $result->certificate->serial_number }}</p><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode(route('certificate.verify', $result->certificate->qr_token)) }}" alt="Verification QR" width="150" height="150"><p style="font-size:12px">{{ route('certificate.verify', $result->certificate->qr_token) }}</p>
 @else

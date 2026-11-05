@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@section('title', 'कुशल यूथ प्रोग्राम (KYP) | पाठ्यक्रम, सेशन और प्रवेश')
+@section('title', 'युवा करियर कौशल कार्यक्रम (YKK) | पाठ्यक्रम, सेशन और प्रवेश')
 @push('head')
-<meta name="description" content="KYP में CICT, CLCS, CPSS और AI-Digital Marketing की पढ़ाई, विषय, अभ्यास, सेशन और प्रवेश प्रक्रिया हिंदी में जानें।">
+<meta name="description" content="YKK में CICT, CLCS, CPSS और AI-Digital Marketing की पढ़ाई, विषय, अभ्यास, सेशन और प्रवेश प्रक्रिया हिंदी में जानें।">
 <link rel="stylesheet" href="{{ asset('css/program-guide.css') }}?v=20261016-1">
 @endpush
 @section('body')
@@ -10,9 +10,9 @@
 <section class="hero program-hero">
     <div class="container hero-grid">
         <div>
-            <span class="eyebrow">MCI Educational Group • कुशल यूथ प्रोग्राम</span>
+            <span class="eyebrow">MCI Educational Group • युवा करियर कौशल कार्यक्रम</span>
             <h1>कंप्यूटर चलाना सीखें।<br><span>आत्मविश्वास से आगे बढ़ें।</span></h1>
-            <p>Kushal Youth Program (KYP) में कंप्यूटर के व्यावहारिक काम, Hindi-English में बातचीत, कार्यस्थल का व्यवहार और AI व Digital Marketing की बुनियाद साथ सीखें। शिक्षक की समझाइश और अपने हाथों से अभ्यास—दोनों एक ही पोर्टल पर।</p>
+            <p>युवा करियर कौशल कार्यक्रम (YKK) में कंप्यूटर के व्यावहारिक काम, Hindi-English में बातचीत, कार्यस्थल का व्यवहार और AI व Digital Marketing की बुनियाद साथ सीखें। शिक्षक की समझाइश और अपने हाथों से अभ्यास—दोनों एक ही पोर्टल पर।</p>
             <div class="actions">
                 <a class="btn btn-accent" href="#courses">चारों मॉड्यूल देखें <span aria-hidden="true">↓</span></a>
                 <a class="btn btn-light" href="{{ route('admission.form') }}">प्रवेश के लिए आवेदन</a>
@@ -20,7 +20,7 @@
             <p class="hero-note">शुरुआती विद्यार्थियों के लिए • मुख्यतः हिंदी में समझाइश • Classroom + Lab</p>
         </div>
         <aside class="hero-card program-at-a-glance" aria-label="कार्यक्रम एक नज़र में">
-            <div class="program-logo"><img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP Logo"><div><strong>सीखें। अभ्यास करें। आगे बढ़ें।</strong><span>पूरा KYP कार्यक्रम एक साथ</span></div></div>
+            <div class="program-logo"><img src="{{ asset('images/ykk-logo.webp') }}" alt="YKK Logo"><div><strong>सीखें। अभ्यास करें। आगे बढ़ें।</strong><span>पूरा YKK कार्यक्रम एक साथ</span></div></div>
             <div class="mini-stats"><div class="mini-stat"><b>{{ $totalHours }}</b><span>कुल सीखने के घंटे</span></div><div class="mini-stat"><b>{{ $totalSessions }}</b><span>कुल Learning Sessions</span></div><div class="mini-stat"><b>{{ $modules->count() }}</b><span>कौशल मॉड्यूल</span></div><div class="mini-stat"><b>2 घंटे</b><span>हर सेशन की अवधि</span></div></div>
             <div class="study-note">कंप्यूटर + भाषा + व्यवहार + AI<br>एक ही कार्यक्रम में चारों तरह के कौशल।</div>
         </aside>
@@ -29,8 +29,8 @@
 
 <section class="program-section" id="about">
     <div class="container about-grid">
-        <div><span class="section-label">KYP क्या है?</span><h2>पढ़ाई और कामकाज के बीच<br>कौशल का एक मज़बूत आधार</h2></div>
-        <div class="body-copy"><p>यह MCI Educational Group का कौशल विकास और Learning Portal है। यहाँ विद्यार्थी केवल वीडियो देखकर नहीं रुकते—वे विषय समझते हैं, निर्देशित गतिविधियाँ करते हैं, अपने काम का अभ्यास करते हैं और अपनी प्रगति देखते हैं।</p><p>स्कूल या कॉलेज के विद्यार्थी, पहली नौकरी की तैयारी कर रहे युवा और अपने दैनिक डिजिटल काम स्वयं सीखना चाहने वाले लोग इससे उपयोगी आधार बना सकते हैं। कंप्यूटर का पिछला अनुभव कम हो, तब भी शुरुआत मूल बातों से होती है।</p><p><strong>पूरा कार्यक्रम एक साथ:</strong> CICT, CLCS, CPSS और AI-DM, KYP के चार मॉड्यूल हैं। प्रवेश पूरे KYP में होता है; नीचे हर मॉड्यूल की पढ़ाई अलग से समझाई गई है।</p></div>
+        <div><span class="section-label">YKK क्या है?</span><h2>पढ़ाई और कामकाज के बीच<br>कौशल का एक मज़बूत आधार</h2></div>
+        <div class="body-copy"><p>यह MCI Educational Group का कौशल विकास और Learning Portal है। यहाँ विद्यार्थी केवल वीडियो देखकर नहीं रुकते—वे विषय समझते हैं, निर्देशित गतिविधियाँ करते हैं, अपने काम का अभ्यास करते हैं और अपनी प्रगति देखते हैं।</p><p>स्कूल या कॉलेज के विद्यार्थी, पहली नौकरी की तैयारी कर रहे युवा और अपने दैनिक डिजिटल काम स्वयं सीखना चाहने वाले लोग इससे उपयोगी आधार बना सकते हैं। कंप्यूटर का पिछला अनुभव कम हो, तब भी शुरुआत मूल बातों से होती है।</p><p><strong>पूरा कार्यक्रम एक साथ:</strong> CICT, CLCS, CPSS और AI-DM, YKK के चार मॉड्यूल हैं। प्रवेश पूरे YKK में होता है; नीचे हर मॉड्यूल की पढ़ाई अलग से समझाई गई है।</p></div>
     </div>
 </section>
 
@@ -42,7 +42,7 @@
                 @include('components.public-course-card', ['module' => $module])
             @endforeach
         </div>
-        <p class="program-footnote">{{ $totalSessions }} सेशन × 2 घंटे = {{ $totalHours }} घंटे। चारों मॉड्यूल पूरे KYP कार्यक्रम का हिस्सा हैं।</p>
+        <p class="program-footnote">{{ $totalSessions }} सेशन × 2 घंटे = {{ $totalHours }} घंटे। चारों मॉड्यूल पूरे YKK कार्यक्रम का हिस्सा हैं।</p>
     </div>
 </section>
 
@@ -96,7 +96,7 @@
 </section>
 <section class="program-section" id="faq">
     <div class="container faq-wrap"><div class="section-head"><span class="section-label">आपके सवाल</span><h2>शुरू करने से पहले जानें</h2></div>
-        <details><summary>क्या चार अलग-अलग कोर्स में Admission लेना है?</summary><p>नहीं। प्रवेश पूरे KYP कार्यक्रम के लिए है। CICT, CLCS, CPSS और AI-DM उसी के चार मॉड्यूल हैं।</p></details>
+        <details><summary>क्या चार अलग-अलग कोर्स में Admission लेना है?</summary><p>नहीं। प्रवेश पूरे YKK कार्यक्रम के लिए है। CICT, CLCS, CPSS और AI-DM उसी के चार मॉड्यूल हैं।</p></details>
         <details><summary>पूरा कार्यक्रम कितने दिन में होगा?</summary><p>कुल {{ $totalSessions }} सेशन और {{ $totalHours }} घंटे हैं। रोज़ 1 सेशन के अध्ययन लक्ष्य पर {{ $totalSessions }} अध्ययन-दिन लगते हैं। सप्ताह की छुट्टी, परीक्षा, दोहराव और बैच की समय-सारणी से कैलेंडर अवधि बदलती है; निश्चित शुरू व समाप्ति तारीख शाखा बताएगी।</p></details>
         <details><summary>क्या पहले से Computer या English आना ज़रूरी है?</summary><p>पढ़ाई मूल बातों से शुरू होती है और मुख्य समझाइश हिंदी में है। अभ्यास के लिए नियमित समय दें। प्रवेश की औपचारिक पात्रता अपनी शाखा से पता करें।</p></details>
         <details><summary>क्या मोबाइल से पढ़ाई हो सकती है?</summary><p>मोबाइल से Lesson, उपलब्ध Video और अपनी Progress देख सकते हैं। Typing, Documents, Spreadsheet और Presentation के सही अभ्यास के लिए Computer/Laptop या शाखा की Lab का उपयोग करें।</p></details>
@@ -106,19 +106,19 @@
 </main>
 @include('components.public-site-footer')
 
-<!-- KYP-MOBILE-INSTALL-V1 -->
+<!-- YKK-MOBILE-INSTALL-V1 -->
 
 <section class="kyp-mobile-install">
 
 <div>
 
 <strong>
-Kushal Youth Programme Mobile App
+युवा करियर कौशल कार्यक्रम Mobile App
 </strong>
 
 <span>
 Student learning, attendance, progress,
-results and KYP account access on mobile.
+results and YKK account access on mobile.
 </span>
 
 </div>
@@ -145,7 +145,7 @@ id="kyp-install-app"
         window.navigator.standalone === true;
 
     if (installed) {
-        button.textContent = '✓ KYP App Installed';
+        button.textContent = '✓ YKK App Installed';
         button.disabled = true;
         return;
     }
@@ -184,7 +184,7 @@ id="kyp-install-app"
 
     window.addEventListener('appinstalled', () => {
         installPrompt = null;
-        button.textContent = '✓ KYP App Installed';
+        button.textContent = '✓ YKK App Installed';
         button.disabled = true;
     });
 })();

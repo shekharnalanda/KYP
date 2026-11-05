@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title','Branches | KYP')
+@section('title','Branches | YKK')
 @section('body')
 
 <x-admin-shell
  active="branches"
  eyebrow="CENTRE MANAGEMENT"
  title="Branches"
- subtitle="Admission और enquiry के लिए KYP branches manage करें।"
+ subtitle="Admission और enquiry के लिए YKK branches manage करें।"
 >
 
 @if(session('success'))

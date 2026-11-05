@@ -34,9 +34,9 @@ $branchAddress = implode(', ', $addressParts);
 
 <div class="id-topbar">
 <div class="id-brand">
-<img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP">
+<img src="{{ asset('images/ykk-logo.webp') }}" alt="YKK">
 <div>
-<strong>KUSHAL YOUTH PROGRAM</strong>
+<strong>युवा करियर कौशल कार्यक्रम</strong>
 <small>Student Identity Card</small>
 </div>
 </div>
@@ -67,12 +67,12 @@ $branchAddress = implode(', ', $addressParts);
 
 <div class="id-line">
 <span>Course</span>
-<strong>{{ $courseNames ?: 'KYP' }}</strong>
+<strong>{{ $courseNames ?: 'YKK' }}</strong>
 </div>
 
 <div class="id-line">
 <span>Branch</span>
-<strong>{{ $branch?->name ?: 'KYP Centre' }}</strong>
+<strong>{{ $branch?->name ?: 'YKK Centre' }}</strong>
 </div>
 
 <div class="id-line">
@@ -91,7 +91,7 @@ $branchAddress = implode(', ', $addressParts);
 </div>
 
 <div class="id-bottom">
-MCI Educational Group • Kushal Youth Program
+MCI Educational Group • युवा करियर कौशल कार्यक्रम
 </div>
 
 </div>
@@ -100,9 +100,9 @@ MCI Educational Group • Kushal Youth Program
 <div class="id-side id-back">
 
 <div class="id-back-head">
-<img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP">
+<img src="{{ asset('images/ykk-logo.webp') }}" alt="YKK">
 <div>
-<strong>KUSHAL YOUTH PROGRAM</strong>
+<strong>युवा करियर कौशल कार्यक्रम</strong>
 <small>Official Student Identity</small>
 </div>
 </div>
@@ -133,16 +133,16 @@ MCI Educational Group • Kushal Youth Program
 
 <div class="id-line">
 <span>Centre</span>
-<strong>{{ $branch?->name ?: 'KYP Centre' }}</strong>
+<strong>{{ $branch?->name ?: 'YKK Centre' }}</strong>
 </div>
 
 </div>
 
 <div class="id-rules">
 <strong>Instructions</strong>
-<p>This card is issued for KYP academic and training identification.</p>
+<p>This card is issued for YKK academic and training identification.</p>
 <p>Card validity depends on active student status.</p>
-<p>If found, please return to the issuing KYP centre.</p>
+<p>If found, please return to the issuing YKK centre.</p>
 </div>
 
 @if($branchAddress)
@@ -160,7 +160,7 @@ QR verification:
 </div>
 
 <div class="id-bottom">
-Authorized KYP Student Record • QR Verifiable
+Authorized YKK Student Record • QR Verifiable
 </div>
 
 </div>

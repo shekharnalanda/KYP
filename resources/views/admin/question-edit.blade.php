@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Edit Question | KYP')
+@section('title','Edit Question | YKK')
 @section('body')
 <div class="panel-shell"><div class="container"><div class="panel"><h1>Edit Bilingual Question</h1>
 @if($errors->any())<div style="padding:14px;background:#fff1f2;color:#be123c">{{ $errors->first() }}</div>@endif

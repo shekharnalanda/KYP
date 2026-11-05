@@ -64,9 +64,9 @@
 <div class="kas-topin">
 
 <div class="kas-brand">
-<img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP Logo">
+<img src="{{ asset('images/ykk-logo.webp') }}" alt="YKK Logo">
 <div>
-<strong>Kushal Youth Program</strong>
+<strong>युवा करियर कौशल कार्यक्रम</strong>
 <small>Central Administration</small>
 </div>
 </div>

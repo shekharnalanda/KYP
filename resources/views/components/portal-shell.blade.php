@@ -1,7 +1,7 @@
 @props([
  'active' => 'dashboard',
- 'eyebrow' => 'KYP PORTAL',
- 'title' => 'Kushal Youth Program',
+ 'eyebrow' => 'YKK PORTAL',
+ 'title' => 'युवा करियर कौशल कार्यक्रम',
  'subtitle' => ''
 ])
 
@@ -109,9 +109,9 @@ color:inherit;
 <div class="kps-topin student-top">
 
 <div class="kps-brand">
-<img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP Logo">
+<img src="{{ asset('images/ykk-logo.webp') }}" alt="YKK Logo">
 <div>
-<strong>Kushal Youth Program</strong>
+<strong>युवा करियर कौशल कार्यक्रम</strong>
 <small>{{ $roleLabel }} Learning Portal</small>
 </div>
 </div>

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Learning Sessions | KYP')
+@section('title', 'Learning Sessions | YKK')
 @section('body')
 <x-portal-shell
  active="learning"

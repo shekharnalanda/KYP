@@ -12,6 +12,9 @@ final class KypModuleNames
     }
     public static function text(?string $text): string {
         $text = (string)$text;
+        $text = preg_replace('/Kushal Youth Program(?:me)?/i', 'युवा करियर कौशल कार्यक्रम', $text);
+        $text = str_replace(['कुशल यूथ प्रोग्राम','कौशल यूथ कार्यक्रम','कुशल युवा कार्यक्रम'], 'युवा करियर कौशल कार्यक्रम', $text);
+        $text = preg_replace('/\bKYP\b/', 'YKK', $text);
         $text = preg_replace('/Certificate in Information Technolog(?:y|ies)/i', self::NAMES['CIT'], $text);
         $text = preg_replace('/Certificate in Language Skills?(?! and)/i', self::NAMES['CLS'], $text);
         $text = preg_replace('/Certificate in Soft Skills?/i', self::NAMES['CSS'], $text);

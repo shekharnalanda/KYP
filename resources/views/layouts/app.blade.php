@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#062b63">
-    <title>@yield('title', 'Kushal Youth Program')</title>
+    <title>@yield('title', 'युवा करियर कौशल कार्यक्रम')</title>
     <style>
         :root{--navy:#062b63;--navy2:#031b3f;--teal:#11c5bd;--orange:#ff9418;--ink:#17243c;--muted:#60708b;--surface:#f5f9ff}
         *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:#fff}
@@ -28,7 +28,7 @@
 <meta name="theme-color" content="#073b78">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="{{ asset('images/app-icons/kyp-192.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('images/app-icons/ykk-192.png') }}">
 
 <script>
 if ('serviceWorker' in navigator) {

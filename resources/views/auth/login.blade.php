@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Portal Login | Kushal Youth Program')
+@section('title', 'Portal Login | युवा करियर कौशल कार्यक्रम')
 @section('body')
-<header><nav class="container"><a class="brand" href="{{ route('home') }}"><span class="brand-fallback" style="display:grid">KYP</span><span><strong>KUSHAL YOUTH PROGRAM</strong><small>Secure Learning Portal</small></span></a><a class="btn btn-light" href="{{ route('home') }}">Home</a></nav></header>
+<header><nav class="container"><a class="brand" href="{{ route('home') }}"><span class="brand-fallback" style="display:grid">YKK</span><span><strong>युवा करियर कौशल कार्यक्रम</strong><small>Secure Learning Portal</small></span></a><a class="btn btn-light" href="{{ route('home') }}">Home</a></nav></header>
 <div class="form-wrap">
 <form class="form-card" method="POST" action="{{ route('login') }}">
 @csrf

@@ -1,12 +1,12 @@
 @extends('layouts.app')
-@section('title','Student ID Card | KYP')
+@section('title','Student ID Card | YKK')
 @section('body')
 
 <x-portal-shell
  active="dashboard"
  eyebrow="DIGITAL STUDENT ID"
  title="Student Identity Card"
- subtitle="Front & Back QR-verifiable KYP identity card."
+ subtitle="Front & Back QR-verifiable YKK identity card."
 >
 
 @include('id-card.styles')

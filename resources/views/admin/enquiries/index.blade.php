@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Enquiries | KYP')
+@section('title','Enquiries | YKK')
 @section('body')
 
 <x-admin-shell

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Enquiry | KYP')
+@section('title','Enquiry | YKK')
 @section('body')
 
 <x-public-program-style />
@@ -25,10 +25,10 @@
 
 <section class="kpv-section">
 
-<h2>KYP Enquiry</h2>
+<h2>YKK Enquiry</h2>
 
 <p>
-Kushal Youth Program के बारे में जानकारी प्राप्त करने के लिए
+युवा करियर कौशल कार्यक्रम के बारे में जानकारी प्राप्त करने के लिए
 अपनी details और preferred branch दर्ज करें।
 </p>
 
@@ -38,7 +38,7 @@ Kushal Youth Program के बारे में जानकारी प्�
 <label>Selected Program</label>
 
 <div class="kpv-selected">
-<strong>Kushal Youth Program (KYP)</strong><br>
+<strong>युवा करियर कौशल कार्यक्रम (YKK)</strong><br>
 135 Sessions • 270 Hours • All 4 Modules Included
 </div>
 </div>
@@ -125,7 +125,7 @@ Email OTP verification के बाद ही enquiry submit होगी।
 
 <textarea
  name="message"
- placeholder="KYP admission, course structure, branch या अन्य जानकारी के बारे में अपना प्रश्न लिखें।">{{ old('message') }}</textarea>
+ placeholder="YKK admission, course structure, branch या अन्य जानकारी के बारे में अपना प्रश्न लिखें।">{{ old('message') }}</textarea>
 
 </div>
 
@@ -139,7 +139,7 @@ Email OTP verification के बाद ही enquiry submit होगी।
  class="btn btn-primary"
  type="submit">
 
-Submit KYP Enquiry
+Submit YKK Enquiry
 
 </button>
 

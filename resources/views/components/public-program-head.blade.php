@@ -1,9 +1,9 @@
 <div class="kpv-brandbar">
 
 <div class="kpv-brand">
-<img src="{{ asset('images/kyp-logo.webp') }}" alt="KYP Logo">
+<img src="{{ asset('images/ykk-logo.webp') }}" alt="YKK Logo">
 <div>
-<strong>Kushal Youth Program</strong>
+<strong>युवा करियर कौशल कार्यक्रम</strong>
 <small>Skills for the Digital Future</small>
 </div>
 </div>
@@ -20,7 +20,7 @@
 
 <div class="kpv-program">
 <span class="kpv-eye">PROGRAM SELECTED</span>
-<h1>Kushal Youth Program <b>(KYP)</b></h1>
+<h1>युवा करियर कौशल कार्यक्रम <b>(YKK)</b></h1>
 <p>
 Complete 270-hour integrated employability and digital-skills program.
 All four learning modules are included in the program.
@@ -30,7 +30,7 @@ All four learning modules are included in the program.
 <div><strong>135</strong><span>Sessions</span></div>
 <div><strong>270</strong><span>Total Hours</span></div>
 <div><strong>4</strong><span>Integrated Modules</span></div>
-<div><strong>KYP</strong><span>Selected Program</span></div>
+<div><strong>YKK</strong><span>Selected Program</span></div>
 </div>
 </div>
 

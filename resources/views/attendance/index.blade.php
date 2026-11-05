@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Attendance Management & Reporting | KYP')
+@section('title', 'Attendance Management & Reporting | YKK')
 @section('body')
 
 <x-admin-shell

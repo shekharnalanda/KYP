@@ -120,7 +120,7 @@
 <section class="learning-course">
 <div class="learning-course-head">
 <div>
-<h2>{{ $course->code }} — {{ $course->name }}</h2>
+<h2>{{ $course->display_code }} — {{ $course->name }}</h2>
 <p>{{ $course->total_sessions }} sessions • {{ $course->total_hours }} hours</p>
 </div>
 </div>

@@ -72,7 +72,7 @@ My Certificate
 <article class="student-course">
 <div class="student-course-head">
 <div>
-<div class="student-course-code">{{ $item['course']->code }}</div>
+<div class="student-course-code">{{ $item['course']->display_code }}</div>
 <h3>{{ $item['course']->name }}</h3>
 </div>
 <strong>{{ $item['progress'] }}%</strong>

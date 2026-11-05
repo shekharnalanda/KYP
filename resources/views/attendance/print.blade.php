@@ -80,7 +80,7 @@ Filtered Attendance Statement
 </td>
 
 <td>
-{{ $record->course?->code ?: '-' }}
+{{ $record->course?->display_code ?: '-' }}
 @if($record->learningSession)
 / Session {{ $record->learningSession->session_number }}
 <br>{{ $record->learningSession->title_en }}

@@ -24,7 +24,7 @@
 @endphp
 <x-portal-shell
  active="learning"
- eyebrow="{{ $session->course->code }} • SESSION {{ $session->session_number }}"
+ eyebrow="{{ $session->course->display_code }} • SESSION {{ $session->session_number }}"
  title="{{ $session->title_hi }}"
  subtitle="{{ $session->title_en }} • 120-minute interactive {{ auth()->user()->hasRole('teacher') ? 'teaching' : 'lab' }} courseware"
 >
@@ -58,9 +58,9 @@
 
     <button type="button" class="course-menu-toggle" id="course-menu-toggle" aria-expanded="false" aria-controls="course-tree">☰ सभी Sessions और Topics</button>
     <div class="courseware-grid">
-        <aside class="course-tree" id="course-tree" aria-label="{{ $session->course->code }} course sessions">
+        <aside class="course-tree" id="course-tree" aria-label="{{ $session->course->display_code }} course sessions">
             <div class="tree-head">
-                <strong>{{ $session->course->code }} Course Flow</strong>
+                <strong>{{ $session->course->display_code }} Course Flow</strong>
                 <small>{{ $courseSessions->count() }} sessions • एक ही learning window</small>
             </div>
             <div class="status-legend" aria-label="Status colour guide">

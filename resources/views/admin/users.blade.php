@@ -73,7 +73,7 @@ View / Print ID Card
 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
 @foreach($courses as $course)
 <label style="padding:8px 12px;border:1px solid #c9dddb;border-radius:999px">
-<input type="checkbox" name="course_ids[]" value="{{ $course->id }}" @checked($user->enrollments->contains(fn($enrolment) => $enrolment->course_id === $course->id && $enrolment->status === 'active'))> {{ $course->code }}
+<input type="checkbox" name="course_ids[]" value="{{ $course->id }}" @checked($user->enrollments->contains(fn($enrolment) => $enrolment->course_id === $course->id && $enrolment->status === 'active'))> {{ $course->display_code }}
 </label>
 @endforeach
 <button class="btn btn-primary">Save Enrolments</button>

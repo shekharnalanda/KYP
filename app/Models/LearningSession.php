@@ -21,6 +21,14 @@ class LearningSession extends Model
         ];
     }
 
+    public function getTitleEnAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
+    public function getTitleHiAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
+    public function getLessonContentHiAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
+    public function getClassroomNotesHiAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
+    public function getObjectivesHiAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
+    public function getLabActivityHiAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
+    public function getAssessmentPromptHiAttribute($value): string { return \App\Support\KypModuleNames::text($value); }
+
     public function course(): BelongsTo { return $this->belongsTo(Course::class); }
     public function attendanceRecords(): HasMany { return $this->hasMany(AttendanceRecord::class); }
     public function activityRecords(): HasMany { return $this->hasMany(ActivityRecord::class); }

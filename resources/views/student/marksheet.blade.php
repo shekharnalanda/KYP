@@ -29,7 +29,7 @@ Integrated Marksheet not ready
 </h2>
 
 <p>
-CIT, CLS और CSS के published results आवश्यक हैं।
+CICT, CLCS और CPSS के published results आवश्यक हैं।
 </p>
 
 </div>
@@ -114,8 +114,8 @@ Kushal Youth Program (KYP)
 
 <tr>
 <td>
-<strong>CIT</strong><br>
-Information Technology
+<strong>CICT</strong><br>
+Certificate in Information and Communication Technology
 </td>
 <td>60</td>
 <td>120</td>
@@ -125,8 +125,8 @@ Information Technology
 
 <tr>
 <td>
-<strong>CLS</strong><br>
-Language Skills
+<strong>CLCS</strong><br>
+Certificate in Language and Communication Skills
 </td>
 <td>40</td>
 <td>80</td>
@@ -136,8 +136,8 @@ Language Skills
 
 <tr>
 <td>
-<strong>CSS</strong><br>
-Soft Skills
+<strong>CPSS</strong><br>
+Certificate in Personality and Soft Skills
 </td>
 <td>20</td>
 <td>40</td>
@@ -232,7 +232,7 @@ MCI Educational Group
 <div class="kdoc-note">
 This statement of marks is digitally generated from the
 Kushal Youth Program portal of MCI Educational Group.
-Overall performance is calculated from CIT, CLS and CSS assessments.
+Overall performance is calculated from CICT, CLCS and CPSS assessments.
 </div>
 
 </div>

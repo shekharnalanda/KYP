@@ -29,7 +29,7 @@ $certNo = str_replace(
 <div class="panel" style="max-width:760px;margin:auto">
 <h2 style="color:#b42318">Certificate not ready</h2>
 <p>
-CIT, CLS और CSS के published passing results तथा
+CICT, CLCS और CPSS के published passing results तथा
 AI & Digital Skills completion आवश्यक है।
 </p>
 </div>
@@ -114,20 +114,20 @@ CORE COURSE PERFORMANCE
 <div class="kdoc-cards">
 
 <div class="kdoc-card">
-<b>CIT</b>
-<span>Information Technology</span>
+<b>CICT</b>
+<span>Certificate in Information and Communication Technology</span>
 <strong>{{ number_format($cit->final_score,0) }}%</strong>
 </div>
 
 <div class="kdoc-card">
-<b>CLS</b>
-<span>Language Skills</span>
+<b>CLCS</b>
+<span>Certificate in Language and Communication Skills</span>
 <strong>{{ number_format($cls->final_score,0) }}%</strong>
 </div>
 
 <div class="kdoc-card">
-<b>CSS</b>
-<span>Soft Skills</span>
+<b>CPSS</b>
+<span>Certificate in Personality and Soft Skills</span>
 <strong>{{ number_format($css->final_score,0) }}%</strong>
 </div>
 
@@ -142,7 +142,7 @@ SUCCESSFULLY COMPLETED
 <div class="kdoc-summary">
 
 <small>
-Overall performance calculated from CIT, CLS and CSS assessments
+Overall performance calculated from CICT, CLCS and CPSS assessments
 </small>
 
 <strong>

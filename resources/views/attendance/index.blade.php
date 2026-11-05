@@ -198,7 +198,7 @@ Course
 value="{{ $course->id }}"
 @selected((string)request('course_id') === (string)$course->id)
 >
-{{ $course->code }} — {{ $course->name }}
+{{ $course->display_code }} — {{ $course->name }}
 </option>
 @endforeach
 </select>
@@ -215,7 +215,7 @@ value="{{ $session->id }}"
 data-course="{{ $course->id }}"
 @selected((string)request('learning_session_id') === (string)$session->id)
 >
-{{ $course->code }} / Session {{ $session->session_number }} — {{ $session->title_en }}
+{{ $course->display_code }} / Session {{ $session->session_number }} — {{ $session->title_en }}
 </option>
 @endforeach
 @endforeach
@@ -354,7 +354,7 @@ Print / Save PDF
 
 <td class="kar-session">
 <strong>
-{{ $record->course?->code ?: '-' }}
+{{ $record->course?->display_code ?: '-' }}
 @if($record->learningSession)
  / Session {{ $record->learningSession->session_number }}
 @endif

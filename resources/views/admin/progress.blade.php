@@ -13,7 +13,7 @@
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:16px">
 @foreach($progress->get($student->id, collect()) as $item)
 <article style="padding:15px;border-radius:17px;background:#f7fbfb;border:1px solid #e0eceb">
-<div style="display:flex;justify-content:space-between;gap:8px"><strong>{{ $item['course']->code }}</strong><span>{{ $item['progress'] }}%</span></div>
+<div style="display:flex;justify-content:space-between;gap:8px"><strong>{{ $item['course']->display_code }}</strong><span>{{ $item['progress'] }}%</span></div>
 <div style="height:8px;background:#dfe9e8;border-radius:8px;overflow:hidden;margin:10px 0"><div style="height:100%;width:{{ $item['progress'] }}%;background:{{ $item['eligible'] ? '#087443' : '#057d78' }}"></div></div>
 <div style="font-size:14px;color:var(--muted)">Lab {{ $item['lab_sessions'] }}/{{ $item['course']->total_sessions }} · Classroom {{ $item['classroom_sessions'] }}</div>
 <div style="font-weight:800;margin-top:8px;color:{{ $item['eligible'] ? '#087443' : '#8a5a00' }}">

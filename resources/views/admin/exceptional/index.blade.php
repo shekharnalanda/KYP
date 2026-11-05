@@ -103,7 +103,7 @@ administratively complete करेगा।
 <option value="">Select Course</option>
 @foreach($courses as $course)
 <option value="{{ $course->id }}">
-{{ $course->code }} — {{ $course->name }}
+{{ $course->display_code }} — {{ $course->name }}
 </option>
 @endforeach
 </select>
@@ -157,7 +157,7 @@ generate करेगा।
 <option value="">Select Course</option>
 @foreach($courses as $course)
 <option value="{{ $course->id }}">
-{{ $course->code }} — {{ $course->name }}
+{{ $course->display_code }} — {{ $course->name }}
 </option>
 @endforeach
 </select>
@@ -230,7 +230,7 @@ Create Pass Result & Certificate
 {{ $log->student?->student_id }}
 — {{ $log->student?->name }}
 @if($log->course)
-• {{ $log->course->code }}
+• {{ $log->course->display_code }}
 @endif
 </div>
 </div>

@@ -228,21 +228,21 @@ $cards = [
 
 <div class="kyp-courses">
     <div class="kyp-course">
-        <b>CIT</b>
+        <b>CICT</b>
         <h3>Information Technology</h3>
         <p>Digital and practical computer skills</p>
         <footer><span>60 Sessions</span><span>120 Hours</span></footer>
     </div>
 
     <div class="kyp-course">
-        <b>CLS</b>
+        <b>CLCS</b>
         <h3>Language Skills</h3>
         <p>Communication and professional language skills</p>
         <footer><span>40 Sessions</span><span>80 Hours</span></footer>
     </div>
 
     <div class="kyp-course">
-        <b>CSS</b>
+        <b>CPSS</b>
         <h3>Soft Skills</h3>
         <p>Personality, workplace and employability skills</p>
         <footer><span>20 Sessions</span><span>40 Hours</span></footer>

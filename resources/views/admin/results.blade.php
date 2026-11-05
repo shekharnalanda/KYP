@@ -143,7 +143,7 @@ Print Selected Documents
 <div style="color:var(--muted);font-size:12px">
 {{ $result->user->student_id }}
 •
-{{ $result->examAttempt->exam->course->code }}
+{{ $result->examAttempt->exam->course->display_code }}
 •
 Score {{ $result->final_score }}/100
 </div>

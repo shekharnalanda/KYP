@@ -33,7 +33,7 @@
 <div class="teacher-courses">
 @foreach($courses as $course)
 <article class="teacher-course">
-<b>{{ $course->code }}</b>
+<b>{{ $course->display_code }}</b>
 <h3>{{ $course->name }}</h3>
 <p>{{ $course->sessions_count }} sequential classroom/lab sessions</p>
 <strong>{{ $course->total_hours }} Hours</strong>

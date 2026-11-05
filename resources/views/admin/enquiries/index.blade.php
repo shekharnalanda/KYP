@@ -80,7 +80,7 @@
 
 <p style="margin:3px 0">
 <strong>Course:</strong>
-{{ $e->course?->code ?: 'Not selected' }}
+{{ $e->course?->display_code ?: 'Not selected' }}
 </p>
 
 @if($e->qualification)

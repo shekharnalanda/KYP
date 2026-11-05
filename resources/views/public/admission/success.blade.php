@@ -9,7 +9,7 @@
 Application Number: <strong>{{ $admission->application_number }}</strong>
 </div>
 <p>{{ $admission->name }}</p>
-<p>{{ $admission->branch->name }} • {{ $admission->course->code }}</p>
+<p>{{ $admission->branch->name }} • {{ $admission->course->display_code }}</p>
 <p>Admin verification के बाद admission status आगे process किया जाएगा।</p>
 <a class="btn btn-primary" href="{{ route('home') }}">Back to Home</a>
 </div></div></div>

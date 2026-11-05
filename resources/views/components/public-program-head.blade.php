@@ -36,20 +36,20 @@ All four learning modules are included in the program.
 
 <div class="kpv-modules">
 <div>
-<b>CIT</b>
-<strong>Information Technology</strong>
+<b>CICT</b>
+<strong>Certificate in Information and Communication Technology</strong>
 <span>60 Sessions • 120 Hours</span>
 </div>
 
 <div>
-<b>CLS</b>
-<strong>Language Skills</strong>
+<b>CLCS</b>
+<strong>Certificate in Language and Communication Skills</strong>
 <span>40 Sessions • 80 Hours</span>
 </div>
 
 <div>
-<b>CSS</b>
-<strong>Soft Skills</strong>
+<b>CPSS</b>
+<strong>Certificate in Personality and Soft Skills</strong>
 <span>20 Sessions • 40 Hours</span>
 </div>
 

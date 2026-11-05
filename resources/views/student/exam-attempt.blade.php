@@ -3,7 +3,7 @@
 @section('body')
 <div class="panel-shell"><div class="container"><div class="panel">
 <div style="display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap">
-<div><span class="eyebrow" style="color:#057d78;background:#e8fffd">{{ $attempt->exam->course->code }} EXAM</span><h1>{{ $attempt->exam->title_hi }}</h1><p>{{ $attempt->exam->title_en }}</p></div>
+<div><span class="eyebrow" style="color:#057d78;background:#e8fffd">{{ $attempt->exam->course->display_code }} EXAM</span><h1>{{ $attempt->exam->title_hi }}</h1><p>{{ $attempt->exam->title_en }}</p></div>
 <div class="panel-card"><strong id="timer">{{ $attempt->exam->duration_minutes }}:00</strong><div style="color:var(--muted)">समय शेष</div></div>
 </div>
 <form method="POST" action="{{ route('student.exam.submit', $attempt) }}" id="exam-form">@csrf

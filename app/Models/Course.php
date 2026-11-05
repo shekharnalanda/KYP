@@ -17,6 +17,9 @@ class Course extends Model
         return ['is_active' => 'boolean'];
     }
 
+    public function getDisplayCodeAttribute(): string { return \App\Support\KypModuleNames::code($this->attributes['code'] ?? ''); }
+    public function getNameAttribute($value): string { return \App\Support\KypModuleNames::name($this->attributes['code'] ?? '', (string)$value); }
+
     public function sessions(): HasMany
     {
         return $this->hasMany(LearningSession::class)->orderBy('session_number');

@@ -4,7 +4,7 @@ return [
     'modules' => [
         'CIT' => [
             'slug' => 'cit', 'label' => 'कंप्यूटर और डिजिटल काम', 'short' => 'Computer, Typing, Word, Excel, Presentation और सुरक्षित Internet उपयोग का व्यावहारिक अभ्यास।',
-            'intro' => 'कंप्यूटर का शुरुआती परिचय लेकर रोज़मर्रा के डिजिटल काम स्वयं करना सीखें। CIT में केवल टूल के नाम नहीं, बल्कि फ़ाइल सँभालना, दस्तावेज़ बनाना, डेटा पर काम करना और अपने काम को सही तरीके से प्रस्तुत करना सिखाया जाता है।',
+            'intro' => 'कंप्यूटर का शुरुआती परिचय लेकर रोज़मर्रा के डिजिटल काम स्वयं करना सीखें। CICT में केवल टूल के नाम नहीं, बल्कि फ़ाइल सँभालना, दस्तावेज़ बनाना, डेटा पर काम करना और अपने काम को सही तरीके से प्रस्तुत करना सिखाया जाता है।',
             'highlights' => ['Hindi-English Typing और File Management', 'Word, Spreadsheet और Presentation', 'Email, Online Services और Cyber Safety'],
             'outcomes' => ['आवेदन, पत्र, रिपोर्ट और साफ़-सुथरे PDF तैयार करना।', 'Excel में बजट, उपस्थिति और साधारण गणना की शीट बनाना।', 'किसी विषय की Presentation बनाकर उसे समझाना।', 'Email और Cloud पर फ़ाइल साझा करना तथा ऑनलाइन धोखाधड़ी पहचानना।'],
             'practice' => 'एक छोटा Office Project बनाएँ: आवेदन-पत्र का PDF, मासिक Budget Sheet और संस्था या स्थानीय व्यवसाय की Presentation।',
@@ -15,12 +15,12 @@ return [
                 ['range' => '27–37', 'title' => 'Spreadsheet और डेटा कौशल', 'text' => 'Data Entry, Cell Reference, Formulas, SUM, AVERAGE, MIN, MAX, IF, Sort/Filter, Charts, Data Validation, Budget और Attendance Sheet।'],
                 ['range' => '38–44', 'title' => 'Presentation बनाना', 'text' => 'Slide Design, Text, Images, Media, Transitions, Animations, Charts, SmartArt और Presenter View के साथ Project।'],
                 ['range' => '45–56', 'title' => 'Internet, संचार और सुरक्षा', 'text' => 'Search, Email, Attachments, Cloud Storage, Video Meetings, Password/MFA, Phishing, Privacy, UPI Safety, Online Services और DigiLocker।'],
-                ['range' => '57–60', 'title' => 'समेकित अभ्यास और समीक्षा', 'text' => 'Basic Troubleshooting, Integrated Practical Project, Revision और CIT Capstone Assessment।'],
+                ['range' => '57–60', 'title' => 'समेकित अभ्यास और समीक्षा', 'text' => 'Basic Troubleshooting, Integrated Practical Project, Revision और CICT Capstone Assessment।'],
             ],
         ],
         'CLS' => [
             'slug' => 'cls', 'label' => 'भाषा और बातचीत का आत्मविश्वास', 'short' => 'Hindi-English में परिचय देना, बातचीत करना, Email लिखना और Interview में अपनी बात स्पष्ट रखना सीखें।',
-            'intro' => 'CLS उन विद्यार्थियों के लिए है जो अपनी बात कहना जानते हैं, लेकिन English या औपचारिक बातचीत में झिझकते हैं। सुनने, बोलने, पढ़ने और लिखने का लगातार अभ्यास करके दैनिक जीवन और कार्यस्थल में उपयोग होने वाली भाषा पर पकड़ बनाई जाती है।',
+            'intro' => 'CLCS उन विद्यार्थियों के लिए है जो अपनी बात कहना जानते हैं, लेकिन English या औपचारिक बातचीत में झिझकते हैं। सुनने, बोलने, पढ़ने और लिखने का लगातार अभ्यास करके दैनिक जीवन और कार्यस्थल में उपयोग होने वाली भाषा पर पकड़ बनाई जाती है।',
             'highlights' => ['Listening, Vocabulary और Pronunciation', 'दैनिक और Workplace Conversation', 'Email, Public Speaking और Mock Interview'],
             'outcomes' => ['अपना परिचय देना और सामान्य सवालों के जवाब आत्मविश्वास से देना।', 'Telephone, ग्राहक और कार्यस्थल की बातचीत में सही व विनम्र भाषा चुनना।', 'छोटे अनुच्छेद समझना और Application या Professional Email लिखना।', 'Group Discussion, छोटी Presentation और Interview में अभ्यास के साथ बोलना।'],
             'practice' => 'अपना Self-introduction रिकॉर्ड करें, छुट्टी का Application और Professional Email लिखें, फिर जोड़ी में Customer Conversation व Mock Interview करें।',
@@ -34,7 +34,7 @@ return [
         ],
         'CSS' => [
             'slug' => 'css', 'label' => 'व्यवहार, टीमवर्क और करियर तैयारी', 'short' => 'Time Management, Teamwork, समस्या समाधान, Resume और Interview की तैयारी से पेशेवर व्यवहार विकसित करें।',
-            'intro' => 'काम आना जितना ज़रूरी है, उतना ही ज़रूरी है समय पर काम करना, दूसरों के साथ सहयोग करना और ज़िम्मेदारी लेना। CSS में रोज़मर्रा की परिस्थितियों, चर्चा और गतिविधियों से इन्हीं व्यवहारिक कौशलों का अभ्यास होता है।',
+            'intro' => 'काम आना जितना ज़रूरी है, उतना ही ज़रूरी है समय पर काम करना, दूसरों के साथ सहयोग करना और ज़िम्मेदारी लेना। CPSS में रोज़मर्रा की परिस्थितियों, चर्चा और गतिविधियों से इन्हीं व्यवहारिक कौशलों का अभ्यास होता है।',
             'highlights' => ['Goal Setting, अनुशासन और Time Management', 'Teamwork, निर्णय और समस्या समाधान', 'Workplace Etiquette, Resume और Career Planning'],
             'outcomes' => ['अपनी ताकत पहचानकर पढ़ाई या काम का लक्ष्य व दैनिक योजना बनाना।', 'समूह में ज़िम्मेदारी बाँटना और मतभेद पर शांतिपूर्वक बातचीत करना।', 'कार्यस्थल पर सही व्यवहार, अनुशासन और ग्राहक की ज़रूरत समझना।', 'Resume तैयार करना और Interview में अपने कौशल उदाहरण सहित बताना।'],
             'practice' => 'अपना Weekly Plan और Resume बनाएँ। एक Team Task में भूमिका निभाएँ, ग्राहक की समस्या का समाधान प्रस्तुत करें और Interview का अभ्यास करें।',
@@ -43,7 +43,7 @@ return [
                 ['range' => '1–5', 'title' => 'व्यक्तित्व और अनुशासन', 'text' => 'Self-awareness, Strengths, Positive Attitude, Goal Setting, Time Management और Personal Discipline।'],
                 ['range' => '6–12', 'title' => 'सहयोग और समस्या समाधान', 'text' => 'Communication, Teamwork, Leadership Basics, Problem Solving, Decision Making, Stress Management और Conflict Resolution।'],
                 ['range' => '13–17', 'title' => 'कार्यस्थल और करियर', 'text' => 'Workplace Etiquette, Professional Appearance, Customer Orientation, Interview Readiness, Resume और Career Planning।'],
-                ['range' => '18–20', 'title' => 'वित्तीय समझ और उद्यमिता', 'text' => 'Financial Awareness, Entrepreneurship Basics और CSS Capstone Activity के माध्यम से समेकित अभ्यास।'],
+                ['range' => '18–20', 'title' => 'वित्तीय समझ और उद्यमिता', 'text' => 'Financial Awareness, Entrepreneurship Basics और CPSS Capstone Activity के माध्यम से समेकित अभ्यास।'],
             ],
         ],
         'AI-DM' => [

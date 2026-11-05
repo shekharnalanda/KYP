@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'कुशल यूथ प्रोग्राम (KYP) | पाठ्यक्रम, सेशन और प्रवेश')
 @push('head')
-<meta name="description" content="KYP में CIT, CLS, CSS और AI-Digital Marketing की पढ़ाई, विषय, अभ्यास, सेशन और प्रवेश प्रक्रिया हिंदी में जानें।">
+<meta name="description" content="KYP में CICT, CLCS, CPSS और AI-Digital Marketing की पढ़ाई, विषय, अभ्यास, सेशन और प्रवेश प्रक्रिया हिंदी में जानें।">
 <link rel="stylesheet" href="{{ asset('css/program-guide.css') }}?v=20261016-1">
 @endpush
 @section('body')
@@ -30,7 +30,7 @@
 <section class="program-section" id="about">
     <div class="container about-grid">
         <div><span class="section-label">KYP क्या है?</span><h2>पढ़ाई और कामकाज के बीच<br>कौशल का एक मज़बूत आधार</h2></div>
-        <div class="body-copy"><p>यह MCI Educational Group का कौशल विकास और Learning Portal है। यहाँ विद्यार्थी केवल वीडियो देखकर नहीं रुकते—वे विषय समझते हैं, निर्देशित गतिविधियाँ करते हैं, अपने काम का अभ्यास करते हैं और अपनी प्रगति देखते हैं।</p><p>स्कूल या कॉलेज के विद्यार्थी, पहली नौकरी की तैयारी कर रहे युवा और अपने दैनिक डिजिटल काम स्वयं सीखना चाहने वाले लोग इससे उपयोगी आधार बना सकते हैं। कंप्यूटर का पिछला अनुभव कम हो, तब भी शुरुआत मूल बातों से होती है।</p><p><strong>पूरा कार्यक्रम एक साथ:</strong> CIT, CLS, CSS और AI-DM, KYP के चार मॉड्यूल हैं। प्रवेश पूरे KYP में होता है; नीचे हर मॉड्यूल की पढ़ाई अलग से समझाई गई है।</p></div>
+        <div class="body-copy"><p>यह MCI Educational Group का कौशल विकास और Learning Portal है। यहाँ विद्यार्थी केवल वीडियो देखकर नहीं रुकते—वे विषय समझते हैं, निर्देशित गतिविधियाँ करते हैं, अपने काम का अभ्यास करते हैं और अपनी प्रगति देखते हैं।</p><p>स्कूल या कॉलेज के विद्यार्थी, पहली नौकरी की तैयारी कर रहे युवा और अपने दैनिक डिजिटल काम स्वयं सीखना चाहने वाले लोग इससे उपयोगी आधार बना सकते हैं। कंप्यूटर का पिछला अनुभव कम हो, तब भी शुरुआत मूल बातों से होती है।</p><p><strong>पूरा कार्यक्रम एक साथ:</strong> CICT, CLCS, CPSS और AI-DM, KYP के चार मॉड्यूल हैं। प्रवेश पूरे KYP में होता है; नीचे हर मॉड्यूल की पढ़ाई अलग से समझाई गई है।</p></div>
     </div>
 </section>
 
@@ -75,7 +75,7 @@
         <div class="section-head"><span class="section-label">Progress और मूल्यांकन</span><h2>सीखने की प्रगति से परीक्षा की तैयारी तक</h2><p>सेशन के सक्रिय अभ्यास, गतिविधियों, Quiz और Practical submission से प्रगति दर्ज होती है। Final Exam की पात्रता के लिए संबंधित मॉड्यूल के न्यूनतम पूरे Lab Sessions आवश्यक हैं।</p></div>
         <div class="eligibility-grid">
         @foreach($modules as $module)
-            <article class="eligibility-card"><strong>{{ $module['course']->code }}</strong><p><b>{{ $module['course']->minimum_exam_sessions ?? '—' }}</b> / {{ $module['course']->total_sessions }} सेशन</p><span>न्यूनतम पूरे Lab Sessions</span></article>
+            <article class="eligibility-card"><strong>{{ $module['course']->display_code }}</strong><p><b>{{ $module['course']->minimum_exam_sessions ?? '—' }}</b> / {{ $module['course']->total_sessions }} सेशन</p><span>न्यूनतम पूरे Lab Sessions</span></article>
         @endforeach
         </div>
         <p class="program-footnote">केवल लॉगिन या वीडियो खोलने से सेशन पूरा नहीं होता। पात्रता के साथ Admin द्वारा उपलब्ध कराई गई परीक्षा, मूल्यांकन और Result Publication की प्रक्रिया भी लागू होती है। प्रकाशित परिणाम के बाद Marksheet और Certificate पोर्टल में उपलब्ध होते हैं।</p>
@@ -96,7 +96,7 @@
 </section>
 <section class="program-section" id="faq">
     <div class="container faq-wrap"><div class="section-head"><span class="section-label">आपके सवाल</span><h2>शुरू करने से पहले जानें</h2></div>
-        <details><summary>क्या चार अलग-अलग कोर्स में Admission लेना है?</summary><p>नहीं। प्रवेश पूरे KYP कार्यक्रम के लिए है। CIT, CLS, CSS और AI-DM उसी के चार मॉड्यूल हैं।</p></details>
+        <details><summary>क्या चार अलग-अलग कोर्स में Admission लेना है?</summary><p>नहीं। प्रवेश पूरे KYP कार्यक्रम के लिए है। CICT, CLCS, CPSS और AI-DM उसी के चार मॉड्यूल हैं।</p></details>
         <details><summary>पूरा कार्यक्रम कितने दिन में होगा?</summary><p>कुल {{ $totalSessions }} सेशन और {{ $totalHours }} घंटे हैं। रोज़ 1 सेशन के अध्ययन लक्ष्य पर {{ $totalSessions }} अध्ययन-दिन लगते हैं। सप्ताह की छुट्टी, परीक्षा, दोहराव और बैच की समय-सारणी से कैलेंडर अवधि बदलती है; निश्चित शुरू व समाप्ति तारीख शाखा बताएगी।</p></details>
         <details><summary>क्या पहले से Computer या English आना ज़रूरी है?</summary><p>पढ़ाई मूल बातों से शुरू होती है और मुख्य समझाइश हिंदी में है। अभ्यास के लिए नियमित समय दें। प्रवेश की औपचारिक पात्रता अपनी शाखा से पता करें।</p></details>
         <details><summary>क्या मोबाइल से पढ़ाई हो सकती है?</summary><p>मोबाइल से Lesson, उपलब्ध Video और अपनी Progress देख सकते हैं। Typing, Documents, Spreadsheet और Presentation के सही अभ्यास के लिए Computer/Laptop या शाखा की Lab का उपयोग करें।</p></details>

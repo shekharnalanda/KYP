@@ -56,7 +56,7 @@
 <h3 style="margin:0 0 5px">{{ $a->name }}</h3>
 <div>{{ $a->application_number }}</div>
 <div>{{ $a->mobile }} @if($a->email) • {{ $a->email }} @endif</div>
-<div>{{ $a->branch->name }} • {{ $a->course->code }}</div>
+<div>{{ $a->branch->name }} • {{ $a->course->display_code }}</div>
 <div><strong>Status:</strong> {{ strtoupper($a->status) }}</div>
 </div>
 </div>

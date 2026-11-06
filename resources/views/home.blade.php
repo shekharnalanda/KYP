@@ -5,6 +5,10 @@
 <link rel="stylesheet" href="{{ asset('css/program-guide.css') }}?v=20261016-1">
 @endpush
 @section('body')
+<!-- Homepage tile likes and views; comments are intentionally not enabled. -->
+<link rel="stylesheet" href="/tile-engagement.css?v=20261106-1">
+<script src="/tile-engagement.js?v=20261106-1" data-endpoint="/tile-engagement.php" data-tiles=".program-course-card,.eligibility-card,main .card,.program-at-a-glance" defer></script>
+
 @include('components.public-site-header')
 <main id="main-content">
 <section class="hero program-hero">
@@ -240,3 +244,4 @@ id="kyp-install-app"
 </style>
 
 @endsection
+
